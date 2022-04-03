@@ -1,0 +1,13 @@
+@import "src/assets/styles/bootstrap";
+
+.jumbotron-outer {
+  @extend .p-5;
+  @extend .mb-4;
+  @extend .bg-dark;
+  @extend .rounded;
+
+  .jumbotron-inner {
+    @extend .container-fluid;
+    @extend .py-5;
+  }
+}

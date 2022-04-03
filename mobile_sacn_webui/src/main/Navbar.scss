@@ -1,0 +1,27 @@
+@import "src/assets/styles/bootstrap";
+
+.msacn-navbar-main {
+  @extend .p-2;
+
+  img {
+    height: $navbar-brand-height;
+  }
+
+  .btn {
+    background-color: $gray-100;
+  }
+
+  .nav-item {
+    &, .nav-link {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .dropdown-item.nav-link {
+      color: $dropdown-link-color;
+    }
+  }
+}
+
+footer {
+  @extend .mt-auto;
+}

@@ -1,0 +1,10 @@
+export const APP_NAME = "Mobile sACN";
+export const SACN_UNIV_MIN = 1;
+export const SACN_UNIV_MAX = 63999;
+export const SACN_UNIV_DEFAULT = 1;
+export const DMX_MIN = 1;
+export const DMX_MAX = 512;
+export const DMX_DEFAULT = 1;
+export const SACN_PRI_MIN = 0;
+export const SACN_PRI_MAX = 200;
+export const SACN_PRI_DEFAULT = 100;

@@ -1,0 +1,18 @@
+@import "../../assets/styles/bootstrap";
+
+input.msacn-bfd {
+  @extend .px-3;
+  @extend .py-3;
+
+  width: 100%;
+  appearance: none;
+  background-color: $black;
+  text-align: center;
+  font-size: $font-size-base * 4;
+  font-family: monospace;
+  color: $gray-600;
+
+  &.active {
+    color: $green;
+  }
+}

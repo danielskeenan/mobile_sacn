@@ -1,0 +1,29 @@
+/**
+ * @file mobilesacn_config.h
+ *
+ * @author Dan Keenan
+ * @date 3/25/22
+ * @copyright GNU GPLv3
+ */
+
+#ifndef MOBILE_SACN_MOBILESACN_CONFIG_H
+#define MOBILE_SACN_MOBILESACN_CONFIG_H
+
+namespace mobilesacn::config {
+// Project info
+const auto kProjectName = "${PROJECT_NAME}";
+const auto kProjectDisplayName = "${PROJECT_DISPLAY_NAME}";
+const auto kProjectVersion = "${PROJECT_VERSION}";
+const auto kProjectDescription = "${PROJECT_DESCRIPTION}";
+const auto kProjectHomepageUrl = "${PROJECT_HOMEPAGE_URL}";
+const auto kProjectOrganizationName = "${PROJECT_ORGANIZATION_NAME}";
+const auto kProjectOrganizationDomain = "${PROJECT_ORGANIZATION_DOMAIN}";
+const auto kProjectVersionMajor = ${PROJECT_VERSION_MAJOR};
+const auto kProjectVersionMinor = ${PROJECT_VERSION_MINOR};
+const auto kProjectVersionPatch = ${PROJECT_VERSION_PATCH};
+
+const auto kWebPath = "${PROJECT_WEBUI_PATH}";
+const auto kSAcnCid = "${SACN_CID}";
+}
+
+#endif //MOBILE_SACN_MOBILESACN_CONFIG_H

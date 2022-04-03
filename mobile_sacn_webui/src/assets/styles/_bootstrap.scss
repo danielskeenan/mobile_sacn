@@ -1,0 +1,27 @@
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+
+// Bootstrap overrides
+$body-bg: $gray-800;
+$body-color: $gray-200;
+$primary: $blue-800;
+$secondary: $gray-700;
+$success: $green-600;
+$danger: $red-600;
+$warning: $yellow-600;
+$info: $cyan-600;
+$light: $gray-300;
+$dark: $gray-900;
+$theme-colors: (
+        "primary":    $primary,
+        "secondary":  $secondary,
+        "success":    $success,
+        "info":       $info,
+        "warning":    $warning,
+        "danger":     $danger,
+        "light":      $light,
+        "dark":       $dark
+);
+
+// Include bootstrap
+@import "~bootstrap/scss/bootstrap";

@@ -1,0 +1,12 @@
+[requires]
+boost/1.78.0
+fmt/8.1.1
+lyra/1.6.0
+nlohmann_json/3.10.5
+crowcpp-crow/1.0+1
+# protobuf MUST MATCH package.json
+protobuf/3.13.0
+spdlog/1.9.2
+
+[generators]
+cmake_find_package
