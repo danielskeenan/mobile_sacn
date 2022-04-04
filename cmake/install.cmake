@@ -1,9 +1,3 @@
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION ".")
-else ()
-    install(TARGETS ${PROJECT_NAME} RUNTIME)
-endif ()
-
 set(CPACK_PACKAGE_VENDOR "${PROJECT_AUTHOR}")
 set(CPACK_PACKAGE_CONTACT "${PROJECT_AUTHOR} <dk@dankeenan.org>")
 #set(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/resources/app-icon.svg")

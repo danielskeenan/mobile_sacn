@@ -15,11 +15,18 @@ function(proto_compile SRCS HDRS SCRIPTS)
         find_program(_PROTOBUF_PROTOC protoc)
         #        find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
     else ()
+        find_package(Protobuf REQUIRED)
         set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
         #        set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
     endif ()
-    find_program(_PROTOBUF_PROTOC_TYPESCRIPT protoc-gen-ts protoc-gen-ts.js
-        PATHS ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/node_modules/protoc-gen-ts/bin
+
+    if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        set(_PROTOBUF_PROTOC_TYPESCRIPT_NAME "protoc-gen-ts.cmd")
+    else ()
+        set(_PROTOBUF_PROTOC_TYPESCRIPT_NAME "protoc-gen-ts")
+    endif ()
+    find_program(_PROTOBUF_PROTOC_TYPESCRIPT ${_PROTOBUF_PROTOC_TYPESCRIPT_NAME}
+        PATHS ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/node_modules/.bin
         REQUIRED
         )
 

@@ -8,4 +8,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     bfg::lyra
     )
 
-#add_dependencies(${PROJECT_NAME} webui_build)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION ".")
+else ()
+    install(TARGETS ${PROJECT_NAME} RUNTIME)
+endif ()
+
+add_dependencies(${PROJECT_NAME} webui_build)
