@@ -1,6 +1,6 @@
 import "./ChanCheck.scss";
 import React, {useCallback, useEffect, useReducer, useState} from "react";
-import {Button} from "react-bootstrap";
+import {Accordion, Button, Form} from "react-bootstrap";
 import {faCaretLeft, faCaretRight} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
@@ -9,7 +9,6 @@ import ConnectButton from "../../common/components/ConnectButton";
 import {Connecting} from "../../common/components/Loading";
 import inRange from "../../common/inRange";
 import {mobilesacn} from "../../proto/chan_check";
-import stateObjectReducer from "../../common/stateObjectReducer";
 import useSession from "../../common/useSession";
 
 interface ChanCheckState {
@@ -20,7 +19,7 @@ interface ChanCheckState {
 
 export default function ChanCheck() {
     const [ready, setReady] = useState(false);
-    const [state, setState] = useReducer(stateObjectReducer, {
+    const [state, setState] = useReducer((state: ChanCheckState, newState: Partial<ChanCheckState>) => ({...state, ...newState}), {
         transmit: false,
         universe: SACN_UNIV_DEFAULT,
         address: DMX_DEFAULT,
@@ -75,16 +74,6 @@ export default function ChanCheck() {
 
             {ready && (
                 <>
-                    <h2 className="mt-3">Universe</h2>
-                    <BigDisplay value={state.universe} setValue={validateAndSetUniv} min={0}
-                                max={SACN_UNIV_MAX}
-                                className={state.transmit ? "active" : undefined}/>
-                    <NextLast
-                        nextEnabled={state.universe < SACN_UNIV_MAX} lastEnabled={state.universe > SACN_UNIV_MIN}
-                        onNext={() => validateAndSetUniv(state.universe + 1)}
-                        onLast={() => validateAndSetUniv(state.universe - 1)}
-                    />
-
                     <h2 className="mt-3">Address</h2>
                     <BigDisplay value={state.address} setValue={validateAndSetAddr} min={0} max={DMX_MAX}
                                 className={state.transmit ? "active" : undefined}/>
@@ -93,6 +82,8 @@ export default function ChanCheck() {
                         onNext={() => validateAndSetAddr(state.address + 1)}
                         onLast={() => validateAndSetAddr(state.address - 1)}
                     />
+
+                    <Config state={state} onChangeUniverse={validateAndSetUniv}/>
 
                     <ConnectButton
                         started={state.transmit}
@@ -109,23 +100,47 @@ export default function ChanCheck() {
     );
 }
 
+interface ConfigProps {
+    state: ChanCheckState;
+    onChangeUniverse: (newValue: number) => void;
+}
+
+function Config(props: ConfigProps) {
+    const {state, onChangeUniverse} = props;
+    const onUnivFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+            onChangeUniverse(handleNumberFieldChange(e));
+        },
+        [onChangeUniverse]);
+
+    return (
+        <Accordion>
+            <Accordion.Item eventKey="0">
+                <Accordion.Header>Config</Accordion.Header>
+                <Accordion.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Universe</Form.Label>
+                            <Form.Control type="number" value={state.universe}
+                                          onChange={onUnivFieldChange}
+                                          min={0} max={SACN_UNIV_MAX} disabled={state.transmit}/>
+                        </Form.Group>
+                    </Form>
+                </Accordion.Body>
+            </Accordion.Item>
+        </Accordion>
+    );
+}
+
 interface BigDisplayProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
-    value: number,
-    setValue: (newValue: number) => void
-    min: number
-    max: number
+    value: number;
+    setValue: (newValue: number) => void;
+    min: number;
+    max: number;
 }
 
 function BigDisplay(props: BigDisplayProps) {
     const {value, setValue, min: minValue, max: maxValue, ...others} = props;
-    const onValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = parseInt(e.target.value);
-        if (isNaN(newValue)) {
-            setValue(0);
-        } else {
-            setValue(newValue);
-        }
-    }, [setValue]);
+    const onValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(handleNumberFieldChange(e)), [setValue]);
 
     return (
         <input {...others} type="number" className={clsx("msacn-bfd", props.className)}
@@ -143,15 +158,23 @@ interface NextLastProps {
 
 function NextLast(props: NextLastProps) {
     return (
-        <div className="d-flex">
+        <div className="d-flex mb-3">
             <Button variant="primary" disabled={!props.lastEnabled} size="lg" className="flex-fill"
                     onClick={props.onLast}>
-                <FontAwesomeIcon icon={faCaretLeft} title="Last"/>
+                <FontAwesomeIcon icon={faCaretLeft} title="Last" size="2x"/>
             </Button>
             <Button variant="primary" disabled={!props.nextEnabled} size="lg" className="flex-fill"
                     onClick={props.onNext}>
-                <FontAwesomeIcon icon={faCaretRight} title="Next"/>
+                <FontAwesomeIcon icon={faCaretRight} title="Next" size="2x"/>
             </Button>
         </div>
     );
+}
+
+function handleNumberFieldChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const newValue = parseInt(e.target.value);
+    if (isNaN(newValue)) {
+        return 0;
+    }
+    return newValue;
 }
