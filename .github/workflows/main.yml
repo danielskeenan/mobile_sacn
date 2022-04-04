@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push: ~
+  pull_request: ~
+  workflow_dispatch: ~
+
+env:
+  BUILD_TYPE: Release
+  SOURCE_DIR: ${{github.workspace}}
+  BUILD_DIR: ${{github.workspace}}/build
+  CONAN_USER_HOME: ${{ github.workspace }}/.conan/
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-10.15
+          - windows-2019
+          - ubuntu-20.04
+    runs-on: ${{matrix.os}}
+    steps:
+      #######################
+      # BUILD
+      #######################
+      - uses: actions/checkout@v2
+      - name: Create Build Environment
+        # Use a bash shell so we can use the same syntax for environment variable
+        # access regardless of the host operating system
+        shell: bash
+        # Telling cmake to make the directory adapts the different syntax for each platform
+        run: cmake -E make_directory "${BUILD_DIR}"
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install System Packages (macOS)
+        if: ${{runner.os == 'macOS'}}
+        run: brew install pandoc
+      - name: Install System Packages (Windows)
+        if: ${{runner.os == 'Windows'}}
+        run: |
+          choco install nsis.portable -y
+          choco install pandoc -y --ia=ALLUSERS=1
+          refreshenv
+      - name: Install System Packages (Linux)
+        if: ${{runner.os == 'Linux'}}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pandoc
+      - name: Setup Conan
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install conan
+          conan profile new --detect --force default
+      - name: Set libstdc++ ABI
+        if: ${{runner.os == 'Linux'}}
+        run: conan profile update settings.compiler.libcxx=libstdc++11 default
+      - name: Install dependencies
+        shell: bash
+        run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
+      - name: Configure CMake
+        shell: bash
+        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On
+      - name: Build
+        shell: bash
+        run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
+
+      #######################
+      # PACKAGE
+      #######################
+      - name: Package prep
+        shell: bash
+        run: |
+          cmake -DBUILD_PACKAGE=On -DBUILD_TESTING=Off "${BUILD_DIR}"
+          cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
+      - name: Package (macOS)
+        if: ${{runner.os == 'macOS'}}
+        working-directory: ${{env.BUILD_DIR}}
+        shell: bash
+        run: cpack -G "ZIP;DragNDrop" -B "${BUILD_DIR}/packages"
+      - name: Package (Windows)
+        if: ${{runner.os == 'Windows'}}
+        working-directory: ${{env.BUILD_DIR}}
+        shell: bash
+        run: cpack -G "ZIP;NSIS" -B "${BUILD_DIR}/packages"
+      - name: Package (Linux)
+        if: ${{runner.os == 'Linux'}}
+        working-directory: ${{env.BUILD_DIR}}
+        shell: bash
+        run: cpack -G "TGZ;TBZ2;DEB" -B "${BUILD_DIR}/packages"
+      - name: Upload failed package artifacts
+        uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: failed_package_${{runner.os}}
+          path: ${{env.BUILD_DIR}}/packages
+      - name: Upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: ${{env.BUILD_DIR}}/packages/mobile_sacn-*.*
+          if-no-files-found: error
