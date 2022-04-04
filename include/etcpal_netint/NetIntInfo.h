@@ -56,7 +56,7 @@ class NetIntInfo {
 
   [[nodiscard]] bool IsUp() const {
 #ifdef PLATFORM_WINDOWS
-    etcpal_netint_refresh_interfaces();
+    etcpal_netint_refresh_interfaces(nullptr);
 #endif
     return etcpal_netint_is_up(index_);
   }

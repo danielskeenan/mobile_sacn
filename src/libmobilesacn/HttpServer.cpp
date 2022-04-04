@@ -42,14 +42,14 @@ void HttpServer::Run() {
       .multithreaded();
   auto &cors = server.get_middleware<crow::CORSHandler>();
   cors.global()
-      .methods(crow::HTTPMethod::GET);
+      .methods(crow::HTTPMethod::Get);
 
   // API Hooks
   APP_ROUTE_WS(server, "/ws/chan_check", rpc::ChanCheck, options_.sacn_address);
 
   // Serve Web UI files.
-  CROW_ROUTE(server, "/").methods(crow::HTTPMethod::GET)(&RedirectToIndex);
-  CROW_ROUTE(server, "/<path>").methods(crow::HTTPMethod::GET)(
+  CROW_ROUTE(server, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
+  CROW_ROUTE(server, "/<path>").methods(crow::HTTPMethod::Get)(
       [](const crow::request &req, const std::string &file_path_partial) {
         crow::response resp;
         std::filesystem::path static_file_path;
@@ -67,7 +67,7 @@ void HttpServer::Run() {
           resp.clear();
           resp.code = crow::status::NOT_FOUND;
         } else {
-          resp.set_static_file_info_unsafe(static_file_path);
+          resp.set_static_file_info_unsafe(static_file_path.string());
         }
 
         return resp;
