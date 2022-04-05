@@ -117,8 +117,8 @@ jobs:
           path: packages
       - name: Release (dev build)
         uses: softprops/action-gh-release@v1
-        env:
-          name: Dev Build
+        with:
+          name: Latest dev build
           prerelease: true
           tag_name: dev-latest
           fail_on_unmatched_files: true
