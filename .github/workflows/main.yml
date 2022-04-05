@@ -120,5 +120,6 @@ jobs:
         env:
           name: Dev Build
           prerelease: true
+          tag_name: dev-latest
           fail_on_unmatched_files: true
           files: ${{steps.download.outputs.download-path}}/*
