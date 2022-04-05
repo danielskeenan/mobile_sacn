@@ -104,3 +104,21 @@ jobs:
           name: packages
           path: ${{env.BUILD_DIR}}/packages/mobile_sacn-*.*
           if-no-files-found: error
+  release:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get built packages
+        uses: actions/download-artifact@v3
+        id: download
+        with:
+          name: packages
+          path: packages
+      - name: Release (dev build)
+        uses: softprops/action-gh-release@v1
+        env:
+          name: Dev Build
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: ${{steps.download.outputs.download-path}}/*
