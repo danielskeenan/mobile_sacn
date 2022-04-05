@@ -3,16 +3,27 @@ import React, {useCallback, useEffect, useReducer, useState} from "react";
 import {Accordion, Button, Form} from "react-bootstrap";
 import {faCaretLeft, faCaretRight} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {DMX_DEFAULT, DMX_MAX, DMX_MIN, SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
+import {
+    DMX_DEFAULT,
+    DMX_MAX,
+    DMX_MIN, SACN_PRI_DEFAULT,
+    SACN_PRI_MAX,
+    SACN_PRI_MIN,
+    SACN_UNIV_DEFAULT,
+    SACN_UNIV_MAX,
+    SACN_UNIV_MIN,
+} from "../../common/constants";
 import clsx from "clsx";
 import ConnectButton from "../../common/components/ConnectButton";
 import {Connecting} from "../../common/components/Loading";
 import inRange from "../../common/inRange";
 import {mobilesacn} from "../../proto/chan_check";
 import useSession from "../../common/useSession";
+import {handleNumberFieldChange} from "../../common/handleFieldChange";
 
 interface ChanCheckState {
     transmit: boolean;
+    priority: number;
     universe: number;
     address: number;
 }
@@ -21,6 +32,7 @@ export default function ChanCheck() {
     const [ready, setReady] = useState(false);
     const [state, setState] = useReducer((state: ChanCheckState, newState: Partial<ChanCheckState>) => ({...state, ...newState}), {
         transmit: false,
+        priority: SACN_PRI_DEFAULT,
         universe: SACN_UNIV_DEFAULT,
         address: DMX_DEFAULT,
     } as ChanCheckState);
@@ -32,9 +44,10 @@ export default function ChanCheck() {
     const onMessage = useCallback((message: mobilesacn.rpc.ChanCheckRes) => {
         setState({
             transmit: message.transmitting,
+            priority: message.priority,
             universe: message.universe,
             address: message.address,
-        } as Partial<ChanCheckState>);
+        } as ChanCheckState);
     }, [setState]);
     const onDisconnect = useCallback(() => {
         setReady(false);
@@ -50,6 +63,13 @@ export default function ChanCheck() {
         const req = new mobilesacn.rpc.ChanCheckReq({...state, ...newState});
         sendMessage(req);
     }, [state, sendMessage]);
+    const validateAndSetPriority = useCallback((newValue: number) => {
+        if (inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
+            request({priority: newValue});
+        } else if (newValue === 0) {
+            setState({priority: 0});
+        }
+    }, [request]);
     const validateAndSetUniv = useCallback((newValue: number) => {
         if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
@@ -83,7 +103,10 @@ export default function ChanCheck() {
                         onLast={() => validateAndSetAddr(state.address - 1)}
                     />
 
-                    <Config state={state} onChangeUniverse={validateAndSetUniv}/>
+                    <Config state={state}
+                            onChangeUniverse={validateAndSetUniv}
+                            onChangePriority={validateAndSetPriority}
+                    />
 
                     <ConnectButton
                         started={state.transmit}
@@ -103,14 +126,19 @@ export default function ChanCheck() {
 interface ConfigProps {
     state: ChanCheckState;
     onChangeUniverse: (newValue: number) => void;
+    onChangePriority: (newValue: number) => void;
 }
 
 function Config(props: ConfigProps) {
-    const {state, onChangeUniverse} = props;
+    const {state, onChangeUniverse, onChangePriority} = props;
     const onUnivFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
             onChangeUniverse(handleNumberFieldChange(e));
         },
         [onChangeUniverse]);
+    const onPriorityFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+            onChangePriority(handleNumberFieldChange(e));
+        },
+        [onChangePriority]);
 
     return (
         <Accordion>
@@ -123,6 +151,12 @@ function Config(props: ConfigProps) {
                             <Form.Control type="number" value={state.universe}
                                           onChange={onUnivFieldChange}
                                           min={0} max={SACN_UNIV_MAX} disabled={state.transmit}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Priority</Form.Label>
+                            <Form.Control type="number" value={state.priority}
+                                          onChange={onPriorityFieldChange}
+                                          min={0} max={SACN_PRI_MAX} disabled={state.transmit}/>
                         </Form.Group>
                     </Form>
                 </Accordion.Body>
@@ -169,12 +203,4 @@ function NextLast(props: NextLastProps) {
             </Button>
         </div>
     );
-}
-
-function handleNumberFieldChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const newValue = parseInt(e.target.value);
-    if (isNaN(newValue)) {
-        return 0;
-    }
-    return newValue;
 }

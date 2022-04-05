@@ -30,6 +30,7 @@ class ChanCheck : public RpcHandler {
   std::unique_ptr<sacn::Source, SacnSourceDeleter> sacn_transmitter_;
   std::vector<SacnMcastInterface> sacn_interfaces_;
   bool transmitting_ = false;
+  unsigned int priority_ = 100;
   unsigned int univ_ = 1;
   unsigned int addr_ = 1;
   std::array<uint8_t, DMX_ADDRESS_COUNT> buf_{0};

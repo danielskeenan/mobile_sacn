@@ -4,12 +4,14 @@ package mobilesacn.rpc;
 
 message ChanCheckReq {
   bool transmit = 1;
-  uint32 universe = 2;
-  uint32 address = 3;
+  uint32 priority = 2;
+  uint32 universe = 3;
+  uint32 address = 4;
 }
 
 message ChanCheckRes {
   bool transmitting = 1;
-  uint32 universe = 2;
-  uint32 address = 3;
+  uint32 priority = 2;
+  uint32 universe = 3;
+  uint32 address = 4;
 }

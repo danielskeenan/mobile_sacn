@@ -37,7 +37,8 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
 
   // Sanity check request.
   if (req.universe() < kSacnMinUniv || req.universe() > kSacnMaxUniv
-      || req.address() < kDmxMinAddr || req.address() > kDmxMaxAddr) {
+      || req.address() < kDmxMinAddr || req.address() > kDmxMaxAddr
+      || req.priority() < kSacnMinPriority || req.priority() > kSacnMaxPriority) {
     // Do nothing.
     SendCurrentState(conn);
     return;
@@ -46,6 +47,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   const bool stop_transmitting = (!req.transmit() && transmitting_);
   const bool start_transmitting = req.transmit() && !transmitting_;
   const bool change_univ = ((req.universe() != univ_) || start_transmitting) && req.transmit();
+  const bool change_priority = ((req.priority() != priority_) || start_transmitting) && req.transmit();
   const bool change_addr = ((req.address() != addr_) || change_univ || start_transmitting) && req.transmit();
 
   if (stop_transmitting) {
@@ -55,8 +57,13 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   if (change_univ) {
     sacn_transmitter_->RemoveUniverse(univ_);
     sacn::Source::UniverseSettings univ_config(req.universe());
+    univ_config.priority = req.priority();
     sacn_transmitter_->AddUniverse(univ_config, sacn_interfaces_);
     buf_.fill(0);
+  }
+
+  if (change_priority) {
+    sacn_transmitter_->ChangePriority(req.universe(), req.priority());
   }
 
   if (change_addr) {
@@ -66,6 +73,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   }
 
   transmitting_ = req.transmit();
+  priority_ = req.priority();
   univ_ = req.universe();
   addr_ = req.address();
   SendCurrentState(conn);
@@ -74,6 +82,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
 void ChanCheck::SendCurrentState(crow::websocket::connection &conn) const {
   ChanCheckRes msg;
   msg.set_transmitting(transmitting_);
+  msg.set_priority(priority_);
   msg.set_universe(univ_);
   msg.set_address(addr_);
 

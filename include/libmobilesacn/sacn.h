@@ -16,6 +16,8 @@ namespace mobilesacn {
 
 static const auto kSacnMinUniv = 1;
 static const auto kSacnMaxUniv = 63999;
+static const auto kSacnMinPriority = 0;
+static const auto kSacnMaxPriority = 200;
 static const auto kDmxMinAddr = 1;
 static const auto kDmxMaxAddr = DMX_ADDRESS_COUNT;
 
