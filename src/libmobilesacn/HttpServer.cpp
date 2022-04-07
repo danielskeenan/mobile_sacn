@@ -12,25 +12,20 @@
 #include "libmobilesacn/rpc/ChanCheck.h"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
+#include <boost/container_hash/hash.hpp>
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 namespace mobilesacn {
 
-#define APP_ROUTE_WS(server, endpoint, Handler_T, ...) \
-  CROW_ROUTE(server, endpoint).websocket() \
-      .onaccept([this](const crow::request &req) { \
-        auto &handler = \
-            handlers_.try_emplace(endpoint, Handler(std::make_unique<Handler_T>(__VA_ARGS__))) \
-                .first->second; \
-        return true; \
-      }).onopen([this](crow::websocket::connection &conn) { \
-        handlers_.at(endpoint).GetHandler()->HandleWsOpen(conn); \
-      }).onmessage([this](crow::websocket::connection &conn, const std::string &message, bool is_binary) { \
-        handlers_.at(endpoint).GetHandler()->HandleWsMessage(conn, message, is_binary); \
-      }).onerror([this](crow::websocket::connection &conn) { \
-        handlers_.at(endpoint).GetHandler()->HandleWsError(conn); \
-      }).onclose([this](crow::websocket::connection &conn, const std::string &reason) { \
-        handlers_.at(endpoint).GetHandler()->HandleWsClose(conn, reason); \
-      })
+template<>
+std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::ChanCheck>(const std::string &ip_addr) {
+  const auto instance_id = fmt::format("ChanCheck_{}", ip_addr);
+  auto it =
+      handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::ChanCheck>(options_.sacn_address)))
+          .first;
+  return *it;
+}
 
 void HttpServer::Run() {
   crow::logger::setHandler(&crow_log_handler_);
@@ -39,13 +34,16 @@ void HttpServer::Run() {
       .server_name(config::kProjectName)
       .bindaddr(options_.backend_address)
       .port(options_.backend_port)
-      .multithreaded();
+      .multithreaded()
+      .tick(std::chrono::minutes(1), [this]() {
+        CleanupUnusedHandlers();
+      });
   auto &cors = server.get_middleware<crow::CORSHandler>();
   cors.global()
       .methods(crow::HTTPMethod::Get);
 
   // API Hooks
-  APP_ROUTE_WS(server, "/ws/chan_check", rpc::ChanCheck, options_.sacn_address);
+  SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(server, "/ws/chan_check").websocket());
 
   // Serve Web UI files.
   CROW_ROUTE(server, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
@@ -100,6 +98,18 @@ bool HttpServer::FilePathInWebroot(const std::filesystem::path &path) {
 
   const auto mismatch = std::mismatch(webroot.begin(), webroot.end(), abs_path.begin(), abs_path.end());
   return mismatch.first == webroot.end();
+}
+
+void HttpServer::CleanupUnusedHandlers() {
+  const std::chrono::minutes expires_in(1);
+  for (auto it = handlers_.begin(); it != handlers_.end();) {
+    if (it->second.GetLastUse() + expires_in < std::chrono::steady_clock::now()) {
+      spdlog::info("Closed {} due to inactivity.", it->first);
+      it = handlers_.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }
 
 } // mobilesacn

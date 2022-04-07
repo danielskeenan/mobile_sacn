@@ -14,18 +14,12 @@
 
 namespace mobilesacn::rpc {
 
-ChanCheck::ChanCheck(const etcpal::IpAddr &sacn_address)
-    : sacn_transmitter_(new sacn::Source), sacn_interfaces_(GetMulticastInterfacesForAddress(sacn_address)) {
-  const auto cid = etcpal::Uuid::V5(etcpal::Uuid::FromString(mobilesacn::config::kSAcnCid), "ChanCheck");
-  sacn::Source::Settings sacn_config(cid, fmt::format("{} (Chan Check)", config::kProjectDisplayName));
-  const auto result = sacn_transmitter_->Startup(sacn_config);
-  if (!result.IsOk()) {
-    spdlog::critical("Error starting the sACN subsystem: {}", result.ToCString());
-  }
-}
-
 void ChanCheck::HandleWsOpen(crow::websocket::connection &conn) {
   spdlog::info("New chan_check connection from {}", conn.get_remote_ip());
+  if (!sacn_transmitter_) {
+    sacn_transmitter_ = GetSacnTransmitter(sacn_address_, "Chan Check", conn.get_remote_ip());
+  }
+
   SendCurrentState(conn);
 }
 
@@ -58,7 +52,8 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
     sacn_transmitter_->RemoveUniverse(univ_);
     sacn::Source::UniverseSettings univ_config(req.universe());
     univ_config.priority = req.priority();
-    sacn_transmitter_->AddUniverse(univ_config, sacn_interfaces_);
+    auto sacn_interfaces = GetMulticastInterfacesForAddress(sacn_address_);
+    sacn_transmitter_->AddUniverse(univ_config, sacn_interfaces);
     buf_.fill(0);
   }
 

@@ -21,14 +21,14 @@ namespace mobilesacn::rpc {
  */
 class ChanCheck : public RpcHandler {
  public:
-  explicit ChanCheck(const etcpal::IpAddr &sacn_address);
+  explicit ChanCheck(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {}
 
   void HandleWsOpen(crow::websocket::connection &conn) override;
   void HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) override;
 
  private:
   std::unique_ptr<sacn::Source, SacnSourceDeleter> sacn_transmitter_;
-  std::vector<SacnMcastInterface> sacn_interfaces_;
+  etcpal::IpAddr sacn_address_;
   bool transmitting_ = false;
   unsigned int priority_ = 100;
   unsigned int univ_ = 1;

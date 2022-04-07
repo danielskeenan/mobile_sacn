@@ -30,6 +30,10 @@ struct SacnSourceDeleter {
 
 std::vector<SacnMcastInterface> GetMulticastInterfacesForAddress(const etcpal::IpAddr &addr);
 
+std::unique_ptr<sacn::Source, SacnSourceDeleter> GetSacnTransmitter(const etcpal::IpAddr &addr,
+                                                                    const std::string &name,
+                                                                    const std::string &client_ip_addr);
+
 } // mobilesacn
 
 #endif //MOBILE_SACN_INCLUDE_LIBMOBILESACN_SACN_H_

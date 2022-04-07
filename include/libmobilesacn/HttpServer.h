@@ -16,6 +16,7 @@
 #include <sacn/cpp/source.h>
 #include "libmobilesacn/rpc/RpcHandler.h"
 #include "CrowLogHandler.h"
+#include <crow/routing.h>
 
 namespace mobilesacn {
 
@@ -40,8 +41,8 @@ class HttpServer {
  private:
   class Handler {
    public:
-    explicit Handler(std::unique_ptr<rpc::RpcHandler> handler) :
-        handler_(std::move(handler)), last_use_(std::chrono::steady_clock::now()) {}
+    explicit Handler(const std::string &client_ip_addr, std::unique_ptr<rpc::RpcHandler> handler) :
+        client_ip_addr_(client_ip_addr), handler_(std::move(handler)), last_use_(std::chrono::steady_clock::now()) {}
 
     /** Get the handler and update the last use time. */
     [[nodiscard]] const std::unique_ptr<rpc::RpcHandler> &GetHandler() {
@@ -54,6 +55,7 @@ class HttpServer {
     }
 
    private:
+    std::string client_ip_addr_;
     std::unique_ptr<rpc::RpcHandler> handler_;
     std::chrono::time_point<std::chrono::steady_clock> last_use_;
   };
@@ -75,6 +77,50 @@ class HttpServer {
    * @return
    */
   static bool FilePathInWebroot(const std::filesystem::path &path);
+
+  template<class Handler_T>
+  void SetWebsocketHandler(crow::WebSocketRule &rule) {
+    // Queries to conn.get_remote_ip() can throw if the socket is dead.
+    rule
+        .onaccept([this](const crow::request &req) {
+          GetHandler<Handler_T>(req.remote_ip_address);
+          return true;
+        }).onopen([this](crow::websocket::connection &conn) {
+          try {
+            GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsOpen(conn);
+          } catch (const boost::system::system_error &) {
+            conn.close();
+          }
+        })
+        .onmessage([this](crow::websocket::connection &conn, const std::string &message, bool is_binary) {
+          try {
+            GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsMessage(conn, message, is_binary);
+          } catch (const boost::system::system_error &) {
+            conn.close();
+          }
+        })
+        .onerror([this](crow::websocket::connection &conn) {
+          try {
+            GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsError(conn);
+          } catch (const boost::system::system_error &) {
+            conn.close();
+          }
+        })
+        .onclose([this](crow::websocket::connection &conn, const std::string &reason) {
+          try {
+            auto &it = GetHandler<Handler_T>(conn.get_remote_ip());
+            it.second.GetHandler()->HandleWsClose(conn, reason);
+            handlers_.erase(it.first);
+          } catch (const boost::system::system_error &) {
+            // Do nothing; the connection is already closed.
+          }
+        });
+  }
+
+  template<class T>
+  std::pair<const std::string, Handler> &GetHandler(const std::string &ip_addr);
+
+  void CleanupUnusedHandlers();
 };
 
 } // mobilesacn

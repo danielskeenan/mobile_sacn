@@ -85,6 +85,20 @@ export default function ChanCheck() {
         }
     }, [request]);
 
+    // Keepalive
+    useEffect(() => {
+        if (!ready) {
+            return;
+        }
+
+        const timer = setInterval(() => {
+            request({});
+        }, 30000);
+        return () => {
+            clearInterval(timer);
+        };
+    }, [ready, request]);
+
     return (
         <>
             <h1>Chan Check</h1>

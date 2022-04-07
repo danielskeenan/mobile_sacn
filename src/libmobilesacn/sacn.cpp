@@ -6,8 +6,10 @@
  * @copyright GNU GPLv3
  */
 
+#include <spdlog/spdlog.h>
 #include "libmobilesacn/sacn.h"
 #include "etcpal_netint/NetIntInfo.h"
+#include "mobilesacn_config.h"
 
 namespace mobilesacn {
 
@@ -28,6 +30,36 @@ std::vector<SacnMcastInterface> GetMulticastInterfacesForAddress(const etcpal::I
   }
 
   return ifaces;
+}
+
+std::unique_ptr<sacn::Source, SacnSourceDeleter> GetSacnTransmitter(const etcpal::IpAddr &addr,
+                                                                    const std::string &name,
+                                                                    const std::string &client_ip_addr) {
+  const auto multicast_ifaces = GetMulticastInterfacesForAddress(addr);
+  std::unique_ptr<sacn::Source, SacnSourceDeleter> sacn(new sacn::Source);
+
+  // Find the mac address for use in generating the transmitter CID.
+  const auto mac_address = [&multicast_ifaces]() -> std::array<uint8_t, 6> {
+    for (const auto &sacn_iface : multicast_ifaces) {
+      const auto iface = etcpal_netint::GetInterface(sacn_iface.iface.index);
+      if (!iface.has_value()) {
+        continue;
+      }
+      return iface->GetMac().ToArray();
+    }
+    spdlog::warn("Could not find valid MAC Address for sACN interface");
+    return {0};
+  }();
+  const auto ip_addr = etcpal::IpAddr::FromString(client_ip_addr);
+  const auto cid = etcpal::Uuid::Device(name, mac_address, ip_addr.v4_data());
+
+  sacn::Source::Settings sacn_config(cid, fmt::format("{} ({})", config::kProjectDisplayName, name));
+  const auto result = sacn->Startup(sacn_config);
+  if (!result.IsOk()) {
+    spdlog::critical("Error starting the sACN subsystem: {}", result.ToCString());
+  }
+
+  return sacn;
 }
 
 } // mobilesacn
