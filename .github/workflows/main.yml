@@ -10,6 +10,8 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
+  # Increment when the cache must be invalidated.
+  CACHE_IX: 1
 
 jobs:
   build:
@@ -63,9 +65,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{env.CONAN_USER_HOME}}
-          key: 0-${{github.job}}-${{runner.os}}-${{hashFiles('conanfile.txt')}}
+          key: ${{env.CACHE_IX}}-${{github.job}}-${{runner.os}}-${{hashFiles('conanfile.txt')}}
           restore-keys: |
-            0-${{github.job}}-${{runner.os}}-
+            ${{env.CACHE_IX}}-${{github.job}}-${{runner.os}}-
       - name: Install dependencies
         shell: bash
         run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
