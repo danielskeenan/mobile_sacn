@@ -38,7 +38,7 @@ class NetIntInfo {
     return mask_;
   }
 
-  [[nodiscard]] const etcpal::MacAddr &GetMax() const {
+  [[nodiscard]] const etcpal::MacAddr &GetMac() const {
     return mac_;
   }
 
@@ -71,7 +71,7 @@ class NetIntInfo {
   bool is_default_;
 };
 
-[[nodiscard]] inline std::vector<NetIntInfo> GetInterfaces() {
+[[nodiscard]] inline std::vector<NetIntInfo> &GetInterfaces() {
   static std::vector<NetIntInfo> ifaces;
   bool if_list_changed = false;
   etcpal_netint_refresh_interfaces(&if_list_changed);
@@ -86,6 +86,19 @@ class NetIntInfo {
   }
 
   return ifaces;
+}
+
+[[nodiscard]] inline std::optional<NetIntInfo> GetInterface(unsigned int index) {
+  const auto ifaces = GetInterfaces();
+  const auto found = std::find_if(ifaces.cbegin(), ifaces.cend(), [index](const NetIntInfo &iface) {
+    return iface.GetIndex() == index;
+  });
+
+  if (found == ifaces.cend()) {
+    return {};
+  }
+
+  return *found;
 }
 
 [[nodiscard]] inline std::optional<NetIntInfo> GetDefaultInterface(etcpal::IpAddrType ip_type) {

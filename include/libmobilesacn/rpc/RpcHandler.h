@@ -26,7 +26,7 @@ class RpcHandler {
 
   virtual void HandleWsError(crow::websocket::connection &conn) {}
 
-  virtual void HandleWsClose(crow::websocket::connection &conn, const std::string &eason) {}
+  virtual void HandleWsClose(crow::websocket::connection &conn, const std::string &reason) {}
 };
 
 } // mobilesacn::rpc
