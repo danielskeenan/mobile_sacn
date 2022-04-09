@@ -9,8 +9,8 @@
 #include "LogViewer.h"
 #include <QVBoxLayout>
 #include <fmt/format.h>
+#include <fmt/chrono.h>
 #include <QDateTime>
-#include <QLocale>
 
 namespace mobilesacn {
 
@@ -19,7 +19,6 @@ LogViewer::LogViewer(QWidget *parent) : QWidget(parent) {
 
   widgets_.text_view = new QPlainTextEdit(this);
   widgets_.text_view->setReadOnly(true);
-  widgets_.text_view->setCenterOnScroll(true);
   widgets_.text_view->setStyleSheet(R"(
 QPlainTextEdit {
   background: #00007F;
@@ -34,11 +33,10 @@ void LogViewer::SLog(const QString &msg) {
 }
 
 void WidgetLogFormatter::format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) {
-  const auto timestamp = QDateTime::fromSecsSinceEpoch(msg.time.time_since_epoch().count());
   fmt::format_to(std::back_inserter(dest),
                  R"(<p style="{log_style}">{timestamp} [{level}] {message}</p>)",
                  fmt::arg("log_style", LogStyle(msg.level)),
-                 fmt::arg("timestamp", QLocale().toString(timestamp, QLocale::ShortFormat).toStdString()),
+                 fmt::arg("timestamp", msg.time),
                  fmt::arg("level", spdlog::level::to_string_view(msg.level)),
                  fmt::arg("message", msg.payload)
   );
