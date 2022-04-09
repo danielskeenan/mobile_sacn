@@ -7,7 +7,7 @@
  */
 
 #include "MainWindow.h"
-#include <QSplitter>
+#include <QHBoxLayout>
 #include <QFormLayout>
 #include <QPushButton>
 #include "NetIntModel.h"
@@ -28,11 +28,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::InitUi() {
-  resize(800, 600);
+  resize(1024, 600);
 
   auto central = new QWidget(this);
   setCentralWidget(central);
-  auto layout = new QVBoxLayout(central);
+  auto layout = new QHBoxLayout(central);
 
   // Config form
   auto *config_widget = new QWidget(this);
