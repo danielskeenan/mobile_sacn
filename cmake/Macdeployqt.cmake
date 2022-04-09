@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-find_package(Qt6 REQUIRED)
+find_package(Qt5 REQUIRED)
 
 # Retrieve the absolute path to qmake and then use that path to find
 # the macdeployqt binary

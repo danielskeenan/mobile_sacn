@@ -43,14 +43,20 @@ void MainWindow::InitUi() {
   widgets_.webui_iface_select->setModel(widgets_.webui_iface_select_model);
   widgets_.webui_iface_select->setCurrentIndex(widgets_.webui_iface_select_model->GetDefaultRow());
   config_layout->addRow(tr("Web UI Interface"), widgets_.webui_iface_select);
-  connect(widgets_.webui_iface_select, &QComboBox::currentIndexChanged, this, &MainWindow::SCurrentWebUiIfaceChanged);
+  connect(widgets_.webui_iface_select,
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this,
+          &MainWindow::SCurrentWebUiIfaceChanged);
   // sACN interface
   widgets_.sacn_iface_select = new QComboBox(config_widget);
   widgets_.sacn_iface_select_model = new NetIntListModel(widgets_.sacn_iface_select);
   widgets_.sacn_iface_select->setModel(widgets_.sacn_iface_select_model);
   widgets_.sacn_iface_select->setCurrentIndex(widgets_.sacn_iface_select_model->GetDefaultRow());
   config_layout->addRow(tr("sACN Interface"), widgets_.sacn_iface_select);
-  connect(widgets_.sacn_iface_select, &QComboBox::currentIndexChanged, this, &MainWindow::SCurrentSacnIfaceChanged);
+  connect(widgets_.sacn_iface_select,
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this,
+          &MainWindow::SCurrentSacnIfaceChanged);
   // Start button
   widgets_.start_button = new QPushButton(config_widget);
   config_layout->addWidget(widgets_.start_button);

@@ -8,7 +8,7 @@ add_executable(${PROJECT_NAME}
     NetIntModel.cpp
     )
 
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     libmobilesacn
     Qt::Widgets
