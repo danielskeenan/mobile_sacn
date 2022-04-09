@@ -60,7 +60,7 @@ class HttpServer {
     std::chrono::time_point<std::chrono::steady_clock> last_use_;
   };
 
-  static const unsigned int kServerPort = 5050;
+  static inline const unsigned int kServerPort = 5050;
 
   Options options_;
   CrowLogHandler crow_log_handler_;

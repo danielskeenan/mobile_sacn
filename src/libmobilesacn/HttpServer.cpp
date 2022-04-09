@@ -21,6 +21,7 @@ HttpServer::HttpServer(HttpServer::Options options)
     : options_(std::move(options)) {
   crow::logger::setHandler(&crow_log_handler_);
   crow_
+      .loglevel(crow::LogLevel::Warning)
       .server_name(config::kProjectName)
       .bindaddr(options_.backend_address)
       .port(kServerPort)
@@ -73,11 +74,13 @@ std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::C
 
 void HttpServer::Run() {
   crow_handle_ = crow_.run_async();
+  spdlog::info("Started web interface at http://{}:{}", options_.backend_address, kServerPort);
 }
 
 void HttpServer::Stop() {
   crow_.stop();
   crow_handle_.wait();
+  spdlog::info("Stopped web interface and sACN transceivers.");
 }
 
 std::filesystem::path HttpServer::GetWebUiRoot() {
