@@ -12,6 +12,8 @@
 
 using namespace mobilesacn;
 
+static const auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
+
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   app.setOrganizationName(mobilesacn::config::kProjectOrganizationName);
@@ -25,9 +27,17 @@ int main(int argc, char *argv[]) {
 #ifndef PLATFORM_LINUX
   QIcon::setThemeName("breeze-light");
 #endif
-  
+
+  // Init EtcPal.
+  etcpal_init(kEtcPalFeatures);
+
   MainWindow main_window;
   main_window.show();
 
-  return QApplication::exec();
+  const auto ret = QApplication::exec();
+
+  // Deinit etcpal.
+  etcpal_deinit(kEtcPalFeatures);
+
+  return ret;
 }

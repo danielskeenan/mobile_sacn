@@ -17,6 +17,7 @@
 #include "libmobilesacn/rpc/RpcHandler.h"
 #include "CrowLogHandler.h"
 #include <crow/routing.h>
+#include <crow/app.h>
 
 namespace mobilesacn {
 
@@ -33,10 +34,10 @@ class HttpServer {
     etcpal::IpAddr sacn_address;
   };
 
-  explicit HttpServer(Options options)
-      : options_(std::move(options)) {}
+  explicit HttpServer(Options options);
 
   void Run();
+  void Stop();
 
  private:
   class Handler {
@@ -62,6 +63,8 @@ class HttpServer {
 
   Options options_;
   CrowLogHandler crow_log_handler_;
+  crow::SimpleApp crow_;
+  std::future<void> crow_handle_;
   std::unordered_map<std::string, Handler> handlers_;
 
   /**

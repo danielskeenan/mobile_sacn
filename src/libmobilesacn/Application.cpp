@@ -14,11 +14,8 @@
 
 namespace mobilesacn {
 
-static const auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
-
 Application::Application() {
   // Init EtcPal.
-  etcpal_init(kEtcPalFeatures);
   etc_pal_logger_.SetSyslogAppName(config::kProjectName);
   if (!etc_pal_logger_.Startup(etc_pal_log_handler_)) {
     spdlog::critical("Error starting the logger for the sACN subsystem.  Some logs will not be available.");
@@ -37,7 +34,6 @@ Application::~Application() {
 
   // Shutdown EtcPal.
   etc_pal_logger_.Shutdown();
-  etcpal_deinit(kEtcPalFeatures);
 }
 
 void Application::Run(Options options) {
@@ -55,6 +51,13 @@ void Application::Run(Options options) {
   );
 
   http_server_->Run();
+}
+
+void Application::Stop() {
+  if (http_server_) {
+    http_server_->Stop();
+    http_server_.reset();
+  }
 }
 
 } // mobilesacn

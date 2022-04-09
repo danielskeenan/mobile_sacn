@@ -10,7 +10,6 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 #include "mobilesacn_config.h"
 #include "libmobilesacn/rpc/ChanCheck.h"
-#include <crow/app.h>
 #include <crow/middlewares/cors.h>
 #include <boost/container_hash/hash.hpp>
 #include <fmt/format.h>
@@ -18,19 +17,10 @@
 
 namespace mobilesacn {
 
-template<>
-std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::ChanCheck>(const std::string &ip_addr) {
-  const auto instance_id = fmt::format("ChanCheck_{}", ip_addr);
-  auto it =
-      handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::ChanCheck>(options_.sacn_address)))
-          .first;
-  return *it;
-}
-
-void HttpServer::Run() {
+HttpServer::HttpServer(HttpServer::Options options)
+    : options_(std::move(options)) {
   crow::logger::setHandler(&crow_log_handler_);
-  crow::Crow<crow::CORSHandler> server;
-  server
+  crow_
       .server_name(config::kProjectName)
       .bindaddr(options_.backend_address)
       .port(options_.backend_port)
@@ -38,16 +28,16 @@ void HttpServer::Run() {
       .tick(std::chrono::minutes(1), [this]() {
         CleanupUnusedHandlers();
       });
-  auto &cors = server.get_middleware<crow::CORSHandler>();
-  cors.global()
-      .methods(crow::HTTPMethod::Get);
+//  auto &cors = server.get_middleware<crow::CORSHandler>();
+//  cors.global()
+//      .methods(crow::HTTPMethod::Get);
 
   // API Hooks
-  SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(server, "/ws/chan_check").websocket());
+  SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(crow_, "/ws/chan_check").websocket());
 
   // Serve Web UI files.
-  CROW_ROUTE(server, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
-  CROW_ROUTE(server, "/<path>").methods(crow::HTTPMethod::Get)(
+  CROW_ROUTE(crow_, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
+  CROW_ROUTE(crow_, "/<path>").methods(crow::HTTPMethod::Get)(
       [](const crow::request &req, const std::string &file_path_partial) {
         crow::response resp;
         std::filesystem::path static_file_path;
@@ -70,8 +60,24 @@ void HttpServer::Run() {
 
         return resp;
       });
+}
 
-  server.run();
+template<>
+std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::ChanCheck>(const std::string &ip_addr) {
+  const auto instance_id = fmt::format("ChanCheck_{}", ip_addr);
+  auto it =
+      handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::ChanCheck>(options_.sacn_address)))
+          .first;
+  return *it;
+}
+
+void HttpServer::Run() {
+  crow_handle_ = crow_.run_async();
+}
+
+void HttpServer::Stop() {
+  crow_.stop();
+  crow_handle_.wait();
 }
 
 std::filesystem::path HttpServer::GetWebUiRoot() {

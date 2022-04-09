@@ -38,6 +38,7 @@ class Application {
   ~Application();
 
   void Run(Options options);
+  void Stop();
 
  private:
   etcpal::Logger etc_pal_logger_;

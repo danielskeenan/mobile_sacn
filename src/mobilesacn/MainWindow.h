@@ -39,10 +39,13 @@ class MainWindow : public QMainWindow {
   Application::Options app_options_;
 
   void InitUi();
-  void UpdateStartButtonText();
+  void UpdateStartButtonText(bool started);
 
  private Q_SLOTS:
-  void SStartStopApp();
+  void SStartApp();
+  void SStopApp();
+  void SAppStarted();
+  void SAppStopped();
   void SCurrentWebUiIfaceChanged(int row);
   void SCurrentSacnIfaceChanged(int row);
 };

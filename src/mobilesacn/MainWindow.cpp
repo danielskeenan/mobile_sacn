@@ -43,24 +43,33 @@ void MainWindow::InitUi() {
   connect(widgets_.sacn_iface_select, &QComboBox::currentIndexChanged, this, &MainWindow::SCurrentSacnIfaceChanged);
   // Start button
   widgets_.start_button = new QPushButton(config_widget);
-  UpdateStartButtonText();
   config_layout->addWidget(widgets_.start_button);
-  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartStopApp);
+  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
+  SAppStopped();
 
   splitter->addWidget(config_widget);
 }
 
-void MainWindow::UpdateStartButtonText() {
-//  if (app_.IsRunning()) {
-//    widgets_.start_button->setText(tr("Stop"));
-//  } else {
-  widgets_.start_button->setText(tr("Start"));
-//  }
+void MainWindow::SStartApp() {
+  app_.Run(app_options_);
+  disconnect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
+  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStopApp);
+  SAppStarted();
 }
 
-void MainWindow::SStartStopApp() {
-  app_.Run(app_options_);
-  UpdateStartButtonText();
+void MainWindow::SStopApp() {
+  app_.Stop();
+  disconnect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStopApp);
+  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
+  SAppStopped();
+}
+
+void MainWindow::SAppStarted() {
+  widgets_.start_button->setText(tr("Stop"));
+}
+
+void MainWindow::SAppStopped() {
+  widgets_.start_button->setText(tr("Start"));
 }
 
 void MainWindow::SCurrentWebUiIfaceChanged(int row) {
