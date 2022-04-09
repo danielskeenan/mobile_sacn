@@ -27,8 +27,6 @@ QPlainTextEdit {
 };
 )");
   layout->addWidget(widgets_.text_view);
-
-  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 }
 
 void LogViewer::SLog(const QString &msg) {

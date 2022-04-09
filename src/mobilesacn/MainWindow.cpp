@@ -28,9 +28,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::InitUi() {
-  auto *splitter = new QSplitter(Qt::Horizontal, this);
-  splitter->setChildrenCollapsible(false);
-  setCentralWidget(splitter);
+  resize(800, 600);
+
+  auto central = new QWidget(this);
+  setCentralWidget(central);
+  auto layout = new QVBoxLayout(central);
 
   // Config form
   auto *config_widget = new QWidget(this);
@@ -54,11 +56,11 @@ void MainWindow::InitUi() {
   config_layout->addWidget(widgets_.start_button);
   connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
   SAppStopped();
-  splitter->addWidget(config_widget);
+  layout->addWidget(config_widget);
 
-  // SLog viewer
+  // Log viewer
   widgets_.log_viewer = new LogViewer(this);
-  splitter->addWidget(widgets_.log_viewer);
+  layout->addWidget(widgets_.log_viewer);
 }
 
 void MainWindow::SStartApp() {
