@@ -45,7 +45,6 @@ void Application::Run(Options options) {
   http_server_ = std::make_unique<HttpServer>(
       HttpServer::Options{
           .backend_address = options.backend_address,
-          .backend_port = options.backend_port,
           .sacn_address = options.sacn_address,
       }
   );

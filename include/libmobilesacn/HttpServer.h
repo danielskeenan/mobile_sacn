@@ -30,7 +30,6 @@ class HttpServer {
  public:
   struct Options {
     std::string backend_address;
-    unsigned int backend_port;
     etcpal::IpAddr sacn_address;
   };
 
@@ -60,6 +59,8 @@ class HttpServer {
     std::unique_ptr<rpc::RpcHandler> handler_;
     std::chrono::time_point<std::chrono::steady_clock> last_use_;
   };
+
+  static const unsigned int kServerPort = 5050;
 
   Options options_;
   CrowLogHandler crow_log_handler_;

@@ -23,7 +23,7 @@ HttpServer::HttpServer(HttpServer::Options options)
   crow_
       .server_name(config::kProjectName)
       .bindaddr(options_.backend_address)
-      .port(options_.backend_port)
+      .port(kServerPort)
       .multithreaded()
       .tick(std::chrono::minutes(1), [this]() {
         CleanupUnusedHandlers();

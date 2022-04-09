@@ -30,7 +30,6 @@ class Application {
  public:
   struct Options {
     std::string backend_address;
-    unsigned int backend_port;
     etcpal::IpAddr sacn_address;
   };
 
