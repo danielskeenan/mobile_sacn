@@ -38,6 +38,7 @@ class Application {
 
   void Run(Options options);
   void Stop();
+  std::string GetWebUrl() const;
 
  private:
   etcpal::Logger etc_pal_logger_;

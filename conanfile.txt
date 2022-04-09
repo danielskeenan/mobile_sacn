@@ -4,6 +4,7 @@ fmt/8.1.1
 crowcpp-crow/1.0+1
 # protobuf MUST MATCH package.json
 protobuf/3.13.0
+qr-code-generator/1.7.0
 spdlog/1.9.2
 
 [generators]

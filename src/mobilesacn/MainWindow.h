@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include "libmobilesacn/Application.h"
 #include "LogViewer.h"
+#include "QrCode.h"
 
 namespace mobilesacn {
 
@@ -34,6 +35,7 @@ class MainWindow : public QMainWindow {
     QComboBox *sacn_iface_select = nullptr;
     NetIntListModel *sacn_iface_select_model = nullptr;
     QPushButton *start_button = nullptr;
+    QrCode* qr_code = nullptr;
     LogViewer *log_viewer = nullptr;
   };
   Widgets widgets_;
@@ -41,7 +43,9 @@ class MainWindow : public QMainWindow {
   Application::Options app_options_;
 
   void InitUi();
-  void UpdateStartButtonText(bool started);
+
+ protected Q_SLOTS:
+  void closeEvent(QCloseEvent *event) override;
 
  private Q_SLOTS:
   void SStartApp();

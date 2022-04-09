@@ -59,4 +59,11 @@ void Application::Stop() {
   }
 }
 
+std::string Application::GetWebUrl() const {
+  if (http_server_) {
+    return http_server_->GetUrl();
+  }
+  return "";
+}
+
 } // mobilesacn

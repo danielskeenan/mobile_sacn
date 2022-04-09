@@ -37,6 +37,7 @@ class HttpServer {
 
   void Run();
   void Stop();
+  std::string GetUrl() const;
 
  private:
   class Handler {

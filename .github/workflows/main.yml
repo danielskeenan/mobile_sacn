@@ -51,7 +51,7 @@ jobs:
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install pandoc qtbase5-dev
+          sudo apt-get -y install pandoc qtbase5-dev libqt5svg5-dev
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}

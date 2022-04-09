@@ -74,7 +74,7 @@ std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::C
 
 void HttpServer::Run() {
   crow_handle_ = crow_.run_async();
-  spdlog::info("Started web interface at http://{}:{}", options_.backend_address, kServerPort);
+  spdlog::info("Started web interface at {}", GetUrl());
 }
 
 void HttpServer::Stop() {
@@ -82,6 +82,10 @@ void HttpServer::Stop() {
   crow_handle_.wait();
   handlers_.clear();
   spdlog::info("Stopped web interface and sACN transceivers.");
+}
+
+std::string HttpServer::GetUrl() const {
+  return fmt::format("http://{}:{}", options_.backend_address, kServerPort);
 }
 
 std::filesystem::path HttpServer::GetWebUiRoot() {

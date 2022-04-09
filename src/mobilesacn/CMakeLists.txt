@@ -6,12 +6,16 @@ add_executable(${PROJECT_NAME}
     LogViewer.cpp
     MainWindow.cpp
     NetIntModel.cpp
+    QrCode.cpp
     )
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(qr-code-generator REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Svg REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     libmobilesacn
+    qr-code-generator::qr-code-generator
     Qt::Widgets
+    Qt::Svg
     )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")

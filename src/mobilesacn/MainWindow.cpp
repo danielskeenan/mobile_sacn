@@ -8,6 +8,7 @@
 
 #include "MainWindow.h"
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QFormLayout>
 #include <QPushButton>
 #include "NetIntModel.h"
@@ -33,40 +34,51 @@ void MainWindow::InitUi() {
   auto central = new QWidget(this);
   setCentralWidget(central);
   auto layout = new QHBoxLayout(central);
+  auto sidebar_layout = new QVBoxLayout;
+  layout->addLayout(sidebar_layout);
 
   // Config form
-  auto *config_widget = new QWidget(this);
-  auto *config_layout = new QFormLayout(config_widget);
+  auto *config_form = new QFormLayout;
+  sidebar_layout->addLayout(config_form);
   // Web ui interface
-  widgets_.webui_iface_select = new QComboBox(config_widget);
+  widgets_.webui_iface_select = new QComboBox(this);
   widgets_.webui_iface_select_model = new NetIntListModel(widgets_.webui_iface_select);
   widgets_.webui_iface_select->setModel(widgets_.webui_iface_select_model);
   widgets_.webui_iface_select->setCurrentIndex(widgets_.webui_iface_select_model->GetDefaultRow());
-  config_layout->addRow(tr("Web UI Interface"), widgets_.webui_iface_select);
+  config_form->addRow(tr("Web UI Interface"), widgets_.webui_iface_select);
   connect(widgets_.webui_iface_select,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this,
           &MainWindow::SCurrentWebUiIfaceChanged);
   // sACN interface
-  widgets_.sacn_iface_select = new QComboBox(config_widget);
+  widgets_.sacn_iface_select = new QComboBox(this);
   widgets_.sacn_iface_select_model = new NetIntListModel(widgets_.sacn_iface_select);
   widgets_.sacn_iface_select->setModel(widgets_.sacn_iface_select_model);
   widgets_.sacn_iface_select->setCurrentIndex(widgets_.sacn_iface_select_model->GetDefaultRow());
-  config_layout->addRow(tr("sACN Interface"), widgets_.sacn_iface_select);
+  config_form->addRow(tr("sACN Interface"), widgets_.sacn_iface_select);
   connect(widgets_.sacn_iface_select,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this,
           &MainWindow::SCurrentSacnIfaceChanged);
   // Start button
-  widgets_.start_button = new QPushButton(config_widget);
-  config_layout->addWidget(widgets_.start_button);
+  widgets_.start_button = new QPushButton(this);
+  config_form->addWidget(widgets_.start_button);
   connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
-  SAppStopped();
-  layout->addWidget(config_widget);
+  sidebar_layout->addStretch();
+
+  // QR code
+  auto *qr_layout = new QHBoxLayout;
+  qr_layout->setAlignment(Qt::AlignCenter);
+  sidebar_layout->addLayout(qr_layout);
+  widgets_.qr_code = new QrCode(this);
+  qr_layout->addWidget(widgets_.qr_code);
+  sidebar_layout->addStretch();
 
   // Log viewer
   widgets_.log_viewer = new LogViewer(this);
   layout->addWidget(widgets_.log_viewer);
+
+  SAppStopped();
 }
 
 void MainWindow::SStartApp() {
@@ -85,10 +97,12 @@ void MainWindow::SStopApp() {
 
 void MainWindow::SAppStarted() {
   widgets_.start_button->setText(tr("Stop"));
+  widgets_.qr_code->SetContents(app_.GetWebUrl());
 }
 
 void MainWindow::SAppStopped() {
   widgets_.start_button->setText(tr("Start"));
+  widgets_.qr_code->Clear();
 }
 
 void MainWindow::SCurrentWebUiIfaceChanged(int row) {
@@ -101,6 +115,11 @@ void MainWindow::SCurrentSacnIfaceChanged(int row) {
   const auto &iface = widgets_.sacn_iface_select_model->GetNetIntInfo(row);
   // TODO: Pass an iface index.
   app_options_.sacn_address = iface.GetAddr();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+  SStopApp();
+  event->accept();
 }
 
 } // mobilesacn
