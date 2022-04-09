@@ -80,6 +80,7 @@ void HttpServer::Run() {
 void HttpServer::Stop() {
   crow_.stop();
   crow_handle_.wait();
+  handlers_.clear();
   spdlog::info("Stopped web interface and sACN transceivers.");
 }
 
