@@ -13,6 +13,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include "libmobilesacn/Application.h"
+#include "LogViewer.h"
 
 namespace mobilesacn {
 
@@ -33,6 +34,7 @@ class MainWindow : public QMainWindow {
     QComboBox *sacn_iface_select = nullptr;
     NetIntListModel *sacn_iface_select_model = nullptr;
     QPushButton *start_button = nullptr;
+    LogViewer *log_viewer = nullptr;
   };
   Widgets widgets_;
   Application app_;

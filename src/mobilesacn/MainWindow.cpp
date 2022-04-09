@@ -11,6 +11,7 @@
 #include <QFormLayout>
 #include <QPushButton>
 #include "NetIntModel.h"
+#include <QApplication>
 
 namespace mobilesacn {
 
@@ -18,10 +19,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   InitUi();
   SCurrentWebUiIfaceChanged(widgets_.webui_iface_select->currentIndex());
   SCurrentSacnIfaceChanged(widgets_.sacn_iface_select->currentIndex());
+
+  // Tell spdlog to log to this window.
+  auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex>>(widgets_.log_viewer);
+  auto widget_logger = std::make_shared<spdlog::logger>(qApp->applicationDisplayName().toStdString(), widget_log_sink);
+  spdlog::register_logger(widget_logger);
+  spdlog::set_default_logger(widget_logger);
 }
 
 void MainWindow::InitUi() {
   auto *splitter = new QSplitter(Qt::Horizontal, this);
+  splitter->setChildrenCollapsible(false);
   setCentralWidget(splitter);
 
   // Config form
@@ -46,8 +54,11 @@ void MainWindow::InitUi() {
   config_layout->addWidget(widgets_.start_button);
   connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
   SAppStopped();
-
   splitter->addWidget(config_widget);
+
+  // SLog viewer
+  widgets_.log_viewer = new LogViewer(this);
+  splitter->addWidget(widgets_.log_viewer);
 }
 
 void MainWindow::SStartApp() {

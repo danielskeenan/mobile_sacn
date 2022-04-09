@@ -3,6 +3,7 @@ set(CMAKE_AUTORCC ON)
 
 add_executable(${PROJECT_NAME}
     main.cpp
+    LogViewer.cpp
     MainWindow.cpp
     NetIntModel.cpp
     )
