@@ -10,6 +10,7 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
+  QT_VERSION: 6.2
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
 
@@ -52,6 +53,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install pandoc
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          dir: ${{github.workspace}}/.qt
+          version: ${{env.QT_VERSION}}
+          setup-python: false
       - name: Setup Conan
         shell: bash
         run: |

@@ -19,10 +19,6 @@
 #include <filesystem>
 #include <etcpal/cpp/inet.h>
 
-namespace sacn {
-class Source;
-}
-
 namespace mobilesacn {
 
 class HttpServer;
@@ -38,13 +34,12 @@ class Application {
     etcpal::IpAddr sacn_address;
   };
 
-  explicit Application(Options options);
+  explicit Application();
   ~Application();
 
-  int Run();
+  void Run(Options options);
 
  private:
-  Options options_;
   etcpal::Logger etc_pal_logger_;
   EtcPalLogHandler etc_pal_log_handler_;
   std::unique_ptr<HttpServer> http_server_;
