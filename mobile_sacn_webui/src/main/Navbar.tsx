@@ -4,7 +4,7 @@ import {Nav, Navbar as BsNavbar} from "react-bootstrap";
 import {generatePath, Link, NavLink} from "react-router-dom";
 import {Links} from "../routes";
 import {APP_NAME} from "../common/constants";
-import {TransmitChanCheckTitle, TransmitControlTitle, TransmitFxTitle} from "../transmit/TransmitTitle";
+import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
 
 export default function Navbar() {
     return (

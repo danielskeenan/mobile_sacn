@@ -4,7 +4,7 @@ import setPageTitle from "../common/setPageTitle";
 import {APP_NAME} from "../common/constants";
 import {generatePath, Link, Route, Routes} from "react-router-dom";
 import {Links} from "../routes";
-import {TransmitChanCheckTitle, TransmitControlTitle, TransmitFxTitle} from "../transmit/TransmitTitle";
+import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
 
 
 function FrontPage() {
