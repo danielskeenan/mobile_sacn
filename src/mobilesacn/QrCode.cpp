@@ -38,7 +38,7 @@ void QrCode::UpdateDisplay() {
   }
 
   QByteArray svg;
-  svg.reserve(modules.tellp() + 200l);
+  svg.reserve(static_cast<int>(modules.tellp()) + 200);
   fmt::format_to(std::back_inserter(svg), R"(
 <svg width="{size}" height="{size}" version="1.1" viewBox="0 0 {size} {size}" xmlns="http://www.w3.org/2000/svg">
   <g stroke="#000000" stroke-width="0.1">
