@@ -10,7 +10,14 @@
 #include <QVBoxLayout>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
-#include <QDateTime>
+#include <QMenu>
+#include <QAction>
+#include <QFileDialog>
+#include <QStandardPaths>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QOperatingSystemVersion>
+#include "mobilesacn_config.h"
 
 namespace mobilesacn {
 
@@ -26,10 +33,55 @@ QPlainTextEdit {
 };
 )");
   layout->addWidget(widgets_.text_view);
+
+  // Context menu
+  widgets_.text_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+  // Copy
+  actions_.act_copy = new QAction(tr("Copy"), widgets_.text_view);
+  connect(widgets_.text_view, &QPlainTextEdit::copyAvailable, actions_.act_copy, &QAction::setEnabled);
+  widgets_.text_view->addAction(actions_.act_copy);
+  connect(actions_.act_copy, &QAction::triggered, this, &LogViewer::SCopy);
+  // Save logs
+  actions_.act_save_logs = new QAction(tr("Save Logs..."), widgets_.text_view);
+  widgets_.text_view->addAction(actions_.act_save_logs);
+  connect(actions_.act_save_logs, &QAction::triggered, this, &LogViewer::SSaveLogs);
 }
 
 void LogViewer::SLog(const QString &msg) {
   widgets_.text_view->appendHtml(msg);
+}
+
+void LogViewer::SCopy() {
+  widgets_.text_view->copy();
+}
+
+void LogViewer::SSaveLogs() {
+  // TODO: Save all logs down to debug level to a file and copy it with this option.
+  const auto filename = QFileDialog::getSaveFileName(
+      this,
+      tr("Save logs"),
+      QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
+      tr("Log files (*.log)")
+  );
+  if (filename.isEmpty()) {
+    return;
+  }
+
+  QFile out_file(filename, this);
+  if (!out_file.open(QFile::WriteOnly)) {
+    QMessageBox::critical(this, tr("Error saving log file"), tr("The file could not be written."));
+    return;
+  }
+  QTextStream out(&out_file);
+  out << config::kProjectName << " (" << config::kProjectVersion << ")\n"
+      << QSysInfo::currentCpuArchitecture() << " "
+      << QSysInfo::productType() << " "
+      << QSysInfo::productVersion() << " ("
+      << QOperatingSystemVersion::current().name() << ")\n"
+      << "\n"
+      << widgets_.text_view->toPlainText();
+  out.flush();
+  out_file.close();
 }
 
 void WidgetLogFormatter::format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) {
@@ -53,4 +105,5 @@ const char *WidgetLogFormatter::LogStyle(spdlog::level::level_enum level) {
     default:return "";
   }
 }
+
 } // mobilesacn

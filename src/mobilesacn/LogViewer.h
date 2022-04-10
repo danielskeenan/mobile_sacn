@@ -31,6 +31,15 @@ class LogViewer : public QWidget {
     QPlainTextEdit *text_view = nullptr;
   };
   Widgets widgets_;
+  struct Actions {
+    QAction* act_copy = nullptr;
+    QAction* act_save_logs = nullptr;
+  };
+  Actions actions_;
+
+ private Q_SLOTS:
+  void SCopy();
+  void SSaveLogs();
 };
 
 /**
