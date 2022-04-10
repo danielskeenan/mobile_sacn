@@ -9,9 +9,3 @@ spdlog/1.10.0
 
 [generators]
 cmake_find_package
-
-[options]
-boost:zlib=False
-boost:bzip2=False
-boost:lzma=False
-boost:zstd=False
