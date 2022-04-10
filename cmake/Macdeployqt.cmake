@@ -35,7 +35,7 @@ function(macdeployqt target directory)
         COMMAND "${CMAKE_COMMAND}" -E
         env PATH="${_qt_bin_dir}" "${macdeployqt_PROG}"
         \"$<TARGET_BUNDLE_DIR:${target}>\"
-        --verbose 1
+        -verbose=1
         )
 endfunction()
 
