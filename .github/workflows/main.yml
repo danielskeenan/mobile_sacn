@@ -79,14 +79,11 @@ jobs:
       - name: Set libstdc++ ABI
         if: ${{runner.os == 'Linux'}}
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
-      # Disabled for now as the caching seems imperfect and occasionally causes build failures.
-#      - name: Conan cache
-#        uses: actions/cache@v3
-#        with:
-#          path: ${{env.CONAN_USER_HOME}}
-#          key: ${{env.CACHE_IX}}-${{github.job}}-${{runner.os}}-${{hashFiles('conanfile.txt')}}
-#          restore-keys: |
-#            ${{env.CACHE_IX}}-${{github.job}}-${{runner.os}}-
+      - name: Conan cache
+        uses: actions/cache@v3
+        with:
+          path: ${{env.CONAN_USER_HOME}}
+          key: ${{env.CACHE_IX}}-${{runner.os}}-conan-${{hashFiles('conanfile.txt')}}
       - name: Install dependencies
         shell: bash
         run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
