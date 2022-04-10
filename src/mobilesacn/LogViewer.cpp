@@ -17,6 +17,8 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QOperatingSystemVersion>
+#include <QFontDatabase>
+#include <QFont>
 #include "mobilesacn_config.h"
 
 namespace mobilesacn {
@@ -26,12 +28,13 @@ LogViewer::LogViewer(QWidget *parent) : QWidget(parent) {
 
   widgets_.text_view = new QPlainTextEdit(this);
   widgets_.text_view->setReadOnly(true);
-  widgets_.text_view->setStyleSheet(R"(
+  const auto monospace_font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+  widgets_.text_view->setStyleSheet(QStringLiteral(R"(
 QPlainTextEdit {
   background: #00007F;
-  font-family: monospace;
+  font-family: %1;
 };
-)");
+)").arg(monospace_font.family()));
   layout->addWidget(widgets_.text_view);
 
   // Context menu
