@@ -23,17 +23,16 @@
 
 # Retrieve the absolute path to qmake and then use that path to find
 # the macdeployqt binary
-get_target_property(_qmake_executable Qt::qmake IMPORTED_LOCATION)
+get_target_property(_qmake_executable Qt${Qt_VERSION}::qmake IMPORTED_LOCATION)
 get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
 find_program(macdeployqt_PROG macdeployqt HINTS "${_qt_bin_dir}")
 
 function(macdeployqt target directory)
     # Run macdeployqt immediately after build
     add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E
-        env PATH="${_qt_bin_dir}" "${macdeployqt_PROG}"
+        COMMAND "${macdeployqt_PROG}"
         \"$<TARGET_BUNDLE_DIR:${target}>\"
-        -verbose=1
+        -verbose=2
         )
 endfunction()
 
