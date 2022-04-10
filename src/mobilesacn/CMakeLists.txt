@@ -22,7 +22,10 @@ if (Qt_VERSION EQUAL 6)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    message(STATUS "Configuring macOS bundle properties")
+    find_package(Qt${Qt_VERSION} COMPONENTS DBus REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            Qt${Qt_VERSION}::DBus
+            )
     install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION ".")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}

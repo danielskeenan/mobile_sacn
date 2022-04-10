@@ -19,4 +19,12 @@ add_custom_target(webui_build
     )
 add_dependencies(webui_build mobilesacnproto)
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/ DESTINATION ${PROJECT_WEBUI_PATH})
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    add_custom_command(TARGET webui_build POST_BUILD
+            COMMAND "${CMAKE_COMMAND}"
+            -E copy_directory "${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/"
+            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web\"
+            )
+else()
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/ DESTINATION ${PROJECT_WEBUI_PATH})
+endif ()

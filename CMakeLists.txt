@@ -27,7 +27,11 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     add_compile_definitions(PLATFORM_MACOS)
 endif ()
 include(GNUInstallDirs)
-set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(PROJECT_WEBUI_PATH "Resources/web")
+else()
+    set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
+endif ()
 
 # Decide which Qt version to use.
 set(Qt_COMPONENTS Widgets Svg)
