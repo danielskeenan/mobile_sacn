@@ -1,6 +1,6 @@
 [requires]
-boost/1.77.0
-fmt/8.0.1
+boost/1.78.0
+fmt/8.1.1
 crowcpp-crow/1.0+1
 # protobuf MUST MATCH package.json
 protobuf/3.13.0
