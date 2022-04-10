@@ -10,6 +10,7 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
+  QT_VERSION: 5.15
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
 
@@ -52,14 +53,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install pandoc qtbase5-dev libqt5svg5-dev
+      - name: Cache Qt
+        id: cache-qt
+        # Don't need this on Linux, as Qt will come from the system package manager above
+        if: ${{runner.os != 'Linux'}}
+        uses: actions/cache@v3
+        with:
+          path: ${{github.workspace}}/.qt
+          key: ${{runner.os}}-QtCache-${{env.QT_VERSION}}
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
         uses: jurplel/install-qt-action@v2
         with:
           dir: ${{github.workspace}}/.qt
-          version: 5.15
+          version: ${{env.QT_VERSION}}
           setup-python: false
+          cached: ${{steps.cache-qt.outputs.cache-hit}}
       - name: Setup Conan
         shell: bash
         run: |
