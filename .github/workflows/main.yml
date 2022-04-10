@@ -10,7 +10,7 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
-  QT_VERSION: 5.15
+  QT_VERSION: 5.15.2
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
 
@@ -60,7 +60,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{github.workspace}}/.qt
-          key: ${{runner.os}}-QtCache-${{env.QT_VERSION}}
+          key: ${{env.CACHE_IX}}-${{runner.os}}-QtCache-${{env.QT_VERSION}}
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
