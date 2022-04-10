@@ -10,13 +10,16 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     )
 
 find_package(qr-code-generator REQUIRED)
-find_package(Qt5 COMPONENTS Widgets Svg REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     libmobilesacn
     qr-code-generator::qr-code-generator
-    Qt5::Widgets
-    Qt5::Svg
+    Qt${Qt_VERSION}::Widgets
+    Qt${Qt_VERSION}::Svg
     )
+if (Qt_VERSION EQUAL 6)
+    find_package(Qt${Qt_VERSION} COMPONENTS SvgWidgets REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::SvgWidgets)
+endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Configuring macOS bundle properties")
