@@ -30,7 +30,6 @@ get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
 find_program(macdeployqt_PROG macdeployqt HINTS "${_qt_bin_dir}")
 
 function(macdeployqt target directory)
-
     # Run macdeployqt immediately after build
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E

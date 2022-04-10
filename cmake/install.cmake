@@ -12,9 +12,9 @@ set(CPACK_STRIP_FILES On)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(GNUInstallDirs)
     # .desktop file is filled in with configure-time info
-#    configure_file("${PROJECT_SOURCE_DIR}/meta/linux/${PROJECT_NAME}.desktop" "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.desktop")
-#    install(FILES "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.desktop"
-#        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+    configure_file("${PROJECT_SOURCE_DIR}/meta/linux/${PROJECT_NAME}.desktop" "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.desktop")
+    install(FILES "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.desktop"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
     # App icon
 #    install(FILES "${PROJECT_SOURCE_DIR}/resources/app-icon.svg"
