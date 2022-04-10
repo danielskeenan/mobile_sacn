@@ -28,11 +28,12 @@ void QrCode::UpdateDisplay() {
   std::ostringstream modules;
   for (int x = 0; x < qr.getSize(); ++x) {
     for (int y = 0; y < qr.getSize(); ++y) {
-      modules << fmt::format(R"(    <rect x="{x}" y="{y}" width="1" height="1" fill="{fill}"/>)""\n",
-                             fmt::arg("x", x),
-                             fmt::arg("y", y),
-                             fmt::arg("fill", qr.getModule(x, y) ? "#000000" : "#ffffff")
-      );
+      if (qr.getModule(x, y)) {
+        modules << fmt::format(R"(    <rect x="{x}" y="{y}" width="1" height="1" fill="#000000"/>)""\n",
+                               fmt::arg("x", x),
+                               fmt::arg("y", y)
+        );
+      }
     }
   }
 
@@ -40,7 +41,8 @@ void QrCode::UpdateDisplay() {
   svg.reserve(modules.tellp() + 200l);
   fmt::format_to(std::back_inserter(svg), R"(
 <svg width="{size}" height="{size}" version="1.1" viewBox="0 0 {size} {size}" xmlns="http://www.w3.org/2000/svg">
-  <g stroke-width="0">
+  <g stroke="#000000" stroke-width="0.1">
+  <rect x="0" y="0" width="{size}" height="{size}" fill="#ffffff"/>
 {modules}
   </g>
 </svg>
