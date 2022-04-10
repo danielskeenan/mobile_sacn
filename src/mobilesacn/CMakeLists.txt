@@ -51,4 +51,4 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     endif ()
 endif ()
 
-#add_dependencies(${PROJECT_NAME} webui_build)
+add_dependencies(${PROJECT_NAME} webui_build)
