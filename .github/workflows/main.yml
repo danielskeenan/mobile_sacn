@@ -41,19 +41,18 @@ jobs:
           python-version: '3.x'
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
-        run: brew install pandoc ninja
+        run: brew install pandoc
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
           choco install nsis.portable -y
           choco install pandoc -y --ia=ALLUSERS=1
-          choco install ninja -y
           refreshenv
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install ninja-build pandoc qtbase5-dev libqt5svg5-dev
+          sudo apt-get -y install pandoc qtbase5-dev libqt5svg5-dev
       - name: Cache Qt
         id: cache-qt
         # Don't need this on Linux, as Qt will come from the system package manager above
@@ -77,9 +76,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install conan
           conan profile new --detect --force default
-          conan config set general.revisions_enabled=1
-          conan config set general.use_always_short_paths=1
-          conan config set general.cmake_generator=Ninja
       - name: Set libstdc++ ABI
         if: ${{runner.os == 'Linux'}}
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
@@ -96,7 +92,7 @@ jobs:
         run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
       - name: Configure CMake
         shell: bash
-        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On
+        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On
       - name: Build
         shell: bash
         run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
