@@ -18,18 +18,18 @@ export default function Navbar() {
             <BsNavbar.Toggle aria-controls="msacn-navbar-content"/>
             <BsNavbar.Collapse id="msacn-navbar-content">
                 <Nav className="mr-auto">
-                    <Nav.Link as={NavLink}
-                              to={generatePath(Links.TRANSMIT_CONTROL)}>
-                        <TransmitControlTitle/>
-                    </Nav.Link>
+                    {/*<Nav.Link as={NavLink}*/}
+                    {/*          to={generatePath(Links.TRANSMIT_CONTROL)}>*/}
+                    {/*    <TransmitControlTitle/>*/}
+                    {/*</Nav.Link>*/}
                     <Nav.Link as={NavLink}
                               to={generatePath(Links.TRANSMIT_CHANCHECK)}>
                         <TransmitChanCheckTitle/>
                     </Nav.Link>
-                    <Nav.Link as={NavLink}
-                              to={generatePath(Links.TRANSMIT_FX)}>
-                        <TransmitFxTitle/>
-                    </Nav.Link>
+                    {/*<Nav.Link as={NavLink}*/}
+                    {/*          to={generatePath(Links.TRANSMIT_FX)}>*/}
+                    {/*    <TransmitFxTitle/>*/}
+                    {/*</Nav.Link>*/}
                 </Nav>
             </BsNavbar.Collapse>
         </BsNavbar>

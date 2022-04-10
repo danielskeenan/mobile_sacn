@@ -16,21 +16,21 @@ function FrontPage() {
                 <h1 className="display-5 fw-bold">{APP_NAME}</h1>
 
                 <ul className="list-inline">
-                    <li className="list-inline-item">
-                        <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_CONTROL)}>
-                            <TransmitControlTitle/>
-                        </Link>
-                    </li>
+                    {/*<li className="list-inline-item">*/}
+                    {/*    <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_CONTROL)}>*/}
+                    {/*        <TransmitControlTitle/>*/}
+                    {/*    </Link>*/}
+                    {/*</li>*/}
                     <li className="list-inline-item">
                         <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_CHANCHECK)}>
                             <TransmitChanCheckTitle/>
                         </Link>
                     </li>
-                    <li className="list-inline-item">
-                        <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_FX)}>
-                            <TransmitFxTitle/>
-                        </Link>
-                    </li>
+                    {/*<li className="list-inline-item">*/}
+                    {/*    <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_FX)}>*/}
+                    {/*        <TransmitFxTitle/>*/}
+                    {/*    </Link>*/}
+                    {/*</li>*/}
                 </ul>
             </Jumbotron>
         </div>
