@@ -85,7 +85,7 @@ jobs:
       - name: Cache web ui deps
         uses: actions/cache@v3
         with:
-          path: ${{github.workspace}}/.qt
+          path: ${{github.workspace}}/mobile_sacn_webui/node_modules
           key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
       - name: Configure CMake
         shell: bash
