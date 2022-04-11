@@ -1,11 +1,12 @@
-import React from "react";
+import React, {lazy} from "react";
 import Jumbotron from "../common/components/Jumbotron";
 import setPageTitle from "../common/setPageTitle";
 import {APP_NAME} from "../common/constants";
 import {generatePath, Link, Route, Routes} from "react-router-dom";
-import {Links} from "../routes";
+import {FrontRoutes, Links} from "../routes";
 import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
 
+const ThirdParty = lazy(() => import("./ThirdPartyPage"));
 
 function FrontPage() {
     setPageTitle();
@@ -40,6 +41,7 @@ function FrontPage() {
 export default function FrontController() {
     return (
         <Routes>
+            <Route path={FrontRoutes.ABOUT} element={<ThirdParty/>}/>
             {/* Because this isn't an actual website with things like SEO, just show the front page if the URL makes no sense. */}
             <Route path="*" element={<FrontPage/>}/>
         </Routes>

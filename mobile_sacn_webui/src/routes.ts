@@ -5,6 +5,7 @@ export const ControllerRouteBases = {
 
 export const FrontRoutes = {
     FRONT: "",
+    ABOUT: "about",
 };
 
 export const TransmitRoutes = {
@@ -15,6 +16,7 @@ export const TransmitRoutes = {
 
 export const Links = {
     FRONT_FRONT: `${ControllerRouteBases.FRONT}`,
+    FRONT_ABOUT: `/${FrontRoutes.ABOUT}`,
     TRANSMIT_CONTROL: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.CONTROL}`,
     TRANSMIT_CHANCHECK: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.CHANCHECK}`,
     TRANSMIT_FX: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.FX}`,
