@@ -7,7 +7,11 @@ interface LicenseInfo {
 
 const licenses: LicenseInfo[] = [
     {
-        name: "Boostrap",
+        name: "Boost",
+        licenseText: require("./external_licenses/boost.txt"),
+    },
+    {
+        name: "Bootstrap",
         licenseText: require("bootstrap/LICENSE"),
     },
     {
@@ -15,21 +19,31 @@ const licenses: LicenseInfo[] = [
         licenseText: require("clsx/license"),
     },
     {
-        name: "protoc-gen-ts",
-        licenseText: `Copyright 2020 Sahin Yort (thesayyn)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`,
+        name: "Crow",
+        licenseText: require("./external_licenses/crow.txt"),
     },
     {
-        name: "react",
+        name: "{fmt}",
+        licenseText: require("./external_licenses/fmtlib.txt"),
+    },
+    {
+        name: "Protocol Buffers",
+        licenseText: require("./external_licenses/protobuf.txt"),
+    },
+    {
+        name: "protoc-gen-ts",
+        licenseText: require('./external_licenses/protoc-gen-ts.txt'),
+    },
+    {
+        name: "qr-code-generator",
+        licenseText: require('./external_licenses/qr-code-generator.md'),
+    },
+    {
+        name: "React",
         licenseText: require("react/LICENSE"),
     },
     {
-        name: "react-bootstrap",
+        name: "React-Bootstrap",
         licenseText: require("react-bootstrap/LICENSE"),
     },
     {
@@ -45,13 +59,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         licenseText: require("react-scripts/LICENSE"),
     },
     {
-        name: "sass",
+        name: "Sass",
         licenseText: require("./../../node_modules/sass/LICENSE"),
     },
     {
-        name: "typescript",
+        name: "spdlog",
+        licenseText: require("./external_licenses/spdlog.txt"),
+    },
+    {
+        name: "TypeScript",
         licenseText: require("./../../node_modules/typescript/LICENSE.txt"),
-    }
+    },
 ];
 
 export default function ThirdPartyPage() {
