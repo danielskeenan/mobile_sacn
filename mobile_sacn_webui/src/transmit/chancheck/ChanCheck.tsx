@@ -6,7 +6,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     DMX_DEFAULT,
     DMX_MAX,
-    DMX_MIN, SACN_PRI_DEFAULT,
+    DMX_MIN,
+    LEVEL_MAX,
+    LEVEL_MIN,
+    SACN_PRI_DEFAULT,
     SACN_PRI_MAX,
     SACN_PRI_MIN,
     SACN_UNIV_DEFAULT,
@@ -20,12 +23,14 @@ import inRange from "../../common/inRange";
 import {mobilesacn} from "../../proto/chan_check";
 import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
+import LevelFader from "../../common/components/LevelFader";
 
 interface ChanCheckState {
     transmit: boolean;
     priority: number;
     universe: number;
     address: number;
+    level: number;
 }
 
 export default function ChanCheck() {
@@ -35,6 +40,7 @@ export default function ChanCheck() {
         priority: SACN_PRI_DEFAULT,
         universe: SACN_UNIV_DEFAULT,
         address: DMX_DEFAULT,
+        level: LEVEL_MAX,
     } as ChanCheckState);
 
     // Setup websocket
@@ -47,6 +53,7 @@ export default function ChanCheck() {
             priority: message.priority,
             universe: message.universe,
             address: message.address,
+            level: message.level ?? 0,
         } as ChanCheckState);
     }, [setState]);
     const onDisconnect = useCallback(() => {
@@ -82,6 +89,11 @@ export default function ChanCheck() {
             request({address: newValue});
         } else if (newValue === 0) {
             setState({address: 0});
+        }
+    }, [request]);
+    const validateAndSetLevel = useCallback((newValue: number) => {
+        if (inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
+            request({level: newValue});
         }
     }, [request]);
 
@@ -120,6 +132,7 @@ export default function ChanCheck() {
                     <Config state={state}
                             onChangeUniverse={validateAndSetUniv}
                             onChangePriority={validateAndSetPriority}
+                            onChangeLevel={validateAndSetLevel}
                     />
 
                     <ConnectButton
@@ -141,10 +154,11 @@ interface ConfigProps {
     state: ChanCheckState;
     onChangeUniverse: (newValue: number) => void;
     onChangePriority: (newValue: number) => void;
+    onChangeLevel: (newValue: number) => void;
 }
 
 function Config(props: ConfigProps) {
-    const {state, onChangeUniverse, onChangePriority} = props;
+    const {state, onChangeUniverse, onChangePriority, onChangeLevel} = props;
     const onUnivFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
             onChangeUniverse(handleNumberFieldChange(e));
         },
@@ -171,6 +185,10 @@ function Config(props: ConfigProps) {
                             <Form.Control type="number" value={state.priority}
                                           onChange={onPriorityFieldChange}
                                           min={0} max={SACN_PRI_MAX} disabled={state.transmit}/>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Level</Form.Label>
+                            <LevelFader level={state.level} onLevelChange={onChangeLevel}/>
                         </Form.Group>
                     </Form>
                 </Accordion.Body>

@@ -1,11 +1,12 @@
 import "./App.scss";
-import React, {lazy, Suspense, useReducer} from "react";
+import React, {lazy, Suspense, useReducer, useState} from "react";
 import AppContext from "./common/Context";
 import Flashes, {Flash} from "./common/components/Flashes";
 import Navbar from "./main/Navbar";
 import {Loading} from "./common/components/Loading";
 import {Route, Routes} from "react-router-dom";
 import {ControllerRouteBases} from "./routes";
+import {LevelDisplayMode} from "./common/components/LevelDisplay";
 
 const FrontController = lazy(() => import("./front/FrontController"));
 const TransmitController = lazy(() => import("./transmit/TransmitController"));
@@ -18,9 +19,11 @@ export default function App() {
     const [state, setState] = useReducer((state: AppState, newState: Partial<AppState>) => ({...state, ...newState}), {
         flashes: [],
     } as AppState);
+    const [levelDisplayMode, setLevelDisplayMode] = useState(LevelDisplayMode.PERCENT);
     const setFlashes = React.useCallback((flashes: Array<Flash>) => setState({flashes: flashes}), []);
     const appContext = {
         setFlashes: setFlashes,
+        levelDisplayMode: levelDisplayMode,
     };
 
     return (

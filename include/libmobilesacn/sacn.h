@@ -20,6 +20,8 @@ static const auto kSacnMinPriority = 0;
 static const auto kSacnMaxPriority = 200;
 static const auto kDmxMinAddr = 1;
 static const auto kDmxMaxAddr = DMX_ADDRESS_COUNT;
+static const auto kLevelMin = 0;
+static const auto kLevelMax = 255;
 
 struct SacnSourceDeleter {
   void operator()(sacn::Source *ptr) {

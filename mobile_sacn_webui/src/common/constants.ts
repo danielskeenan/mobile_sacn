@@ -8,3 +8,5 @@ export const DMX_DEFAULT = 1;
 export const SACN_PRI_MIN = 0;
 export const SACN_PRI_MAX = 200;
 export const SACN_PRI_DEFAULT = 100;
+export const LEVEL_MIN = 0;
+export const LEVEL_MAX = 255;

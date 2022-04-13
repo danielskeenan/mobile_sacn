@@ -1,0 +1,11 @@
+@import "src/assets/styles/bootstrap";
+
+.msacn-fader {
+  display: flex;
+  flex-flow: row;
+
+  .msacn-level {
+    @extend .ms-1;
+    font-family: monospace;
+  }
+}

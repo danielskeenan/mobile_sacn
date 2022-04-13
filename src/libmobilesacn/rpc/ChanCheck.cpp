@@ -25,14 +25,17 @@ void ChanCheck::HandleWsOpen(crow::websocket::connection &conn) {
 
 void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) {
   ChanCheckReq req;
-  req.ParseFromString(message);
+  if (!req.ParseFromString(message)) {
+    return;
+  }
 
   spdlog::info("Received chan_check {}", req.ShortDebugString());
 
   // Sanity check request.
   if (req.universe() < kSacnMinUniv || req.universe() > kSacnMaxUniv
       || req.address() < kDmxMinAddr || req.address() > kDmxMaxAddr
-      || req.priority() < kSacnMinPriority || req.priority() > kSacnMaxPriority) {
+      || req.priority() < kSacnMinPriority || req.priority() > kSacnMaxPriority
+      || req.level() < kLevelMin || req.level() > kLevelMax) {
     // Do nothing.
     SendCurrentState(conn);
     return;
@@ -40,9 +43,10 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
 
   const bool stop_transmitting = (!req.transmit() && transmitting_);
   const bool start_transmitting = req.transmit() && !transmitting_;
-  const bool change_univ = ((req.universe() != univ_) || start_transmitting) && req.transmit();
-  const bool change_priority = ((req.priority() != priority_) || start_transmitting) && req.transmit();
-  const bool change_addr = ((req.address() != addr_) || change_univ || start_transmitting) && req.transmit();
+  const bool change_univ = (req.universe() != univ_ || start_transmitting) && req.transmit();
+  const bool change_priority = (req.priority() != priority_ || start_transmitting) && req.transmit();
+  const bool change_addr = (req.address() != addr_ || req.level() != level_
+      || change_univ || start_transmitting) && req.transmit();
 
   if (stop_transmitting) {
     sacn_transmitter_->RemoveUniverse(univ_);
@@ -63,7 +67,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
 
   if (change_addr) {
     buf_[addr_ - 1] = 0;
-    buf_[req.address() - 1] = 255;
+    buf_[req.address() - 1] = req.level();
     sacn_transmitter_->UpdateLevels(req.universe(), buf_.data(), buf_.size());
   }
 
@@ -71,6 +75,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   priority_ = req.priority();
   univ_ = req.universe();
   addr_ = req.address();
+  level_ = static_cast<uint8_t>(req.level());
   SendCurrentState(conn);
 }
 
@@ -80,6 +85,7 @@ void ChanCheck::SendCurrentState(crow::websocket::connection &conn) const {
   msg.set_priority(priority_);
   msg.set_universe(univ_);
   msg.set_address(addr_);
+  msg.set_level(level_);
 
   conn.send_binary(msg.SerializeAsString());
 }
