@@ -24,6 +24,7 @@ import {mobilesacn} from "../../proto/chan_check";
 import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import LevelFader from "../../common/components/LevelFader";
+import {TransmitChanCheckTitle} from "../TransmitTitle";
 
 interface ChanCheckState {
     transmit: boolean;
@@ -113,7 +114,7 @@ export default function ChanCheck() {
 
     return (
         <>
-            <h1>Chan Check</h1>
+            <h1><TransmitChanCheckTitle/></h1>
             {!ready && (
                 <Connecting/>
             )}

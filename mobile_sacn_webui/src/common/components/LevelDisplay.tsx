@@ -1,10 +1,10 @@
 import {useContext} from "react";
 import AppContext from "../Context";
 
-export const enum LevelDisplayMode {
-    DECIMAL,
-    HEX,
-    PERCENT,
+export enum LevelDisplayMode {
+    DECIMAL = "decimal",
+    HEX = "hex",
+    PERCENT = "percent",
 }
 
 /**
@@ -274,25 +274,30 @@ const percentLookupTable = new Map([
 
 interface LevelDisplayProps {
     level: number;
+    displayMode?: LevelDisplayMode;
 }
 
 export default function LevelDisplay(props: LevelDisplayProps) {
-    const {levelDisplayMode} = useContext(AppContext);
-
-    const level_str = (() => {
-        switch (levelDisplayMode) {
-            case LevelDisplayMode.DECIMAL:
-                return props.level.toString(10).padStart(2, "0");
-            case LevelDisplayMode.HEX:
-                return props.level.toString(16).toUpperCase().padStart(2, "0");
-            case LevelDisplayMode.PERCENT:
-                const percent = percentLookupTable.get(props.level) ?? "??";
-                return `${percent}%`;
-        }
-        return "??";
-    })();
+    const {level, displayMode} = {
+        ...props, ...{
+            displayMode: useContext(AppContext).levelDisplayMode,
+        },
+    };
 
     return (
-        <span className="msacn-level">{level_str}</span>
+        <span className="msacn-level">{levelDisplayString(level, displayMode)}</span>
     );
+}
+
+export function levelDisplayString(level: number, displayMode?: LevelDisplayMode) {
+    switch (displayMode) {
+        case LevelDisplayMode.DECIMAL:
+            return level.toString(10).padStart(3, "0");
+        case LevelDisplayMode.HEX:
+            return level.toString(16).toUpperCase().padStart(2, "0");
+        case LevelDisplayMode.PERCENT:
+            const percent = percentLookupTable.get(level) ?? "??";
+            return `${percent}%`;
+    }
+    return "??";
 }

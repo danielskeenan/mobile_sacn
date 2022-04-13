@@ -7,6 +7,7 @@ import {FrontRoutes, Links} from "../routes";
 import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
 
 const ThirdParty = lazy(() => import("./ThirdPartyPage"));
+const Settings = lazy(() => import("./SettingsPage"));
 
 function FrontPage() {
     setPageTitle();
@@ -42,6 +43,7 @@ export default function FrontController() {
     return (
         <Routes>
             <Route path={FrontRoutes.ABOUT} element={<ThirdParty/>}/>
+            <Route path={FrontRoutes.SETTINGS} element={<Settings/>}/>
             {/* Because this isn't an actual website with things like SEO, just show the front page if the URL makes no sense. */}
             <Route path="*" element={<FrontPage/>}/>
         </Routes>

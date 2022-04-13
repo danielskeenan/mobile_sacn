@@ -5,6 +5,7 @@ import {generatePath, Link, NavLink} from "react-router-dom";
 import {Links} from "../routes";
 import {APP_NAME} from "../common/constants";
 import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
+import {SettingsTitle} from "../front/FrontTitle";
 
 export default function Navbar() {
     return (
@@ -33,6 +34,10 @@ export default function Navbar() {
                     <Nav.Link as={NavLink}
                               to={generatePath(Links.FRONT_ABOUT)}>
                         About
+                    </Nav.Link>
+                    <Nav.Link as={NavLink}
+                              to={generatePath(Links.FRONT_SETTINGS)}>
+                        <SettingsTitle/>
                     </Nav.Link>
                 </Nav>
             </BsNavbar.Collapse>
