@@ -32,12 +32,12 @@ export default function Navbar() {
                     {/*    <TransmitFxTitle/>*/}
                     {/*</Nav.Link>*/}
                     <Nav.Link as={NavLink}
-                              to={generatePath(Links.FRONT_ABOUT)}>
-                        About
-                    </Nav.Link>
-                    <Nav.Link as={NavLink}
                               to={generatePath(Links.FRONT_SETTINGS)}>
                         <SettingsTitle/>
+                    </Nav.Link>
+                    <Nav.Link as={NavLink}
+                              to={generatePath(Links.FRONT_ABOUT)}>
+                        About
                     </Nav.Link>
                 </Nav>
             </BsNavbar.Collapse>
