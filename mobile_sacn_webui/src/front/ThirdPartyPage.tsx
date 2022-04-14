@@ -23,6 +23,10 @@ const licenses: LicenseInfo[] = [
         licenseText: require("./external_licenses/crow.txt"),
     },
     {
+        name: "EtcPal",
+        licenseText: require("./external_licenses/etcpal.txt"),
+    },
+    {
         name: "{fmt}",
         licenseText: require("./external_licenses/fmtlib.txt"),
     },
@@ -57,6 +61,10 @@ const licenses: LicenseInfo[] = [
     {
         name: "react-scripts",
         licenseText: require("react-scripts/LICENSE"),
+    },
+    {
+        name: "sACN",
+        licenseText: require("./external_licenses/sacn.txt"),
     },
     {
         name: "Sass",
