@@ -1,7 +1,7 @@
 Mobile sACN
 ===========
 
-![Screenshot demonstrating channel check mode](https://github.com/danielskeenan/mobile_sacn/blob/main/doc/media/chancheck.png)
+![Screenshot demonstrating channel check mode](doc/media/chancheck.png)
 
 Mobile sACN allows remote troubleshooting of sACN signals. Your mobile device
 connects to a program on your computer that handles functions as the sACN
@@ -29,7 +29,7 @@ Usage
 2. Click "Start" and use your mobile device's camera to scan the QR code and
    open the web UI.
 
-![Screenshot showing selected interfaces and QR code](https://github.com/danielskeenan/mobile_sacn/blob/main/doc/media/base_started.png)
+![Screenshot showing selected interfaces and QR code](doc/media/base_started.png)
 
 Issues
 ------
