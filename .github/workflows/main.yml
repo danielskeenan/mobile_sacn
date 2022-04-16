@@ -45,7 +45,6 @@ jobs:
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
-          choco install nsis.portable -y
           choco install pandoc -y --ia=ALLUSERS=1
           refreshenv
       - name: Install System Packages (Linux)
@@ -106,17 +105,17 @@ jobs:
         if: ${{runner.os == 'macOS'}}
         working-directory: ${{env.BUILD_DIR}}
         shell: bash
-        run: cpack -G "ZIP;DragNDrop" -B "${BUILD_DIR}/packages"
+        run: cpack -G "DragNDrop" -B "${BUILD_DIR}/packages"
       - name: Package (Windows)
         if: ${{runner.os == 'Windows'}}
         working-directory: ${{env.BUILD_DIR}}
         shell: bash
-        run: cpack -G "ZIP;NSIS" -B "${BUILD_DIR}/packages"
+        run: cpack -G "ZIP;WIX" -B "${BUILD_DIR}/packages"
       - name: Package (Linux)
         if: ${{runner.os == 'Linux'}}
         working-directory: ${{env.BUILD_DIR}}
         shell: bash
-        run: cpack -G "TGZ;TBZ2;DEB" -B "${BUILD_DIR}/packages"
+        run: cpack -G "TGZ;DEB" -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
         uses: actions/upload-artifact@v2
         if: ${{ failure() }}
