@@ -5,5 +5,6 @@ Name=${PROJECT_DISPLAY_NAME}
 Version=${PROJECT_VERSION}
 Categories=Office
 Exec=${PROJECT_NAME}
+Icon=${PROJECT_NAME}
 StartupNotify=true
 Terminal=false

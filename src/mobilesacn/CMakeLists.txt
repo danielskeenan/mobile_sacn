@@ -24,15 +24,13 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     find_package(Qt${Qt_VERSION} COMPONENTS DBus REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-            Qt${Qt_VERSION}::DBus
-            )
+    target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::DBus)
     install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION ".")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_BUNDLE_GUI_IDENTIFIER "${PROJECT_ORGANIZATION_DOMAIN}.${PROJECT_NAME}"
-        #    MACOSX_BUNDLE_ICON_FILE ${PROJECT_NAME}.icns
+        MACOSX_BUNDLE_ICON_FILE ${PROJECT_NAME}.icns
         MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
 else ()
@@ -48,10 +46,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         windeployqt(${PROJECT_NAME} bin)
     endif ()
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-#    file(COPY "${PROJECT_SOURCE_DIR}/resources/app-icon.icns" DESTINATION "${PROJECT_BINARY_DIR}/meta")
-#    file(RENAME "${PROJECT_BINARY_DIR}/meta/app-icon.icns" "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
-#    target_sources(${PROJECT_NAME} PRIVATE "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
-#    set_source_files_properties("${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    file(COPY "${PROJECT_SOURCE_DIR}/resources/logo.icns" DESTINATION "${PROJECT_BINARY_DIR}/meta")
+    file(RENAME "${PROJECT_BINARY_DIR}/meta/logo.icns" "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
+    target_sources(${PROJECT_NAME} PRIVATE "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
+    set_source_files_properties("${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     if (BUILD_PACKAGE)
         include("${PROJECT_SOURCE_DIR}/cmake/Macdeployqt.cmake")
         macdeployqt(${PROJECT_NAME} bin)
