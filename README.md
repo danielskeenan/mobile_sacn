@@ -1,8 +1,6 @@
 Mobile sACN
 ===========
 
-![Screenshot demonstrating channel check mode](doc/media/chancheck.png)
-
 Mobile sACN allows remote troubleshooting of sACN signals. Your mobile device
 connects to a program on your computer that handles functions as the sACN
 transceiver. This reduces wireless network bandwidth and configuration
@@ -14,7 +12,7 @@ development builds [here](https://github.com/danielskeenan/mobile_sacn/releases/
 Requirements
 ------------
 
-- A computer with network access.
+- A computer with network access (Windows 10+, macOS 10.15+).
 - Mobile device with a web browser.
 
 Usage
@@ -34,3 +32,9 @@ Usage
 Issues
 ------
 Please report any issues via the [GitHub Issue Tracker](https://github.com/danielskeenan/mobile_sacn/issues).
+
+Screenshots
+-----------
+![Screenshot demonstrating channel check mode](doc/media/chancheck.png)
+
+![Screenshot demonstrating direct control mode](doc/media/control.png)
