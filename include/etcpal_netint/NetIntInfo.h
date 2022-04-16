@@ -81,7 +81,9 @@ class NetIntInfo {
     const auto if_arr = etcpal_netint_get_interfaces();
     ifaces.reserve(if_count);
     for (size_t i = 0; i < if_count; ++i) {
-      ifaces.emplace_back(if_arr[i]);
+      if (if_arr[i].addr.type == kEtcPalIpTypeV4) {
+        ifaces.emplace_back(if_arr[i]);
+      }
     }
   }
 
