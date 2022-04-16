@@ -4,6 +4,11 @@
   display: flex;
   flex-flow: row;
 
+  .msacn-fader-label {
+    @extend .me-1;
+    font-family: monospace;
+  }
+
   .msacn-level {
     @extend .ms-1;
     font-family: monospace;

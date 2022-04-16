@@ -1,6 +1,6 @@
 import "./ChanCheck.scss";
 import React, {useCallback, useEffect, useReducer, useState} from "react";
-import {Accordion, Button, Form} from "react-bootstrap";
+import {Button, Form} from "react-bootstrap";
 import {faCaretLeft, faCaretRight} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -25,11 +25,9 @@ import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import LevelFader from "../../common/components/LevelFader";
 import {TransmitChanCheckTitle} from "../TransmitTitle";
+import {TransmitConfig, TransmitState} from "../TransmitCommon";
 
-interface ChanCheckState {
-    transmit: boolean;
-    priority: number;
-    universe: number;
+interface ChanCheckState extends TransmitState {
     address: number;
     level: number;
 }
@@ -70,7 +68,14 @@ export default function ChanCheck() {
     const request = useCallback((newState: Partial<ChanCheckState>) => {
         const req = new mobilesacn.rpc.ChanCheckReq({...state, ...newState});
         sendMessage(req);
+
     }, [state, sendMessage]);
+    const doConnect = useCallback(() => {
+        request({transmit: true});
+    }, [request]);
+    const doDisconnect = useCallback(() => {
+        request({transmit: false});
+    }, [request]);
     const validateAndSetPriority = useCallback((newValue: number) => {
         if (inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
             request({priority: newValue});
@@ -130,71 +135,24 @@ export default function ChanCheck() {
                         onLast={() => validateAndSetAddr(state.address - 1)}
                     />
 
-                    <Config state={state}
-                            onChangeUniverse={validateAndSetUniv}
-                            onChangePriority={validateAndSetPriority}
-                            onChangeLevel={validateAndSetLevel}
-                    />
+                    <TransmitConfig state={state}
+                                    onChangeUniverse={validateAndSetUniv}
+                                    onChangePriority={validateAndSetPriority}
+                    >
+                        <Form.Group className="mb-3">
+                            <Form.Label>Level</Form.Label>
+                            <LevelFader level={state.level} onLevelChange={validateAndSetLevel}/>
+                        </Form.Group>
+                    </TransmitConfig>
 
                     <ConnectButton
                         started={state.transmit}
-                        onStart={() => {
-                            request({transmit: true});
-                        }}
-                        onStop={() => {
-                            request({transmit: false});
-                        }}
+                        onStart={doConnect}
+                        onStop={doDisconnect}
                     />
                 </>
             )}
         </>
-    );
-}
-
-interface ConfigProps {
-    state: ChanCheckState;
-    onChangeUniverse: (newValue: number) => void;
-    onChangePriority: (newValue: number) => void;
-    onChangeLevel: (newValue: number) => void;
-}
-
-function Config(props: ConfigProps) {
-    const {state, onChangeUniverse, onChangePriority, onChangeLevel} = props;
-    const onUnivFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-            onChangeUniverse(handleNumberFieldChange(e));
-        },
-        [onChangeUniverse]);
-    const onPriorityFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-            onChangePriority(handleNumberFieldChange(e));
-        },
-        [onChangePriority]);
-
-    return (
-        <Accordion>
-            <Accordion.Item eventKey="0">
-                <Accordion.Header>Config</Accordion.Header>
-                <Accordion.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Universe</Form.Label>
-                            <Form.Control type="number" value={state.universe}
-                                          onChange={onUnivFieldChange}
-                                          min={0} max={SACN_UNIV_MAX} disabled={state.transmit}/>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Priority</Form.Label>
-                            <Form.Control type="number" value={state.priority}
-                                          onChange={onPriorityFieldChange}
-                                          min={0} max={SACN_PRI_MAX} disabled={state.transmit}/>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Level</Form.Label>
-                            <LevelFader level={state.level} onLevelChange={onChangeLevel}/>
-                        </Form.Group>
-                    </Form>
-                </Accordion.Body>
-            </Accordion.Item>
-        </Accordion>
     );
 }
 

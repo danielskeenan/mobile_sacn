@@ -14,10 +14,12 @@ $dark: #212529;
 
 $input-disabled-bg: $dark;
 
-$accordion-bg: $dark;
+$accordion-bg: $secondary;
 $accordion-button-color: $body-color;
 $accordion-button-active-bg: $accordion-bg;
 $accordion-button-active-color: $accordion-button-color;
+
+$card-bg: $secondary;
 
 // Include bootstrap
 @import "~bootstrap/scss/bootstrap";

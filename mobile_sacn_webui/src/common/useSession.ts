@@ -6,7 +6,7 @@ type SessionMessageHandler<T extends Message> = (message: T, e: MessageEvent<Blo
 type SessionDisconnectHandler = (e: Event) => void;
 
 const enum SessionCode {
-    CLOSE_NORMAL = 1001,
+    CLOSE_NORMAL = 1000,
 }
 
 const BASE_URL = `ws://${document.location.hostname}:5050/ws`;

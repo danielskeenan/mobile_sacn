@@ -4,7 +4,7 @@ import {Nav, Navbar as BsNavbar} from "react-bootstrap";
 import {generatePath, Link, NavLink} from "react-router-dom";
 import {Links} from "../routes";
 import {APP_NAME} from "../common/constants";
-import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
+import {TransmitChanCheckTitle, TransmitControlTitle} from "../transmit/TransmitTitle";
 import {SettingsTitle} from "../front/FrontTitle";
 import logo from "../assets/logo.svg";
 
@@ -23,10 +23,10 @@ export default function Navbar() {
             <BsNavbar.Toggle aria-controls="msacn-navbar-content"/>
             <BsNavbar.Collapse id="msacn-navbar-content">
                 <Nav className="mr-auto">
-                    {/*<Nav.Link as={NavLink}*/}
-                    {/*          to={generatePath(Links.TRANSMIT_CONTROL)}>*/}
-                    {/*    <TransmitControlTitle/>*/}
-                    {/*</Nav.Link>*/}
+                    <Nav.Link as={NavLink}
+                              to={generatePath(Links.TRANSMIT_CONTROL)}>
+                        <TransmitControlTitle/>
+                    </Nav.Link>
                     <Nav.Link as={NavLink}
                               to={generatePath(Links.TRANSMIT_CHANCHECK)}>
                         <TransmitChanCheckTitle/>

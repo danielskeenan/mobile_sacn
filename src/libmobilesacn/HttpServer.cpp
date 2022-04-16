@@ -10,6 +10,7 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 #include "mobilesacn_config.h"
 #include "libmobilesacn/rpc/ChanCheck.h"
+#include "libmobilesacn/rpc/Control.h"
 #include <crow/middlewares/cors.h>
 #include <boost/container_hash/hash.hpp>
 #include <fmt/format.h>
@@ -35,6 +36,7 @@ HttpServer::HttpServer(HttpServer::Options options)
 
   // API Hooks
   SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(crow_, "/ws/chan_check").websocket());
+  SetWebsocketHandler<rpc::Control>(CROW_ROUTE(crow_, "/ws/control").websocket());
 
   // Serve Web UI files.
   CROW_ROUTE(crow_, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
@@ -68,6 +70,15 @@ std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::C
   const auto instance_id = fmt::format("ChanCheck_{}", ip_addr);
   auto it =
       handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::ChanCheck>(options_.sacn_address)))
+          .first;
+  return *it;
+}
+
+template<>
+std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::Control>(const std::string &ip_addr) {
+  const auto instance_id = fmt::format("Control_{}", ip_addr);
+  auto it =
+      handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::Control>(options_.sacn_address)))
           .first;
   return *it;
 }
