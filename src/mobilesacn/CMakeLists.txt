@@ -40,6 +40,9 @@ endif ()
 # Qt packaging
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_options(${PROJECT_NAME} PRIVATE "/NODEFAULTLIB:library")
+    configure_file(mobilesacn.rc ${CMAKE_CURRENT_BINARY_DIR}/mobilesacn.rc)
+    target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/mobilesacn.rc)
+    set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/mobilesacn.rc APPEND PROPERTY OBJECT_DEPENDS ${PROJECT_SOURCE_DIR}/resources/logo.ico)
     # Bundle Qt runtime
     if (BUILD_PACKAGE)
         include("${PROJECT_SOURCE_DIR}/cmake/Windeployqt.cmake")
