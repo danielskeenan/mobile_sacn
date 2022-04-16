@@ -126,15 +126,6 @@ export default function ChanCheck() {
 
             {ready && (
                 <>
-                    <h2 className="mt-3">Address</h2>
-                    <BigDisplay value={state.address} setValue={validateAndSetAddr} min={0} max={DMX_MAX}
-                                className={state.transmit ? "active" : undefined}/>
-                    <NextLast
-                        nextEnabled={state.address < DMX_MAX} lastEnabled={state.address > DMX_MIN}
-                        onNext={() => validateAndSetAddr(state.address + 1)}
-                        onLast={() => validateAndSetAddr(state.address - 1)}
-                    />
-
                     <TransmitConfig state={state}
                                     onChangeUniverse={validateAndSetUniv}
                                     onChangePriority={validateAndSetPriority}
@@ -149,6 +140,15 @@ export default function ChanCheck() {
                         started={state.transmit}
                         onStart={doConnect}
                         onStop={doDisconnect}
+                    />
+                    
+                    <h2 className="mt-3">Address</h2>
+                    <BigDisplay value={state.address} setValue={validateAndSetAddr} min={0} max={DMX_MAX}
+                                className={state.transmit ? "active" : undefined}/>
+                    <NextLast
+                        nextEnabled={state.address < DMX_MAX} lastEnabled={state.address > DMX_MIN}
+                        onNext={() => validateAndSetAddr(state.address + 1)}
+                        onLast={() => validateAndSetAddr(state.address - 1)}
                     />
                 </>
             )}
