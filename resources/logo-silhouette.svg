@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="512" height="512" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><style>.bg {
+      fill-opacity: 0;
+      stroke-opacity: 0;
+    }
+    .fg-stroke {
+      fill:none;
+      stroke:#ffffff;
+    }
+    .fg-fill {
+      fill:#ffffff;
+      stroke:none;
+    }</style><rect class="bg" x="8" y="8" width="496" height="496" rx="64" ry="64" style="stroke-width:16"/><g transform="matrix(.664 0 0 .664 86.016 149.67)"><circle class="fg-stroke" cx="256" cy="256" r="227.58" style="stroke-width:28.8"/><circle class="fg-fill" cx="124.28" cy="256" r="25"/><circle class="fg-fill" cx="162.86" cy="349.14" r="25"/><circle class="fg-fill" cx="256" cy="387.72" r="25"/><circle class="fg-fill" cx="349.14" cy="349.14" r="25"/><circle class="fg-fill" cx="387.72" cy="256" r="25"/></g><path class="fg-stroke" d="m202.24 114.77a151.12 151.12 0 0 1 53.761-9.8863 151.12 151.12 0 0 1 53.756 9.8844" style="stroke-width:24"/><path class="fg-stroke" d="m161.74 74.232a151.12 151.12 0 0 1 94.258-33 151.12 151.12 0 0 1 94.281 33.018" style="stroke-width:24"/></svg>

@@ -21,12 +21,7 @@ int main(int argc, char *argv[]) {
   app.setApplicationName(mobilesacn::config::kProjectName);
   app.setApplicationDisplayName(mobilesacn::config::kProjectDisplayName);
   app.setApplicationVersion(mobilesacn::config::kProjectVersion);
-//  app.setWindowIcon(QIcon(":/app-icon"));
-
-  // Icon theme, for non Linux platforms
-#ifndef PLATFORM_LINUX
-  QIcon::setThemeName("breeze-light");
-#endif
+  app.setWindowIcon(QIcon(":/logo.svg"));
 
   // Init EtcPal.
   etcpal_init(kEtcPalFeatures);

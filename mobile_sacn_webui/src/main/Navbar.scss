@@ -3,6 +3,11 @@
 .msacn-navbar-main {
   @extend .p-2;
 
+  .msacn-logo {
+    @extend .me-1;
+    vertical-align: text-bottom;
+  }
+
   img {
     height: $navbar-brand-height;
   }

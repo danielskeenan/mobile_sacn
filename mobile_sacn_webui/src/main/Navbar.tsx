@@ -6,6 +6,7 @@ import {Links} from "../routes";
 import {APP_NAME} from "../common/constants";
 import {TransmitChanCheckTitle} from "../transmit/TransmitTitle";
 import {SettingsTitle} from "../front/FrontTitle";
+import logo from "../assets/logo.svg";
 
 export default function Navbar() {
     return (
@@ -15,7 +16,10 @@ export default function Navbar() {
                   bg="primary"
                   fixed="top"
         >
-            <BsNavbar.Brand as={Link} to={Links.FRONT_FRONT}>{APP_NAME}</BsNavbar.Brand>
+            <BsNavbar.Brand as={Link} to={Links.FRONT_FRONT}>
+                <img className="msacn-logo" src={logo} alt=""/>
+                {APP_NAME}
+            </BsNavbar.Brand>
             <BsNavbar.Toggle aria-controls="msacn-navbar-content"/>
             <BsNavbar.Collapse id="msacn-navbar-content">
                 <Nav className="mr-auto">
