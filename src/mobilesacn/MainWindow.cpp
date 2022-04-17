@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include "NetIntModel.h"
 #include <QApplication>
+#include "Settings.h"
 
 namespace mobilesacn {
 
@@ -29,7 +30,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::InitUi() {
-  resize(1024, 600);
+  if (!restoreGeometry(Settings::GetMainWindowGeometry())) {
+    resize(1024, 600);
+    Settings::SetMainWindowGeometry(saveGeometry());
+  }
 
   auto central = new QWidget(this);
   setCentralWidget(central);
@@ -44,7 +48,16 @@ void MainWindow::InitUi() {
   widgets_.webui_iface_select = new QComboBox(this);
   widgets_.webui_iface_select_model = new NetIntListModel(widgets_.webui_iface_select);
   widgets_.webui_iface_select->setModel(widgets_.webui_iface_select_model);
-  widgets_.webui_iface_select->setCurrentIndex(widgets_.webui_iface_select_model->GetDefaultRow());
+  const QString &last_web_ui_interface_name = Settings::GetLastWebUiInterfaceName();
+  if (last_web_ui_interface_name.isEmpty()) {
+    const auto default_iface_row = widgets_.webui_iface_select_model->GetDefaultRow();
+    widgets_.webui_iface_select->setCurrentIndex(default_iface_row);
+    Settings::SetLastWebUiInterfaceName(QString::fromStdString(
+        widgets_.webui_iface_select_model->GetNetIntInfo(default_iface_row).GetFriendlyName()));
+  } else {
+    widgets_.webui_iface_select->setCurrentIndex(widgets_.webui_iface_select_model->GetRowForInterfaceName(
+        last_web_ui_interface_name.toStdString()));
+  }
   config_form->addRow(tr("Web UI Interface"), widgets_.webui_iface_select);
   connect(widgets_.webui_iface_select,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -54,7 +67,16 @@ void MainWindow::InitUi() {
   widgets_.sacn_iface_select = new QComboBox(this);
   widgets_.sacn_iface_select_model = new NetIntListModel(widgets_.sacn_iface_select);
   widgets_.sacn_iface_select->setModel(widgets_.sacn_iface_select_model);
-  widgets_.sacn_iface_select->setCurrentIndex(widgets_.sacn_iface_select_model->GetDefaultRow());
+  const QString &last_sacn_interface_name = Settings::GetLastSacnInterfaceName();
+  if (last_sacn_interface_name.isEmpty()) {
+    const auto default_iface_row = widgets_.sacn_iface_select_model->GetDefaultRow();
+    widgets_.sacn_iface_select->setCurrentIndex(default_iface_row);
+    Settings::SetLastSacnInterfaceName(QString::fromStdString(
+        widgets_.sacn_iface_select_model->GetNetIntInfo(default_iface_row).GetFriendlyName()));
+  } else {
+    widgets_.sacn_iface_select->setCurrentIndex(widgets_.sacn_iface_select_model->GetRowForInterfaceName(
+        last_sacn_interface_name.toStdString()));
+  }
   config_form->addRow(tr("sACN Interface"), widgets_.sacn_iface_select);
   connect(widgets_.sacn_iface_select,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -119,6 +141,8 @@ void MainWindow::SCurrentSacnIfaceChanged(int row) {
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   SStopApp();
+  Settings::SetMainWindowGeometry(saveGeometry());
+  Settings::Sync();
   event->accept();
 }
 

@@ -89,6 +89,16 @@ int NetIntModel::GetDefaultRow() const {
   return 0;
 }
 
+int NetIntModel::GetRowForInterfaceName(const std::string &name) const {
+  const auto row_count = rowCount(QModelIndex());
+  for (int row = 0; row < row_count; ++row) {
+    if (GetNetIntInfo(row).GetFriendlyName() == name) {
+      return row;
+    }
+  }
+  return 0;
+}
+
 int NetIntListModel::rowCount(const QModelIndex &parent) const {
   return table_model_->rowCount(QModelIndex());
 }

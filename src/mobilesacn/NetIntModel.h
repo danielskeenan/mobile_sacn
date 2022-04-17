@@ -39,6 +39,7 @@ class NetIntModel : public QAbstractTableModel {
   [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
   [[nodiscard]] etcpal_netint::NetIntInfo &GetNetIntInfo(int row) const;
   [[nodiscard]] int GetDefaultRow() const;
+  [[nodiscard]] int GetRowForInterfaceName(const std::string &name) const;
 };
 
 /**
@@ -59,6 +60,10 @@ class NetIntListModel : public QAbstractListModel {
 
   [[nodiscard]] int GetDefaultRow() const {
     return table_model_->GetDefaultRow();
+  }
+
+  [[nodiscard]] int GetRowForInterfaceName(const std::string &name) const {
+    return table_model_->GetRowForInterfaceName(name);
   }
 
  private:

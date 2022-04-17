@@ -11,11 +11,13 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     )
 
 find_package(qr-code-generator REQUIRED)
+include(${PROJECT_SOURCE_DIR}/cmake/qsettingscontainer.cmake)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     libmobilesacn
     qr-code-generator::qr-code-generator
     Qt${Qt_VERSION}::Widgets
     Qt${Qt_VERSION}::Svg
+    QSettingsContainer
     )
 if (Qt_VERSION EQUAL 6)
     find_package(Qt${Qt_VERSION} COMPONENTS SvgWidgets REQUIRED)
