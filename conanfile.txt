@@ -1,7 +1,8 @@
 [requires]
 boost/1.78.0
 fmt/8.1.1
-crowcpp-crow/1.0+1
+# Use forked crow until it is merged.
+#crowcpp-crow/1.0+1
 # protobuf MUST MATCH package.json
 protobuf/3.13.0
 qr-code-generator/1.7.0

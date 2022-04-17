@@ -141,7 +141,7 @@ export default function ChanCheck() {
                         onStart={doConnect}
                         onStop={doDisconnect}
                     />
-                    
+
                     <h2 className="mt-3">Address</h2>
                     <BigDisplay value={state.address} setValue={validateAndSetAddr} min={0} max={DMX_MAX}
                                 className={state.transmit ? "active" : undefined}/>
