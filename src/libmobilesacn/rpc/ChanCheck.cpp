@@ -45,6 +45,9 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   const bool change_priority = (req.priority() != priority_ || start_transmitting) && req.transmit();
   const bool change_addr = (req.address() != addr_ || req.level() != level_
       || change_univ || start_transmitting) && req.transmit();
+  if (!sacn_transmitter_) {
+    sacn_transmitter_ = GetSacnTransmitter(sacn_address_, "Chan Check", conn.get_remote_ip());
+  }
 
   if (stop_transmitting) {
     sacn_transmitter_->RemoveUniverse(univ_);
