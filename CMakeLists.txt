@@ -32,6 +32,9 @@ else()
     set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
 endif ()
 
+# Allow testing.
+include(CTest)
+
 # Decide which Qt version to use.
 set(Qt_COMPONENTS Widgets Svg)
 find_package(Qt6 COMPONENTS ${Qt_COMPONENTS})

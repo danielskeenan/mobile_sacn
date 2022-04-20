@@ -94,6 +94,20 @@ jobs:
         run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
 
       #######################
+      # TEST
+      #######################
+      - name: Test
+        working-directory: ${{env.BUILD_DIR}}
+        shell: bash
+        run: ctest -C ${BUILD_TYPE}
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: test_results
+          path: ${{env.BUILD_DIR}}/Testing/Temporary/LastTest.log
+
+      #######################
       # PACKAGE
       #######################
       - name: Package prep
