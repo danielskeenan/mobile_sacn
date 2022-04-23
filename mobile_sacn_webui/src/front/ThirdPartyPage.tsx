@@ -31,6 +31,10 @@ const licenses: LicenseInfo[] = [
         licenseText: require("./external_licenses/fmtlib.txt"),
     },
     {
+        name: "natural-compare",
+        licenseText: require("./external_licenses/natural-compare.txt"),
+    },
+    {
         name: "Protocol Buffers",
         licenseText: require("./external_licenses/protobuf.txt"),
     },
