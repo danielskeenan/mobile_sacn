@@ -23,7 +23,7 @@ namespace mobilesacn::rpc {
  */
 class ViewLevels : public RpcHandler, public sacn::Receiver::NotifyHandler {
  public:
-  explicit ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {}
+  explicit ViewLevels(const etcpal::IpAddr &sacn_address);
 
   void HandleWsOpen(crow::websocket::connection &conn) override;
   void HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) override;

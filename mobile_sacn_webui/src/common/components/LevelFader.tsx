@@ -5,13 +5,34 @@ import React, {useCallback} from "react";
 import {handleNumberFieldChange} from "../handleFieldChange";
 import LevelDisplay from "./LevelDisplay";
 
-interface LevelFaderProps {
+interface LevelBarProps {
     label?: string;
     level: number;
+}
+
+export function LevelBar(props: LevelBarProps) {
+    const {label, level} = props;
+    const percent = level / LEVEL_MAX * 100;
+
+    return (
+        <div className="msacn-fader">
+            {label !== undefined && (
+                <span className="msacn-fader-label">{label}</span>
+            )}
+            <svg className="msacn-bar-container">
+                <rect className="msacn-bar-bg" x="0" y="0" width="100%"/>
+                <rect className="msacn-bar-filled" x="0" y="0" width={`${percent}%`}/>
+            </svg>
+            <LevelDisplay level={level}/>
+        </div>
+    );
+}
+
+interface LevelFaderProps extends LevelBarProps {
     onLevelChange: (newValue: number) => void;
 }
 
-export default function LevelFader(props: LevelFaderProps) {
+export function LevelFader(props: LevelFaderProps) {
     const {label, level, onLevelChange} = props;
 
     const onLevelFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

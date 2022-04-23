@@ -26,9 +26,9 @@ void SacnMerger::HandleReceivedSacn(const SacnRemoteSource &source_info, const S
 
 std::array<std::string, DMX_ADDRESS_COUNT> SacnMerger::GetOwnerCids() const {
   std::array<std::string, DMX_ADDRESS_COUNT> owner_cids{};
-  for (unsigned int ix = 0; ix < owners_.size(); ++ix) {
+  for (unsigned int ix = 0; ix < DMX_ADDRESS_COUNT; ++ix) {
     const auto handle = owners_[ix];
-    if (per_address_priorities_[ix] == 0 || handle == SACN_DMX_MERGER_INVALID) {
+    if (per_address_priorities_[ix] == 0) {
       // No owner.
       continue;
     }

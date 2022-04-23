@@ -7,6 +7,7 @@ import {
     DMX_DEFAULT,
     DMX_MAX,
     DMX_MIN,
+    KEEPALIVE_MS,
     LEVEL_MAX,
     LEVEL_MIN,
     SACN_PRI_DEFAULT,
@@ -23,7 +24,7 @@ import inRange from "../../common/inRange";
 import {mobilesacn} from "../../proto/chan_check";
 import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
-import LevelFader from "../../common/components/LevelFader";
+import {LevelFader} from "../../common/components/LevelFader";
 import {TransmitChanCheckTitle} from "../TransmitTitle";
 import {TransmitConfig, TransmitState} from "../TransmitCommon";
 
@@ -111,7 +112,7 @@ export default function ChanCheck() {
 
         const timer = setInterval(() => {
             request({});
-        }, 30000);
+        }, KEEPALIVE_MS);
         return () => {
             clearInterval(timer);
         };

@@ -3,6 +3,8 @@
 .msacn-fader {
   display: flex;
   flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
 
   .msacn-fader-label {
     @extend .me-1;
@@ -12,5 +14,22 @@
   .msacn-level {
     @extend .ms-1;
     font-family: monospace;
+  }
+
+  .msacn-bar-container {
+    height: 1rem;
+    width: 100%;
+
+    .msacn-bar-bg {
+      height: 100%;
+      fill: $dark;
+      stroke: none;
+    }
+
+    .msacn-bar-filled {
+      height: 100%;
+      fill: $primary;
+      stroke: none;
+    }
   }
 }

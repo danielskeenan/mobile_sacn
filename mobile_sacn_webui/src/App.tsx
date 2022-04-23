@@ -11,6 +11,7 @@ import {LevelDisplayMode} from "./common/components/LevelDisplay";
 
 const FrontController = lazy(() => import("./front/FrontController"));
 const TransmitController = lazy(() => import("./transmit/TransmitController"));
+const ReceiveController = lazy(() => import("./receive/ReceiveController"));
 
 export default function App() {
     const [flashes, setFlashes] = useState<Flash[]>([]);
@@ -36,6 +37,7 @@ export default function App() {
                     <Suspense fallback={<Loading/>}>
                         <Routes>
                             <Route path={`${ControllerRouteBases.TRANSMIT}/*`} element={<TransmitController/>}/>
+                            <Route path={`${ControllerRouteBases.RECEIVE}/*`} element={<ReceiveController/>}/>
                             {/* Because this isn't an actual website with things like SEO, just show the front page if the URL makes no sense. */}
                             <Route path="*" element={<FrontController/>}/>
                         </Routes>

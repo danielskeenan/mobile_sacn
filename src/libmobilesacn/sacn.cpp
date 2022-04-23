@@ -71,6 +71,7 @@ std::unique_ptr<sacn::Receiver, SacnReceiverDeleter> GetSacnReceiver(const etcpa
   std::unique_ptr<sacn::Receiver, SacnReceiverDeleter> sacn(new sacn::Receiver);
 
   sacn::Receiver::Settings sacn_config(universe);
+  sacn_config.ip_supported = kSacnIpV4Only;
   const auto result = sacn->Startup(sacn_config, notify_handler, multicast_ifaces);
 
   if (!result.IsOk()) {

@@ -11,6 +11,7 @@
 #include "mobilesacn_config.h"
 #include "libmobilesacn/rpc/ChanCheck.h"
 #include "libmobilesacn/rpc/Control.h"
+#include "libmobilesacn/rpc/ViewLevels.h"
 #include <crow/middlewares/cors.h>
 #include <boost/container_hash/hash.hpp>
 #include <fmt/format.h>
@@ -26,10 +27,7 @@ HttpServer::HttpServer(HttpServer::Options options)
       .server_name(config::kProjectName)
       .bindaddr(options_.backend_address)
       .port(kServerPort)
-      .multithreaded()
-      .tick(std::chrono::minutes(1), [this]() {
-        CleanupUnusedHandlers();
-      });
+      .multithreaded();
 //  auto &cors = server.get_middleware<crow::CORSHandler>();
 //  cors.global()
 //      .methods(crow::HTTPMethod::Get);
@@ -37,6 +35,7 @@ HttpServer::HttpServer(HttpServer::Options options)
   // API Hooks
   SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(crow_, "/ws/chan_check").websocket());
   SetWebsocketHandler<rpc::Control>(CROW_ROUTE(crow_, "/ws/control").websocket());
+  SetWebsocketHandler<rpc::ViewLevels>(CROW_ROUTE(crow_, "/ws/view_levels").websocket());
 
   // Serve Web UI files.
   CROW_ROUTE(crow_, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
@@ -79,6 +78,15 @@ std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::C
   const auto instance_id = fmt::format("Control_{}", ip_addr);
   auto it =
       handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::Control>(options_.sacn_address)))
+          .first;
+  return *it;
+}
+
+template<>
+std::pair<const std::string, HttpServer::Handler> &HttpServer::GetHandler<rpc::ViewLevels>(const std::string &ip_addr) {
+  const auto instance_id = fmt::format("ViewLevels_{}", ip_addr);
+  auto it =
+      handlers_.try_emplace(instance_id, Handler(ip_addr, std::make_unique<rpc::ViewLevels>(options_.sacn_address)))
           .first;
   return *it;
 }
@@ -126,6 +134,7 @@ bool HttpServer::FilePathInWebroot(const std::filesystem::path &path) {
 }
 
 void HttpServer::CleanupUnusedHandlers() {
+  spdlog::debug("Cleaning up unused handlers.");
   const std::chrono::minutes expires_in(1);
   for (auto it = handlers_.begin(); it != handlers_.end();) {
     if (it->second.GetLastUse() + expires_in < std::chrono::steady_clock::now()) {

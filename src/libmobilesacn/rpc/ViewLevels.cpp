@@ -11,19 +11,33 @@
 
 namespace mobilesacn::rpc {
 
+ViewLevels::ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {
+  for (unsigned int addr = 0; addr < DMX_ADDRESS_COUNT; ++addr) {
+    res_.add_levels(0);
+    res_.add_winning_sources("");
+  }
+}
+
 void ViewLevels::HandleWsOpen(crow::websocket::connection &conn) {
   spdlog::info("New view_levels connection from {}", conn.get_remote_ip());
   conn_ = conn;
+  if (!sacn_receiver_) {
+    sacn_receiver_ = GetSacnReceiver(sacn_address_, univ_, *this);
+  }
+  SendCurrentState(conn);
 }
 
 void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) {
   ViewLevelsReq req;
   if (!req.ParseFromString(message)) {
+    spdlog::warn("Bad request in view_levels");
     return;
   }
+  spdlog::debug("Received {}", req.ShortDebugString());
 
   // Sanity check request.
   if (req.universe() < kSacnMinUniv || req.universe() > kSacnMaxUniv) {
+    spdlog::warn("Out-of-bounds request in view_levels");
     // Do nothing.
     SendCurrentState(conn);
     return;
@@ -71,13 +85,15 @@ void ViewLevels::HandleUniverseData(sacn::Receiver::Handle receiver_handle,
 
   // Update level data.
   sacn_merger_.HandleReceivedSacn(source_info, universe_data);
-  const auto &levels = sacn_merger_.GetBuf();
+  // Do a copy here to avoid race conditions.
+  const auto levels = sacn_merger_.GetBuf();
   res_.clear_levels();
   res_.mutable_levels()->Reserve(levels.size());
   for (const auto level : levels) {
     res_.add_levels(level);
   }
-  const auto &owners = sacn_merger_.GetOwnerCids();
+  // Do a copy here to avoid race conditions.
+  const auto owners = sacn_merger_.GetOwnerCids();
   res_.clear_winning_sources();
   res_.mutable_winning_sources()->Reserve(owners.size());
   for (const auto &owner_cid : owners) {
