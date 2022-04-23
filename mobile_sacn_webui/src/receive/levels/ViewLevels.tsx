@@ -7,12 +7,19 @@ import {SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/cons
 import useSession from "../../common/useSession";
 import {mobilesacn} from "../../proto/view_levels";
 import inRange from "../../common/inRange";
-import {Accordion, Badge, Card, Form, ListGroup} from "react-bootstrap";
+import {Accordion, Badge, Button, ButtonGroup, Card, Form, ListGroup, Row, Table, Col} from "react-bootstrap";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import {LevelBar} from "../../common/components/LevelFader";
 import naturalCompare from "natural-compare";
-import AccordionItem from "react-bootstrap/AccordionItem";
 import colorIterator from "../../common/colorIterator";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
+import LevelDisplay from "../../common/components/LevelDisplay";
+
+enum ControlMode {
+    BARS,
+    GRID
+}
 
 interface Source {
     name: string,
@@ -27,6 +34,7 @@ interface ViewLevelsState extends ReceiveState {
 
 export default function ViewLevels() {
     const [ready, setReady] = useState(false);
+    const [mode, setMode] = useState(ControlMode.BARS);
     const [state, setState] = useReducer((state: ViewLevelsState, newState: Partial<ViewLevelsState>) => ({...state, ...newState}), {
         universe: SACN_UNIV_DEFAULT,
         sources: new Map(),
@@ -85,7 +93,10 @@ export default function ViewLevels() {
 
     return (
         <>
-            <h1><ReceiveLevelsTitle/></h1>
+            <div className="d-flex flex-row justify-content-between mb-3">
+                <h1><ReceiveLevelsTitle/></h1>
+                <ModeToggle value={mode} onChange={setMode}/>
+            </div>
             {!ready && (
                 <Connecting/>
             )}
@@ -103,10 +114,52 @@ export default function ViewLevels() {
 
                     <SourceList sources={state.sources}/>
 
-                    <LevelBars sources={state.sources} levels={state.levels} winning_sources={state.winning_sources}/>
+                    {mode === ControlMode.BARS &&
+                        <LevelBars sources={state.sources} levels={state.levels}
+                                   winning_sources={state.winning_sources}/>
+                    }
+                    {mode === ControlMode.GRID &&
+                        <LevelGrid sources={state.sources} levels={state.levels}
+                                   winning_sources={state.winning_sources}/>
+                    }
                 </>
             )}
         </>
+    );
+}
+
+interface ModeToggleProps {
+    value: ControlMode;
+    onChange: (mode: ControlMode) => void;
+}
+
+function ModeToggle(props: ModeToggleProps) {
+    const {value, onChange} = props;
+
+    const onBars = useCallback(() => {
+        onChange(ControlMode.BARS);
+    }, [onChange]);
+    const onGrid = useCallback(() => {
+        onChange(ControlMode.GRID);
+    }, [onChange]);
+
+    const buttonVariant = (buttonMode: ControlMode) => {
+        if (buttonMode === value) {
+            return "light";
+        }
+
+        return "secondary";
+    };
+
+    return (
+        <ButtonGroup aria-label="Control mode">
+            <Button variant={buttonVariant(ControlMode.BARS)} onClick={onBars}>
+                <FontAwesomeIcon icon={faList}/>
+            </Button>
+            <Button variant={buttonVariant(ControlMode.GRID)} onClick={onGrid}>
+                <FontAwesomeIcon icon={faTableCells}/>
+            </Button>
+        </ButtonGroup>
     );
 }
 
@@ -131,7 +184,7 @@ function SourceList(props: SourceListProps) {
 
     return (
         <Accordion>
-            <AccordionItem eventKey="0">
+            <Accordion.Item eventKey="0">
                 <Accordion.Header>
                     Sources&nbsp;
                     <Badge>{sources.size}</Badge>
@@ -139,18 +192,18 @@ function SourceList(props: SourceListProps) {
                 <Accordion.Body>
                     <ListGroup className="msacn-sourcelist">{source_items}</ListGroup>
                 </Accordion.Body>
-            </AccordionItem>
+            </Accordion.Item>
         </Accordion>
     );
 }
 
-interface LevelBarsProps {
+interface LevelsProps {
     sources: Map<string, Source>;
     levels: number[];
     winning_sources: string[];
 }
 
-function LevelBars(props: LevelBarsProps) {
+function LevelBars(props: LevelsProps) {
     const {sources, levels, winning_sources} = props;
 
     return (
@@ -166,5 +219,57 @@ function LevelBars(props: LevelBarsProps) {
                 ))}
             </Card.Body>
         </Card>
+    );
+}
+
+function LevelGrid(props: LevelsProps) {
+    const {sources, levels, winning_sources} = props;
+    const [colCount, setColCount] = useState(8);
+    const onColCountFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+            setColCount(handleNumberFieldChange(e));
+        },
+        [setColCount]);
+
+    const rows: ReactElement[][] = [];
+    let col: ReactElement[] = [];
+    levels.forEach((value, ix) => {
+        col.push((
+            <td key={ix} style={{backgroundColor: sources.get(winning_sources[ix])?.color}}>
+                <LevelDisplay level={value}/>
+            </td>
+        ));
+        if (col.length % colCount === 0) {
+            rows.push(col);
+            col = [];
+        }
+    });
+    if (col.length > 0) {
+        rows.push(col);
+    }
+
+    return (
+        <>
+            <Form className="my-3" onSubmit={e => e.preventDefault()}>
+                <Form.Group as={Row} className="align-items-baseline">
+                    <Col xs="auto">
+                        <Form.Label>Column Count</Form.Label>
+                    </Col>
+                    <Col>
+                        <Form.Control type="number" value={colCount === 0 ? "" : colCount}
+                                      onInput={onColCountFieldChange}
+                                      min={0} max={SACN_UNIV_MAX}/>
+                    </Col>
+                </Form.Group>
+            </Form>
+            <Card className="msacn-levelgrid my-3">
+                <Card.Body>
+                    <Table responsive bordered>
+                        <tbody>
+                        {rows.map((row, ix) => (<tr key={`row_${ix}`}>{row}</tr>))}
+                        </tbody>
+                    </Table>
+                </Card.Body>
+            </Card>
+        </>
     );
 }
