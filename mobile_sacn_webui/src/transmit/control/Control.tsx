@@ -3,7 +3,6 @@ import React, {useCallback, useEffect, useReducer, useState} from "react";
 import {
     DMX_MAX,
     DMX_MIN,
-    KEEPALIVE_MS,
     LEVEL_MAX,
     LEVEL_MIN,
     SACN_PRI_DEFAULT,
@@ -118,20 +117,6 @@ export default function Control() {
     const setLevels = useCallback((levels: number[]) => {
         request({levels: levels});
     }, [request]);
-
-    // Keepalive
-    useEffect(() => {
-        if (!ready) {
-            return;
-        }
-
-        const timer = setInterval(() => {
-            request({});
-        }, KEEPALIVE_MS);
-        return () => {
-            clearInterval(timer);
-        };
-    }, [ready, request]);
 
     return (
         <>
