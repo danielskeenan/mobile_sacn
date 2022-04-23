@@ -8,6 +8,7 @@ import LevelDisplay from "./LevelDisplay";
 interface LevelBarProps {
     label?: string;
     level: number;
+    color?: string;
 }
 
 export function LevelBar(props: LevelBarProps) {
@@ -21,7 +22,7 @@ export function LevelBar(props: LevelBarProps) {
             )}
             <svg className="msacn-bar-container">
                 <rect className="msacn-bar-bg" x="0" y="0" width="100%"/>
-                <rect className="msacn-bar-filled" x="0" y="0" width={`${percent}%`}/>
+                <rect className="msacn-bar-filled" x="0" y="0" width={`${percent}%`} style={{fill: props.color}}/>
             </svg>
             <LevelDisplay level={level}/>
         </div>

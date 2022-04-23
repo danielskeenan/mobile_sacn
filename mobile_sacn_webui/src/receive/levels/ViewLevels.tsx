@@ -1,17 +1,26 @@
-import React, {useCallback, useEffect, useReducer, useState} from "react";
+import "./ViewLevels.scss";
+import React, {ReactElement, useCallback, useEffect, useReducer, useState} from "react";
 import {ReceiveLevelsTitle} from "../ReceiveTitle";
 import {Connecting} from "../../common/components/Loading";
 import {ReceiveState} from "../ReceiveCommon";
-import {KEEPALIVE_MS, SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
+import {SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
 import useSession from "../../common/useSession";
 import {mobilesacn} from "../../proto/view_levels";
 import inRange from "../../common/inRange";
-import {Card, Form} from "react-bootstrap";
+import {Accordion, Badge, Card, Form, ListGroup} from "react-bootstrap";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
-import {LevelBar, LevelFader} from "../../common/components/LevelFader";
+import {LevelBar} from "../../common/components/LevelFader";
+import naturalCompare from "natural-compare";
+import AccordionItem from "react-bootstrap/AccordionItem";
+import colorIterator from "../../common/colorIterator";
+
+interface Source {
+    name: string,
+    color: string,
+}
 
 interface ViewLevelsState extends ReceiveState {
-    sources: Map<string, string>;
+    sources: Map<string, Source>;
     levels: number[];
     winning_sources: string[];
 }
@@ -30,11 +39,21 @@ export default function ViewLevels() {
         setReady(true);
     }, [setReady]);
     const onMessage = useCallback((message: mobilesacn.rpc.ViewLevelsRes) => {
+        // Sort source list alphabetically by name.
+        const sources = Array.from(message.sources.entries());
+        sources.sort((a, b) => naturalCompare(a[1], b[1]));
+        const source_map = new Map<string, Source>();
+        const colors = colorIterator();
+        for (const [cid, name] of sources) {
+            source_map.set(cid, {name: name, color: colors.next().value});
+        }
+        colors.return(undefined);
+
         setState({
             universe: message.universe,
-            sources: message.sources,
-            levels: message.levels,
-            winning_sources: message.winning_sources,
+            sources: source_map,
+            levels: source_map.size === 0 ? [] : message.levels,
+            winning_sources: source_map.size === 0 ? [] : message.winning_sources,
         } as ViewLevelsState);
     }, [setState]);
     const onDisconnect = useCallback(() => {
@@ -82,19 +101,57 @@ export default function ViewLevels() {
                         </Form.Group>
                     </Form>
 
-                    <LevelBars levels={state.levels}/>
+                    <SourceList sources={state.sources}/>
+
+                    <LevelBars sources={state.sources} levels={state.levels} winning_sources={state.winning_sources}/>
                 </>
             )}
         </>
     );
 }
 
+interface SourceListProps {
+    sources: Map<string, Source>;
+}
+
+function SourceList(props: SourceListProps) {
+    const {sources} = props;
+    const source_items: ReactElement[] = [];
+    let source_ix = 0;
+    sources.forEach((sourceInfo, cid) => {
+        source_items.push((
+            <ListGroup.Item key={source_ix}
+                            style={{backgroundColor: sourceInfo.color}}
+            >
+                {sourceInfo.name}
+            </ListGroup.Item>
+        ));
+        ++source_ix;
+    });
+
+    return (
+        <Accordion>
+            <AccordionItem eventKey="0">
+                <Accordion.Header>
+                    Sources&nbsp;
+                    <Badge>{sources.size}</Badge>
+                </Accordion.Header>
+                <Accordion.Body>
+                    <ListGroup className="msacn-sourcelist">{source_items}</ListGroup>
+                </Accordion.Body>
+            </AccordionItem>
+        </Accordion>
+    );
+}
+
 interface LevelBarsProps {
+    sources: Map<string, Source>
     levels: number[];
+    winning_sources: string[];
 }
 
 function LevelBars(props: LevelBarsProps) {
-    const {levels} = props;
+    const {sources, levels, winning_sources} = props;
 
     return (
         <Card className="msacn-levelfaders my-3">
@@ -104,6 +161,7 @@ function LevelBars(props: LevelBarsProps) {
                         key={ix}
                         label={`${ix + 1}`.padStart(3, "0")}
                         level={value}
+                        color={sources.get(winning_sources[ix])?.color}
                     />
                 ))}
             </Card.Body>
