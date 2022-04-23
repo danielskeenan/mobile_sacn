@@ -12,17 +12,14 @@
 namespace mobilesacn::rpc {
 
 ViewLevels::ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {
-  for (unsigned int addr = 0; addr < DMX_ADDRESS_COUNT; ++addr) {
-    res_.add_levels(0);
-    res_.add_winning_sources("");
-  }
+  res_.set_universe(kSacnMinUniv);
 }
 
 void ViewLevels::HandleWsOpen(crow::websocket::connection &conn) {
   spdlog::info("New view_levels connection from {}", conn.get_remote_ip());
   conn_ = conn;
   if (!sacn_receiver_) {
-    sacn_receiver_ = GetSacnReceiver(sacn_address_, univ_, *this);
+    sacn_receiver_ = GetSacnReceiver(sacn_address_, res_.universe(), *this);
   }
   SendCurrentState(conn);
 }
@@ -43,16 +40,17 @@ void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::s
     return;
   }
 
-  const bool change_univ = sacn_receiver_ && req.universe() != univ_;
+  const bool change_univ = req.universe() != res_.universe() || !sacn_receiver_;
 
-  if (!sacn_receiver_) {
+  if (change_univ) {
+    // Reset first to avoid race conditions.
+    sacn_receiver_.reset();
+    sacn_merger_.Reset();
+    res_.Clear();
     sacn_receiver_ = GetSacnReceiver(sacn_address_, req.universe(), *this);
   }
-  if (change_univ) {
-    sacn_receiver_->ChangeUniverse(req.universe());
-  }
 
-  univ_ = req.universe();
+  res_.set_universe(req.universe());
   SendCurrentState(conn);
 }
 
@@ -69,7 +67,7 @@ void ViewLevels::HandleUniverseData(sacn::Receiver::Handle receiver_handle,
                                     const etcpal::SockAddr &source_addr,
                                     const SacnRemoteSource &source_info,
                                     const SacnRecvUniverseData &universe_data) {
-  if (universe_data.universe_id != univ_) {
+  if (universe_data.universe_id != res_.universe()) {
     // Don't care.
     return;
   }
@@ -108,7 +106,7 @@ void ViewLevels::HandleUniverseData(sacn::Receiver::Handle receiver_handle,
 void ViewLevels::HandleSourcesLost(sacn::Receiver::Handle handle,
                                    uint16_t universe,
                                    const std::vector<SacnLostSource> &lost_sources) {
-  if (universe != univ_) {
+  if (universe != res_.universe()) {
     // Don't care.
     return;
   }

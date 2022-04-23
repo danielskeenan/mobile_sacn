@@ -10,7 +10,19 @@
 
 namespace mobilesacn {
 
-SacnMerger::SacnMerger() : merger_(new sacn::DmxMerger) {
+SacnMerger::SacnMerger() {
+  Reset();
+}
+
+void SacnMerger::Reset() {
+  merger_.reset();
+
+  buf_.fill(0);
+  owners_.fill(0);
+  per_address_priorities_.fill(0);
+  cid_handle_map_.clear();
+
+  merger_.reset(new sacn::DmxMerger);
   sacn::DmxMerger::Settings settings(buf_.data());
   settings.owners = owners_.data();
   settings.per_address_priorities = per_address_priorities_.data();

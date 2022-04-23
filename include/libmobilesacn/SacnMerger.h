@@ -23,6 +23,8 @@ class SacnMerger {
  public:
   explicit SacnMerger();
 
+  void Reset();
+
   inline sacn_dmx_merger_source_t AddSource(EtcPalUuid source_cid) {
     const auto handle_it = cid_handle_map_.left.find(source_cid);
     if (handle_it != cid_handle_map_.left.end()) {
@@ -73,11 +75,11 @@ class SacnMerger {
   [[nodiscard]] std::array<std::string, DMX_ADDRESS_COUNT> GetOwnerCids() const;
 
  private:
-  std::unique_ptr<sacn::DmxMerger, ShutdownDeleter<sacn::DmxMerger>> merger_;
   std::array<uint8_t, DMX_ADDRESS_COUNT> buf_{0};
   std::array<sacn_dmx_merger_source_t, DMX_ADDRESS_COUNT> owners_{0};
   std::array<uint8_t, DMX_ADDRESS_COUNT> per_address_priorities_{0};
   boost::bimap<EtcPalUuid, sacn_dmx_merger_source_t> cid_handle_map_;
+  std::unique_ptr<sacn::DmxMerger, ShutdownDeleter<sacn::DmxMerger>> merger_;
 };
 
 } // mobilesacn

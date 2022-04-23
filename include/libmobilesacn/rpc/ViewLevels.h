@@ -43,7 +43,6 @@ class ViewLevels : public RpcHandler, public sacn::Receiver::NotifyHandler {
   SacnMerger sacn_merger_;
   std::unordered_map<EtcPalUuid, std::string> source_uuid_strings_;
   std::optional<std::reference_wrapper<crow::websocket::connection>> conn_;
-  unsigned int univ_ = 1;
   ViewLevelsRes res_;
 
   void SendCurrentState(crow::websocket::connection &conn) const;
