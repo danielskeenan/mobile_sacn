@@ -10,6 +10,7 @@
 #include "libmobilesacn/sacn.h"
 #include "etcpal_netint/NetIntInfo.h"
 #include "mobilesacn_config.h"
+#include <boost/container_hash/hash.hpp>
 
 namespace mobilesacn {
 
@@ -56,10 +57,31 @@ std::unique_ptr<sacn::Source, SacnSourceDeleter> GetSacnTransmitter(const etcpal
   sacn::Source::Settings sacn_config(cid, fmt::format("{} ({})", config::kProjectDisplayName, name));
   const auto result = sacn->Startup(sacn_config);
   if (!result.IsOk()) {
-    spdlog::critical("Error starting the sACN subsystem: {}", result.ToCString());
+    spdlog::critical("Error starting the sACN transmitter: {}", result.ToCString());
+  }
+
+  return sacn;
+}
+
+std::unique_ptr<sacn::Receiver, SacnReceiverDeleter> GetSacnReceiver(const etcpal::IpAddr &addr,
+                                                                     uint16_t universe,
+                                                                     sacn::Receiver::NotifyHandler &notify_handler) {
+  auto multicast_ifaces = GetMulticastInterfacesForAddress(addr);
+
+  std::unique_ptr<sacn::Receiver, SacnReceiverDeleter> sacn(new sacn::Receiver);
+
+  sacn::Receiver::Settings sacn_config(universe);
+  const auto result = sacn->Startup(sacn_config, notify_handler, multicast_ifaces);
+
+  if (!result.IsOk()) {
+    spdlog::critical("Error starting the sACN receiver: {}", result.ToCString());
   }
 
   return sacn;
 }
 
 } // mobilesacn
+
+std::size_t std::hash<EtcPalUuid>::operator()(const EtcPalUuid &uuid) const noexcept {
+  return boost::hash_range(std::cbegin(uuid.data), std::cend(uuid.data));
+}

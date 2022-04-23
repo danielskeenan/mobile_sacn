@@ -2,6 +2,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/proto_compile.cmake)
 proto_compile(_SRCS _HDRS _SCRIPTS
     chan_check.proto
     control.proto
+    view_levels.proto
     )
 
 add_library(mobilesacnproto ${_SRCS} ${_HDRS})
