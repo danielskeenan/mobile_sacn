@@ -23,7 +23,6 @@ const auto kProjectVersionMinor = ${PROJECT_VERSION_MINOR};
 const auto kProjectVersionPatch = ${PROJECT_VERSION_PATCH};
 
 const auto kWebPath = "${PROJECT_WEBUI_PATH}";
-const auto kSAcnCid = "${SACN_CID}";
 }
 
 #endif //MOBILE_SACN_MOBILESACN_CONFIG_H
