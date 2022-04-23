@@ -36,5 +36,7 @@ Please report any issues via the [GitHub Issue Tracker](https://github.com/danie
 Screenshots
 -----------
 ![Screenshot demonstrating channel check mode](doc/media/chancheck.png)
-
-![Screenshot demonstrating direct control mode](doc/media/control.png)
+![Screenshot demonstrating direct control mode](doc/media/control_faders.png)
+![Screenshot demonstrating direct control mode command line](doc/media/control_keypad.png)
+![Screenshot demonstrating level view](doc/media/levels_bars.png)
+![Screenshot demonstrating level view grid mode](doc/media/levels_grid.png)
