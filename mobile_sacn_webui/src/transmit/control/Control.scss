@@ -17,13 +17,13 @@
   font-family: monospace;
   color: $gray-600;
 
-  &.active {
-    color: $green;
-  }
-
   .msacn-cmdline-token {
     @extend .mx-1;
   }
+}
+
+.msacn-keypad.active .msacn-cmdline {
+  color: $green;
 }
 
 .msacn-keypad table {

@@ -24,15 +24,18 @@ import ConnectButton from "../../common/components/ConnectButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faKeyboard, faSliders} from "@fortawesome/free-solid-svg-icons";
 import {
-    allowedTokens, cmdLineIsComplete,
+    allowedTokens,
+    cmdLineIsComplete,
     CmdLineToken,
     CmdLineTokenAt,
     CmdLineTokenMinus,
     CmdLineTokenNumber,
     CmdLineTokenPlus,
     CmdLineTokenThru,
-    CmdLineTokenType, updateLevelsFromCmdLine,
+    CmdLineTokenType,
+    updateLevelsFromCmdLine,
 } from "./cmdline";
+import clsx from "clsx";
 
 enum ControlMode {
     FADERS,
@@ -153,7 +156,7 @@ export default function Control() {
                         <LevelFaders levels={state.levels} onLevelChange={validateAndSetLevel}/>
                     }
                     {mode === ControlMode.KEYPAD &&
-                        <LevelKeypad levels={state.levels} onLevelChange={setLevels}/>
+                        <LevelKeypad className={state.transmit ? "active" : undefined} levels={state.levels} onLevelChange={setLevels}/>
                     }
                 </>
             )}
@@ -222,7 +225,7 @@ function LevelFaders(props: LevelFadersProps) {
     );
 }
 
-interface LevelKeypadProps {
+interface LevelKeypadProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
     levels: number[];
     onLevelChange: (levels: number[]) => void;
 }
@@ -239,7 +242,7 @@ function LevelKeypad(props: LevelKeypadProps) {
 
     return (
         <>
-            <Card className="msacn-keypad my-3">
+            <Card className={clsx("msacn-keypad my-3", props.className)}>
                 <KeypadDisplay cmdline={cmdline}/>
                 <Keypad cmdline={cmdline} onCmdlineChange={setCmdline} onEnter={onEnter}/>
             </Card>
