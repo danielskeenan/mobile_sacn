@@ -38,7 +38,7 @@ export default function ViewLevels() {
     const onConnect = useCallback(() => {
         setReady(true);
     }, [setReady]);
-    const onMessage = useCallback((message: mobilesacn.rpc.ViewLevelsRes) => {
+    const onMessage = (message: mobilesacn.rpc.ViewLevelsRes) => {
         // Sort source list alphabetically by name.
         const sources = Array.from(message.sources.entries());
         sources.sort((a, b) => naturalCompare(a[1], b[1]));
@@ -50,12 +50,13 @@ export default function ViewLevels() {
         colors.return(undefined);
 
         setState({
-            universe: message.universe,
+            // If the universe is 0, the user is in the process of selecting a new universe.
+            universe: state.universe === 0 ? state.universe : message.universe,
             sources: source_map,
             levels: source_map.size === 0 ? [] : message.levels,
             winning_sources: source_map.size === 0 ? [] : message.winning_sources,
         } as ViewLevelsState);
-    }, [setState]);
+    };
     const onDisconnect = useCallback(() => {
         setReady(false);
     }, [setReady]);
@@ -74,9 +75,8 @@ export default function ViewLevels() {
     const validateAndSetUniv = useCallback((newValue: number) => {
         if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
-        } else if (newValue === 0) {
-            setState({universe: 0});
         }
+        setState({universe: newValue});
     }, [request]);
     const onUnivFieldChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
             validateAndSetUniv(handleNumberFieldChange(e));
@@ -92,11 +92,11 @@ export default function ViewLevels() {
 
             {ready && (
                 <>
-                    <Form>
+                    <Form onSubmit={e => e.preventDefault()}>
                         <Form.Group className="mb-3">
                             <Form.Label>Universe</Form.Label>
-                            <Form.Control type="number" value={state.universe}
-                                          onChange={onUnivFieldChange}
+                            <Form.Control type="number" value={state.universe === 0 ? "" : state.universe}
+                                          onInput={onUnivFieldChange}
                                           min={0} max={SACN_UNIV_MAX}/>
                         </Form.Group>
                     </Form>
@@ -145,7 +145,7 @@ function SourceList(props: SourceListProps) {
 }
 
 interface LevelBarsProps {
-    sources: Map<string, Source>
+    sources: Map<string, Source>;
     levels: number[];
     winning_sources: string[];
 }
