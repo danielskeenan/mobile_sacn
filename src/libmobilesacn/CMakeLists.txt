@@ -4,6 +4,7 @@ add_library(libmobilesacn
     EtcPalLogHandler.cpp
     HttpServer.cpp
     sacn.cpp
+    SacnMerger.cpp
     )
 
 include(${PROJECT_SOURCE_DIR}/cmake/sacn.cmake)

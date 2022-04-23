@@ -7,6 +7,7 @@ import {APP_NAME} from "../common/constants";
 import {TransmitChanCheckTitle, TransmitControlTitle} from "../transmit/TransmitTitle";
 import {SettingsTitle} from "../front/FrontTitle";
 import logo from "../assets/logo.svg";
+import {ReceiveLevelsTitle} from "../receive/ReceiveTitle";
 
 export default function Navbar() {
     return (
@@ -31,10 +32,10 @@ export default function Navbar() {
                               to={generatePath(Links.TRANSMIT_CHANCHECK)}>
                         <TransmitChanCheckTitle/>
                     </Nav.Link>
-                    {/*<Nav.Link as={NavLink}*/}
-                    {/*          to={generatePath(Links.TRANSMIT_FX)}>*/}
-                    {/*    <TransmitFxTitle/>*/}
-                    {/*</Nav.Link>*/}
+                    <Nav.Link as={NavLink}
+                              to={generatePath(Links.RECEIVE_LEVELS)}>
+                        <ReceiveLevelsTitle/>
+                    </Nav.Link>
                     <Nav.Link as={NavLink}
                               to={generatePath(Links.FRONT_SETTINGS)}>
                         <SettingsTitle/>

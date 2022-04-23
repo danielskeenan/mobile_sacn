@@ -24,9 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   // Tell spdlog to log to this window.
   auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex>>(widgets_.log_viewer);
-  auto widget_logger = std::make_shared<spdlog::logger>(qApp->applicationDisplayName().toStdString(), widget_log_sink);
-  spdlog::register_logger(widget_logger);
-  spdlog::set_default_logger(widget_logger);
+  spdlog::default_logger()->sinks().push_back(widget_log_sink);
 }
 
 void MainWindow::InitUi() {

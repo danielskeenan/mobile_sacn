@@ -9,12 +9,20 @@
 #include <QApplication>
 #include "mobilesacn_config.h"
 #include "MainWindow.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 using namespace mobilesacn;
 
 static const auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
 
+void setup_logging() {
+  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  spdlog::default_logger()->sinks() = {console_sink};
+}
+
 int main(int argc, char *argv[]) {
+  setup_logging();
+
   QApplication app(argc, argv);
   app.setOrganizationName(mobilesacn::config::kProjectOrganizationName);
   app.setOrganizationDomain(mobilesacn::config::kProjectOrganizationDomain);

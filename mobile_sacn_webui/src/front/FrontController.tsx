@@ -5,6 +5,7 @@ import {APP_NAME} from "../common/constants";
 import {generatePath, Link, Route, Routes} from "react-router-dom";
 import {FrontRoutes, Links} from "../routes";
 import {TransmitChanCheckTitle, TransmitControlTitle} from "../transmit/TransmitTitle";
+import {ReceiveLevelsTitle} from "../receive/ReceiveTitle";
 
 const ThirdParty = lazy(() => import("./ThirdPartyPage"));
 const Settings = lazy(() => import("./SettingsPage"));
@@ -28,11 +29,11 @@ function FrontPage() {
                             <TransmitChanCheckTitle/>
                         </Link>
                     </li>
-                    {/*<li className="list-inline-item">*/}
-                    {/*    <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_FX)}>*/}
-                    {/*        <TransmitFxTitle/>*/}
-                    {/*    </Link>*/}
-                    {/*</li>*/}
+                    <li className="list-inline-item">
+                        <Link className="btn btn-primary btn-lg" to={generatePath(Links.RECEIVE_LEVELS)}>
+                            <ReceiveLevelsTitle/>
+                        </Link>
+                    </li>
                 </ul>
             </Jumbotron>
         </div>

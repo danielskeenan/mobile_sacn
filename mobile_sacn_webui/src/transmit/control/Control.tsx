@@ -3,6 +3,7 @@ import React, {useCallback, useEffect, useReducer, useState} from "react";
 import {
     DMX_MAX,
     DMX_MIN,
+    KEEPALIVE_MS,
     LEVEL_MAX,
     LEVEL_MIN,
     SACN_PRI_DEFAULT,
@@ -18,7 +19,7 @@ import {TransmitControlTitle} from "../TransmitTitle";
 import {Connecting} from "../../common/components/Loading";
 import inRange from "../../common/inRange";
 import {Button, ButtonGroup, Card} from "react-bootstrap";
-import LevelFader from "../../common/components/LevelFader";
+import {LevelFader} from "../../common/components/LevelFader";
 import {TransmitConfig} from "../TransmitCommon";
 import ConnectButton from "../../common/components/ConnectButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -126,7 +127,7 @@ export default function Control() {
 
         const timer = setInterval(() => {
             request({});
-        }, 30000);
+        }, KEEPALIVE_MS);
         return () => {
             clearInterval(timer);
         };
