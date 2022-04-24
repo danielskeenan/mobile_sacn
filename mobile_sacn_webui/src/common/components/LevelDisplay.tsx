@@ -1,6 +1,7 @@
 import {useContext} from "react";
 import AppContext from "../Context";
 import {LEVEL_PERCENT_TABLE} from "../constants";
+import "./LevelDisplay.scss";
 
 export enum LevelDisplayMode {
     DECIMAL = "decimal",
@@ -285,6 +286,9 @@ export default function LevelDisplay(props: LevelDisplayProps) {
 }
 
 export function levelDisplayString(level: number, displayMode?: LevelDisplayMode) {
+    if (level === undefined) {
+        return "";
+    }
     switch (displayMode) {
         case LevelDisplayMode.DECIMAL:
             return level.toString(10).padStart(3, "0");

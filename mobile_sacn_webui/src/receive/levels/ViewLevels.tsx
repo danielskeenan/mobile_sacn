@@ -230,21 +230,19 @@ function LevelGrid(props: LevelsProps) {
         },
         [setColCount]);
 
-    const rows: ReactElement[][] = [];
-    let col: ReactElement[] = [];
-    levels.forEach((value, ix) => {
-        col.push((
-            <td key={ix} style={{backgroundColor: sources.get(winning_sources[ix])?.color}}>
-                <LevelDisplay level={value}/>
-            </td>
-        ));
-        if (col.length % colCount === 0) {
-            rows.push(col);
-            col = [];
+    const rows = [];
+    for (let rowIx = 0, levelIx = 0; levelIx < levels.length; ++rowIx) {
+        const rowCells = [
+            (<th>{levelIx + 1}</th>),
+        ];
+        for (let colIx = 0; colIx < colCount; ++colIx, ++levelIx) {
+            rowCells.push((
+                <td key={`level_${levelIx}`} style={{backgroundColor: sources.get(winning_sources[levelIx])?.color}}>
+                    {levels[levelIx] && <LevelDisplay level={levels[levelIx]}/>}
+                </td>
+            ));
         }
-    });
-    if (col.length > 0) {
-        rows.push(col);
+        rows.push((<tr>{rowCells}</tr>));
     }
 
     return (
@@ -265,7 +263,7 @@ function LevelGrid(props: LevelsProps) {
                 <Card.Body>
                     <Table responsive bordered>
                         <tbody>
-                        {rows.map((row, ix) => (<tr key={`row_${ix}`}>{row}</tr>))}
+                        {rows}
                         </tbody>
                     </Table>
                 </Card.Body>
