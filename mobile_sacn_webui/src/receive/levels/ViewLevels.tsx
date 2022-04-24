@@ -231,18 +231,21 @@ function LevelGrid(props: LevelsProps) {
         [setColCount]);
 
     const rows = [];
-    for (let rowIx = 0, levelIx = 0; levelIx < levels.length; ++rowIx) {
-        const rowCells = [
-            (<th>{levelIx + 1}</th>),
-        ];
-        for (let colIx = 0; colIx < colCount; ++colIx, ++levelIx) {
-            rowCells.push((
-                <td key={`level_${levelIx}`} style={{backgroundColor: sources.get(winning_sources[levelIx])?.color}}>
-                    {levels[levelIx] && <LevelDisplay level={levels[levelIx]}/>}
-                </td>
-            ));
+    if (colCount > 0) {
+        for (let rowIx = 0, levelIx = 0; levelIx < levels.length; ++rowIx) {
+            const rowCells = [
+                (<th key={`row_th_${rowIx}`}>{levelIx + 1}</th>),
+            ];
+            for (let colIx = 0; colIx < colCount; ++colIx, ++levelIx) {
+                rowCells.push((
+                    <td key={`level_${levelIx}`}
+                        style={{backgroundColor: sources.get(winning_sources[levelIx])?.color}}>
+                        {levels[levelIx] && <LevelDisplay level={levels[levelIx]}/>}
+                    </td>
+                ));
+            }
+            rows.push((<tr key={`row_${rowIx}`}>{rowCells}</tr>));
         }
-        rows.push((<tr>{rowCells}</tr>));
     }
 
     return (
@@ -261,7 +264,7 @@ function LevelGrid(props: LevelsProps) {
             </Form>
             <Card className="msacn-levelgrid my-3">
                 <Card.Body>
-                    <Table responsive bordered>
+                    <Table responsive bordered size="sm">
                         <tbody>
                         {rows}
                         </tbody>
