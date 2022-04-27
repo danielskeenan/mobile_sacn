@@ -3,10 +3,13 @@ add_executable(libmobilesacn_test
     EtcPalLogHandlerTest.cpp
     )
 
-target_link_libraries(libmobilesacn_test PRIVATE libmobilesacn GTest::gtest_main
+target_link_libraries(libmobilesacn_test PRIVATE libmobilesacn GTest::gtest_main GTest::gmock
     mobilesacnproto
     crow::crow
     sACN
     )
+
+add_subdirectory(rpc)
+
 include(GoogleTest)
 gtest_discover_tests(libmobilesacn_test)

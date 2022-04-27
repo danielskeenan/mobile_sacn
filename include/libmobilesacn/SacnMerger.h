@@ -17,7 +17,7 @@
 namespace mobilesacn {
 
 /**
- * Wrapper around sacn::DmxMerger to keep the level buffers together with the merger.
+ * Wrapper around sacn::DmxMerger to keep the level buffers together for the lifetime of the merger.
  */
 class SacnMerger {
  public:
