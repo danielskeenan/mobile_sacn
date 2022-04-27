@@ -37,7 +37,9 @@ if (BUILD_TESTING)
         OUTPUT_VARIABLE _JEST_TESTS
         COMMAND_ERROR_IS_FATAL ANY
     )
-    foreach (_JEST_TEST_PATH "${_JEST_TESTS}")
+    # Transform test list into List.
+    string(REPLACE "\n" ";" _JEST_TESTS "${_JEST_TESTS}")
+    foreach (_JEST_TEST_PATH ${_JEST_TESTS})
         string(STRIP "${_JEST_TEST_PATH}" _JEST_TEST_PATH)
         if (NOT _JEST_TEST_PATH)
             # Empty line.
