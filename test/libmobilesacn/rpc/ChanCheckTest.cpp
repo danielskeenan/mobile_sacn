@@ -145,5 +145,33 @@ TEST_F(ChanCheckTest, ChanCheck) {
   std::this_thread::sleep_for(std::chrono::seconds(1));
   EXPECT_GT(sacn_count, before_sacn_count);
 
+  // Change level.
+  sacn_handler.ready_for_test = false;
+  test_level = 127;
+  req.set_level(test_level);
+  res.set_level(test_level);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  test_buf.fill(0);
+  test_buf[test_address - 1] = test_level;
+  before_sacn_count = sacn_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_GT(sacn_count, before_sacn_count);
+
+  // Stop transmitting
+  sacn_handler.ready_for_test = false;
+  test_transmitting = false;
+  req.set_transmit(test_transmitting);
+  res.set_transmitting(test_transmitting);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  before_sacn_count = sacn_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_EQ(sacn_count, before_sacn_count);
+
   sacn_receiver.Shutdown();
 }
