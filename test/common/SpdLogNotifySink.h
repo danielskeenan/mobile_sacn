@@ -10,6 +10,7 @@
 #define MOBILE_SACN_TEST_COMMON_SPDLOGNOTIFYSINK_H_
 
 #include <spdlog/sinks/base_sink.h>
+#include <mutex>
 
 namespace mobilesacn::testing {
 
