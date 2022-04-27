@@ -1,4 +1,4 @@
-import {LEVEL_MAX, LEVEL_MIN, LEVEL_PERCENT_TABLE, PERCENT_LEVEL_TABLE} from "./constants";
+import {clampLevelValue, LEVEL_PERCENT_TABLE, PERCENT_LEVEL_TABLE} from "./constants";
 
 describe("DMX percent tables match", () => {
     // Sanity check tables.
@@ -20,5 +20,19 @@ describe("DMX percent tables match", () => {
         it(`Percent/Level table matches Level/Percent table for ${percent}%`, () => {
             expect(LEVEL_PERCENT_TABLE.get(level)).toEqual(percent);
         });
+    });
+});
+
+describe("Level clamping works", () => {
+    it("Within range", () => {
+        expect(clampLevelValue(64)).toEqual(64);
+    });
+
+    it("Below range", () => {
+        expect(clampLevelValue(-20)).toEqual(0);
+    });
+
+    it("Above range", () => {
+        expect(clampLevelValue(500)).toEqual(255);
     });
 });

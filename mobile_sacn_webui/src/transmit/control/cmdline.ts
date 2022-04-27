@@ -1,4 +1,12 @@
-import {DMX_MAX, DMX_MIN, PERCENT_LEVEL_TABLE} from "../../common/constants";
+import {
+    clampLevelValue,
+    DMX_MAX,
+    DMX_MIN,
+    LEVEL_MAX,
+    LEVEL_MIN,
+    LEVEL_PERCENT_TABLE,
+    PERCENT_LEVEL_TABLE,
+} from "../../common/constants";
 import {localStorageGet, LocalStorageItem} from "../../common/localStorage";
 import {LevelDisplayMode} from "../../common/components/LevelDisplay";
 
@@ -146,9 +154,9 @@ export function cmdLineIsComplete(cmdline: CmdLineToken[]) {
  * @param cmdline
  * @param levels
  */
-export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[]) {
+export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[]): number[] {
     if (cmdline.length === 0) {
-        return;
+        return levels;
     }
 
     let cmdlineIx = 0;
@@ -201,16 +209,16 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
         const token = cmdline[cmdlineIx];
         if (token instanceof CmdLineTokenNumber) {
             if (!thru) {
-                levelRange = [convertUserLevelToActualLevel(parseInt(token.value))];
+                levelRange = [parseInt(token.value)];
             } else {
                 // Allows for things like 1 thru 5 at 10 thru 50 => 1@10, 2@20, 3@30, 4@40, 5@50
                 const levelStart = levelRange[0];
                 levelRange = [];
                 if (selection.size > 1) {
-                    const levelEnd = convertUserLevelToActualLevel(parseInt(token.value));
+                    const levelEnd = parseInt(token.value);
                     const levelChange = (levelEnd - levelStart) / (selection.size - 1);
-                    for (let level = levelStart; level <= levelEnd; level += levelChange) {
-                        levelRange.push(Math.round(level));
+                    for (let level = levelStart; levelRange.length < selection.size; level += levelChange) {
+                        levelRange.push(level);
                     }
                 }
             }
@@ -232,23 +240,30 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
     // Update levels.
     if (levelRange.length === 0) {
         // Do nothing, at enter does nothing in the program.
-        return;
+        return levels;
     }
     let levelIx = 0;
     selection.forEach((addr) => {
+        // Working with DMX (0-255) can cause off-by-one errors when the user is thinking in percentages.
+        let currentLevel = convertActualLevelToUserLevel(levels[addr - 1]);
+        let levelChange = levelRange[levelIx];
+        let newLevel;
         if (plus) {
-            levels[addr - 1] += levelRange[levelIx];
+            newLevel = currentLevel + levelChange;
         } else if (minus) {
-            levels[addr - 1] -= levelRange[levelIx];
+            newLevel = currentLevel - levelChange;
         } else {
-            levels[addr - 1] = levelRange[levelIx];
+            newLevel = levelChange;
         }
+        levels[addr - 1] = clampLevelValue(convertUserLevelToActualLevel(newLevel));
         ++levelIx;
         if (levelIx >= levelRange.length) {
             // Loop level range.
             levelIx = 0;
         }
     });
+
+    return levels;
 }
 
 /**
@@ -258,7 +273,25 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
 function convertUserLevelToActualLevel(level: number): number {
     const levelDisplayMode = localStorageGet(LocalStorageItem.LEVEL_DISPLAY_MODE, LevelDisplayMode.PERCENT) as LevelDisplayMode;
     if (levelDisplayMode === LevelDisplayMode.PERCENT) {
-        return PERCENT_LEVEL_TABLE.get(level) ?? 0;
+        let actualLevel = PERCENT_LEVEL_TABLE.get(level);
+        if (actualLevel === undefined) {
+            // The level is some decimal percentage value.
+            actualLevel = Math.round(level / 100 * 255);
+        }
+        return actualLevel;
+    }
+
+    return level;
+}
+
+/**
+ * Convert an actual 0-255 level to a level as the user sees it (may be a percent).
+ * @param level
+ */
+function convertActualLevelToUserLevel(level: number): number {
+    const levelDisplayMode = localStorageGet(LocalStorageItem.LEVEL_DISPLAY_MODE, LevelDisplayMode.PERCENT) as LevelDisplayMode;
+    if (levelDisplayMode === LevelDisplayMode.PERCENT) {
+        return LEVEL_PERCENT_TABLE.get(level) ?? 0;
     }
 
     return level;

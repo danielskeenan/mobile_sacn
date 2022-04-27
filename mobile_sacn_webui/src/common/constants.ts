@@ -383,4 +383,13 @@ export const PERCENT_LEVEL_TABLE = new Map([
     [98, 250],
     [99, 252],
     [100, 255],
-])
+]);
+
+export function clampLevelValue(level: number): number {
+    if (level < LEVEL_MIN) {
+        return LEVEL_MIN;
+    } else if (level > LEVEL_MAX) {
+        return LEVEL_MAX;
+    }
+    return level;
+}
