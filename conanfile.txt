@@ -1,5 +1,6 @@
 [requires]
 boost/1.78.0
+gtest/1.11.0
 fmt/8.1.1
 # Use forked crow until it is merged.
 #crowcpp-crow/1.0+1

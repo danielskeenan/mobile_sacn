@@ -35,7 +35,6 @@ target_link_libraries(libmobilesacn PRIVATE
     crow::crow
     fmt::fmt
     sACN
-    spdlog::spdlog
     )
 target_link_libraries(libmobilesacn PUBLIC EtcPal spdlog::spdlog)
 

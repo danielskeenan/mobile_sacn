@@ -49,6 +49,10 @@ add_subdirectory(mobile_sacn_webui)
 add_subdirectory(proto)
 add_subdirectory(src)
 
+if (BUILD_TESTING)
+    add_subdirectory(test)
+endif ()
+
 set(BUILD_PACKAGE Off CACHE BOOL "Create packages, installers, etc.")
 if (BUILD_PACKAGE)
     include(cmake/install.cmake)
