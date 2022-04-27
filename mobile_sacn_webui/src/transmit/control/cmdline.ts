@@ -1,12 +1,4 @@
-import {
-    clampLevelValue,
-    DMX_MAX,
-    DMX_MIN,
-    LEVEL_MAX,
-    LEVEL_MIN,
-    LEVEL_PERCENT_TABLE,
-    PERCENT_LEVEL_TABLE,
-} from "../../common/constants";
+import {clampLevelValue, DMX_MAX, DMX_MIN, LEVEL_PERCENT_TABLE, PERCENT_LEVEL_TABLE} from "../../common/constants";
 import {localStorageGet, LocalStorageItem} from "../../common/localStorage";
 import {LevelDisplayMode} from "../../common/components/LevelDisplay";
 
