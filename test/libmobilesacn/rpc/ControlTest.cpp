@@ -48,7 +48,7 @@ TEST_F(ControlTest, Control) {
         EXPECT_EQ(priority, test_priority);
         EXPECT_EQ(buf, test_buf);
         ++sacn_count;
-      });
+      }, {});
   sacn::Receiver::Settings sacn_settings(test_univ);
   sacn::Receiver sacn_receiver;
   sacn_receiver.Startup(sacn_settings, sacn_handler);

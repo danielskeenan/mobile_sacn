@@ -67,6 +67,10 @@ void ViewLevels::HandleUniverseData(sacn::Receiver::Handle receiver_handle,
                                     const etcpal::SockAddr &source_addr,
                                     const SacnRemoteSource &source_info,
                                     const SacnRecvUniverseData &universe_data) {
+  if (universe_data.start_code != SACN_STARTCODE_DMX) {
+    // TODO: Support viewing levels with per-address-priority.
+    return;
+  }
   if (universe_data.universe_id != res_.universe()) {
     // Don't care.
     return;

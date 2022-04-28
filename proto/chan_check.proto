@@ -8,6 +8,7 @@ message ChanCheckReq {
   uint32 universe = 3;
   uint32 address = 4;
   uint32 level = 5;
+  bool per_address_priority = 6;
 }
 
 message ChanCheckRes {
@@ -16,4 +17,5 @@ message ChanCheckRes {
   uint32 universe = 3;
   uint32 address = 4;
   uint32 level = 5;
+  bool per_address_priority = 6;
 }

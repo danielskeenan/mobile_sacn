@@ -40,16 +40,24 @@ TEST_F(ChanCheckTest, ChanCheck) {
   auto test_address = 1;
   auto test_level = 255;
   mobilesacn::testing::DmxBuffer test_buf{0};
+  mobilesacn::testing::DmxBuffer test_priorities{0};
   // Used to ensure sACN packets have actually been processed.
-  std::atomic<unsigned long> sacn_count = 0;
+  std::atomic<unsigned long> sacn_levels_count = 0;
+  std::atomic<unsigned long> sacn_pap_count = 0;
   mobilesacn::testing::TestSacnNotifyHandler sacn_handler(
-      [&test_univ, &test_priority, &test_buf, &sacn_count](unsigned int univ,
-                                                           unsigned int priority,
-                                                           std::array<uint8_t, DMX_ADDRESS_COUNT> buf) {
+      [&test_univ, &test_priority, &test_buf, &sacn_levels_count](unsigned int univ,
+                                                                  unsigned int priority,
+                                                                  mobilesacn::testing::DmxBuffer buf) {
         EXPECT_EQ(univ, test_univ);
         EXPECT_EQ(priority, test_priority);
         EXPECT_EQ(buf, test_buf);
-        ++sacn_count;
+        ++sacn_levels_count;
+      },
+      [&test_univ, &test_priorities, &sacn_pap_count](unsigned int univ,
+                                                      mobilesacn::testing::DmxBuffer buf) {
+        EXPECT_EQ(univ, test_univ);
+        EXPECT_EQ(buf, test_priorities);
+        ++sacn_pap_count;
       });
   sacn::Receiver::Settings sacn_settings(test_univ);
   sacn::Receiver sacn_receiver;
@@ -62,6 +70,8 @@ TEST_F(ChanCheckTest, ChanCheck) {
   res.set_universe(test_univ);
   req.set_priority(test_priority);
   res.set_priority(test_priority);
+  req.set_per_address_priority(false);
+  res.set_per_address_priority(false);
   req.set_transmit(test_transmitting);
   res.set_transmitting(test_transmitting);
   req.set_address(test_address);
@@ -79,7 +89,8 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_EQ(log_count, 1);
   std::this_thread::sleep_for(std::chrono::seconds(1));
   // No transmitting has occurred.
-  EXPECT_EQ(sacn_count, 0);
+  EXPECT_EQ(sacn_levels_count, 0);
+  EXPECT_EQ(sacn_pap_count, 0);
 
   // Start transmitting.
   sacn_handler.ready_for_test = false;
@@ -89,11 +100,13 @@ TEST_F(ChanCheckTest, ChanCheck) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf[test_address - 1] = test_level;
-  auto before_sacn_count = sacn_count.load();
+  auto before_sacn_levels_count = sacn_levels_count.load();
+  auto before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_GT(sacn_count, before_sacn_count);
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   // Change address.
   sacn_handler.ready_for_test = false;
@@ -104,11 +117,13 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
-  before_sacn_count = sacn_count.load();
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_GT(sacn_count, before_sacn_count);
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   // Change priority.
   sacn_handler.ready_for_test = false;
@@ -119,11 +134,13 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
-  before_sacn_count = sacn_count.load();
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_GT(sacn_count, before_sacn_count);
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   // Change universe and address.
   sacn_handler.ready_for_test = false;
@@ -139,11 +156,13 @@ TEST_F(ChanCheckTest, ChanCheck) {
   sacn_receiver.ChangeUniverse(test_univ);
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
-  before_sacn_count = sacn_count.load();
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_GT(sacn_count, before_sacn_count);
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   // Change level.
   sacn_handler.ready_for_test = false;
@@ -154,11 +173,93 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
-  before_sacn_count = sacn_count.load();
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_GT(sacn_count, before_sacn_count);
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
+
+  // Enable per-address-priority.
+  sacn_handler.ready_for_test = false;
+  req.set_per_address_priority(true);
+  res.set_per_address_priority(true);
+  test_priority = 150;
+  req.set_priority(test_priority);
+  res.set_priority(test_priority);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  test_buf.fill(0);
+  test_buf[test_address - 1] = test_level;
+  test_priorities.fill(0);
+  test_priorities[test_address - 1] = test_priority;
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_GT(sacn_pap_count, before_sacn_pap_count);
+
+  // Change universe and address with PAP enabled.
+  sacn_handler.ready_for_test = false;
+  test_univ = 1;
+  test_address = 1;
+  req.set_universe(test_univ);
+  res.set_universe(test_univ);
+  req.set_address(test_address);
+  res.set_address(test_address);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  // Pay attention to a different universe.
+  sacn_receiver.ChangeUniverse(test_univ);
+  test_buf.fill(0);
+  test_buf[test_address - 1] = test_level;
+  test_priorities.fill(0);
+  test_priorities[test_address - 1] = test_priority;
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_GT(sacn_pap_count, before_sacn_pap_count);
+
+  // Change priority with PAP enabled.
+  sacn_handler.ready_for_test = false;
+  test_priority = 200;
+  req.set_priority(test_priority);
+  res.set_priority(test_priority);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  test_buf.fill(0);
+  test_buf[test_address - 1] = test_level;
+  test_priorities.fill(0);
+  test_priorities[test_address - 1] = test_priority;
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_GT(sacn_pap_count, before_sacn_pap_count);
+
+  // Disable per-address-priority.
+  sacn_handler.ready_for_test = false;
+  req.set_per_address_priority(false);
+  res.set_per_address_priority(false);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  test_buf.fill(0);
+  test_buf[test_address - 1] = test_level;
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_GT(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   // Stop transmitting
   sacn_handler.ready_for_test = false;
@@ -167,11 +268,13 @@ TEST_F(ChanCheckTest, ChanCheck) {
   res.set_transmitting(test_transmitting);
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
-  before_sacn_count = sacn_count.load();
+  before_sacn_levels_count = sacn_levels_count.load();
+  before_sacn_pap_count = sacn_pap_count.load();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_EQ(sacn_count, before_sacn_count);
+  EXPECT_EQ(sacn_levels_count, before_sacn_levels_count);
+  EXPECT_EQ(sacn_pap_count, before_sacn_pap_count);
 
   sacn_receiver.Shutdown();
 }

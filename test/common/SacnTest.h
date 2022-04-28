@@ -43,8 +43,10 @@ class SacnTest : public ::testing::Test {
 class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
  public:
   using DataCb = std::function<void(unsigned int univ, unsigned int priority, DmxBuffer buf)>;
+  using PriorityCb = std::function<void(unsigned int univ, DmxBuffer buf)>;
 
-  explicit TestSacnNotifyHandler(DataCb on_data) : on_data_(std::move(on_data)) {}
+  explicit TestSacnNotifyHandler(DataCb on_data, PriorityCb on_pap)
+      : on_data_(std::move(on_data)), on_pap_(std::move(on_pap)) {}
 
   /**
    * Set this to `true` when the incoming data is ready for verification.
@@ -67,7 +69,11 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
     for (unsigned int addr = start_address - 1, ix = 0; ix < universe_data.slot_range.address_count; ++addr, ++ix) {
       buf[addr] = universe_data.values[ix];
     }
-    on_data_(universe_data.universe_id, universe_data.priority, buf);
+    if (universe_data.start_code == SACN_STARTCODE_DMX && on_data_) {
+      on_data_(universe_data.universe_id, universe_data.priority, buf);
+    } else if (universe_data.start_code == SACN_STARTCODE_PRIORITY && on_pap_) {
+      on_pap_(universe_data.universe_id, buf);
+    }
   }
 
   /** @internal */
@@ -79,6 +85,7 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
 
  private:
   DataCb on_data_;
+  PriorityCb on_pap_;
 };
 
 } // mobilesacn::testing

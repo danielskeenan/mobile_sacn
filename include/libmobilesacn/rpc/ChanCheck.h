@@ -34,7 +34,9 @@ class ChanCheck : public RpcHandler {
   unsigned int univ_ = 1;
   unsigned int addr_ = 1;
   uint8_t level_ = 255;
+  bool per_address_priority_ = false;
   std::array<uint8_t, DMX_ADDRESS_COUNT> buf_{0};
+  std::array<uint8_t, DMX_ADDRESS_COUNT> priorities_{0};
 
   void SendCurrentState(crow::websocket::connection &conn) const;
 };

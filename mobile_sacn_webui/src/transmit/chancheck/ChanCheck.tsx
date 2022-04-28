@@ -30,6 +30,7 @@ import {TransmitConfig, TransmitState} from "../TransmitCommon";
 interface ChanCheckState extends TransmitState {
     address: number;
     level: number;
+    per_address_priority: boolean;
 }
 
 export default function ChanCheck() {
@@ -40,6 +41,7 @@ export default function ChanCheck() {
         universe: SACN_UNIV_DEFAULT,
         address: DMX_DEFAULT,
         level: LEVEL_MAX,
+        per_address_priority: false,
     } as ChanCheckState);
 
     // Setup websocket
@@ -50,6 +52,7 @@ export default function ChanCheck() {
         setState({
             transmit: message.transmitting,
             priority: message.priority,
+            per_address_priority: message.per_address_priority,
             universe: message.universe,
             address: message.address,
             level: message.level ?? 0,
@@ -97,6 +100,9 @@ export default function ChanCheck() {
             setState({address: 0});
         }
     }, [request]);
+    const setUsePap = useCallback((newValue: boolean) => {
+        request({per_address_priority: newValue});
+    }, [request]);
     const validateAndSetLevel = useCallback((newValue: number) => {
         if (inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
             request({level: newValue});
@@ -116,10 +122,17 @@ export default function ChanCheck() {
                                     onChangeUniverse={validateAndSetUniv}
                                     onChangePriority={validateAndSetPriority}
                     >
-                        <Form.Group className="mb-3">
-                            <Form.Label>Level</Form.Label>
-                            <LevelFader level={state.level} onLevelChange={validateAndSetLevel}/>
-                        </Form.Group>
+                        <>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
+                                <Form.Check inline disabled={state.transmit} type="switch"
+                                            onChange={() => setUsePap(!state.per_address_priority)}/>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Level</Form.Label>
+                                <LevelFader level={state.level} onLevelChange={validateAndSetLevel}/>
+                            </Form.Group>
+                        </>
                     </TransmitConfig>
 
                     <ConnectButton
