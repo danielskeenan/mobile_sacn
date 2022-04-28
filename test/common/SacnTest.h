@@ -16,7 +16,6 @@
 #include <utility>
 #include <array>
 #include <atomic>
-#include <ranges>
 
 namespace mobilesacn::testing {
 
