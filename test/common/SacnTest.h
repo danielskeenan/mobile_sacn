@@ -16,6 +16,7 @@
 #include <utility>
 #include <array>
 #include <atomic>
+#include <ranges>
 
 namespace mobilesacn::testing {
 
@@ -87,6 +88,21 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
   DataCb on_data_;
   PriorityCb on_pap_;
 };
+
+MATCHER_P(RecentPacketIs, received, "") {
+  static_assert(std::is_same_v<DmxBuffer, std::remove_cv_t<std::remove_reference_t<arg_type>>>,
+                "expected must be a DmxBuffer.");
+  static_assert(std::is_same_v<std::vector<DmxBuffer>, std::remove_cv_t<std::remove_reference_t<received_type>>>,
+                "received must be a std::vector<DmxBuffer>.");
+
+  *result_listener << "most recent sACN packet(s) are " << ::testing::PrintToString(arg);
+
+  if (received.empty()) {
+    return false;
+  }
+
+  return received.back() == arg;
+}
 
 } // mobilesacn::testing
 
