@@ -16,10 +16,10 @@ using namespace mobilesacn;
 
 TEST(EtcPalLogHandlerTest, Log) {
   // Setup the log observer.
-  const auto log_msg = "Test Log Message.";
+  static const std::string log_msg = "Test Log Message.";
   bool logged = false;
-  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&log_msg, &logged](const spdlog::details::log_msg &msg) {
-    EXPECT_EQ(msg.payload, log_msg);
+  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&logged](const spdlog::details::log_msg &msg) {
+    EXPECT_EQ(std::string_view(msg.payload.data(), msg.payload.size()), log_msg);
     logged = true;
   };
   auto test_sink = std::make_shared<mobilesacn::testing::NotifySinkSt>(log_cb);
@@ -31,7 +31,7 @@ TEST(EtcPalLogHandlerTest, Log) {
   etcpal::Logger logger;
   logger.Startup(etc_pal_log_handler);
 
-  logger.Log(ETCPAL_LOG_WARNING, log_msg);
+  logger.Log(ETCPAL_LOG_WARNING, log_msg.c_str());
 
   logger.Shutdown();
   etcpal_deinit(ETCPAL_FEATURE_LOGGING);
