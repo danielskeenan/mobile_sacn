@@ -35,6 +35,12 @@ endif()
 # Add commands that copy the Qt runtime to the target's output directory after
 # build and install the Qt runtime to the specified directory
 function(windeployqt target directory)
+    if (${Qt_VERSION} EQUAL 6)
+        # Qt6 doesn't use this option.
+        set(_NO_ANGLE "")
+    else ()
+        set(_NO_ANGLE "--no-angle")
+    endif ()
 
     # Run windeployqt immediately after build
     add_custom_command(TARGET ${target} POST_BUILD
@@ -42,7 +48,7 @@ function(windeployqt target directory)
             env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
                 --verbose 1
                 --no-compiler-runtime
-                --no-angle
+                ${_NO_ANGLE}
                 --no-opengl-sw
                 \"$<TARGET_FILE:${target}>\"
     )
@@ -63,7 +69,7 @@ function(windeployqt target directory)
                 env PATH=\"${_qt_bin_dir}\" \"${WINDEPLOYQT_EXECUTABLE}\"
                     --dry-run
                     --no-compiler-runtime
-                    --no-angle
+                    ${_NO_ANGLE}
                     --no-opengl-sw
                     --list mapping
                     \${_file}
