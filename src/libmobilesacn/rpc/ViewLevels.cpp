@@ -11,13 +11,12 @@
 
 namespace mobilesacn::rpc {
 
-ViewLevels::ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {
-  res_.set_universe(kSacnMinUniv);
-}
+ViewLevels::ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {}
 
 void ViewLevels::HandleWsOpen(crow::websocket::connection &conn) {
   spdlog::info("New view_levels connection from {}", conn.get_remote_ip());
   conn_ = conn;
+  res_.set_universe(kSacnMinUniv);
   if (!sacn_receiver_) {
     sacn_receiver_ = GetSacnReceiver(sacn_address_, res_.universe(), *this);
   }
@@ -56,6 +55,9 @@ void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::s
 
 void ViewLevels::HandleWsClose(crow::websocket::connection &conn, const std::string &reason) {
   sacn_receiver_.reset();
+  sacn_merger_.Reset();
+  source_uuid_strings_.clear();
+  res_.Clear();
   conn_.reset();
 }
 

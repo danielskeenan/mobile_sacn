@@ -24,11 +24,11 @@ class ControlTest : public mobilesacn::testing::SacnTest {
 
 TEST_F(ControlTest, Control) {
   // Setup the log observer.
-  auto log_msg = "New control connection from 127.0.0.1";
+  static const std::string log_msg = "New control connection from 127.0.0.1";
   unsigned int log_count = 0;
-  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&log_msg, &log_count](const spdlog::details::log_msg &msg) {
+  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&log_count](const spdlog::details::log_msg &msg) {
     EXPECT_LT(msg.level, spdlog::level::warn);
-    EXPECT_EQ(msg.payload, log_msg);
+    EXPECT_EQ(std::string_view(msg.payload.begin(), msg.payload.end()), log_msg);
     ++log_count;
   };
   auto test_sink = std::make_shared<mobilesacn::testing::NotifySinkSt>(log_cb);
