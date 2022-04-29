@@ -1,1 +1,14 @@
-../../../resources/logo.svg
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><style>.bg {
+      fill:#052c65;
+      stroke:#052c65;
+    }
+    .fg-stroke {
+      fill:none;
+      stroke:#e9ecef;
+      stroke-opacity:1;
+    }
+    .fg-fill {
+      fill:#e9ecef;
+      stroke:none;
+    }</style><rect x="8" y="8" width="496" height="496" rx="64" ry="64" fill="#052c65" stroke="#052c65" stroke-width="16"/><g transform="matrix(.664 0 0 .664 86.016 149.67)"><circle cx="256" cy="256" r="227.58" fill="none" stroke="#e9ecef" stroke-width="28.8"/><g fill="#e9ecef"><circle cx="124.28" cy="256" r="25"/><circle cx="162.86" cy="349.14" r="25"/><circle cx="256" cy="387.72" r="25"/><circle cx="349.14" cy="349.14" r="25"/><circle cx="387.72" cy="256" r="25"/></g></g><path d="m202.24 114.77a151.12 151.12 0 0 1 53.761-9.8863 151.12 151.12 0 0 1 53.756 9.8844" fill="none" stroke="#e9ecef" stroke-width="24"/><path d="m161.74 74.232a151.12 151.12 0 0 1 94.258-33 151.12 151.12 0 0 1 94.281 33.018" fill="none" stroke="#e9ecef" stroke-width="24"/></svg>
