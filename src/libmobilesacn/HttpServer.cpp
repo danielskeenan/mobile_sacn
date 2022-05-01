@@ -33,9 +33,9 @@ HttpServer::HttpServer(HttpServer::Options options)
 //      .methods(crow::HTTPMethod::Get);
 
   // API Hooks
-  SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(crow_, "/ws/chan_check").websocket());
-  SetWebsocketHandler<rpc::Control>(CROW_ROUTE(crow_, "/ws/control").websocket());
-  SetWebsocketHandler<rpc::ViewLevels>(CROW_ROUTE(crow_, "/ws/view_levels").websocket());
+  SetWebsocketHandler<rpc::ChanCheck>(CROW_ROUTE(crow_, "/ws/chan_check").websocket(), "chan check");
+  SetWebsocketHandler<rpc::Control>(CROW_ROUTE(crow_, "/ws/control").websocket(), "control");
+  SetWebsocketHandler<rpc::ViewLevels>(CROW_ROUTE(crow_, "/ws/view_levels").websocket(), "view levels");
 
   // Serve Web UI files.
   CROW_ROUTE(crow_, "/").methods(crow::HTTPMethod::Get)(&RedirectToIndex);
@@ -143,6 +143,15 @@ void HttpServer::CleanupUnusedHandlers() {
     } else {
       ++it;
     }
+  }
+}
+
+std::string HttpServer::GetConnRemoteIp(crow::websocket::connection &conn) {
+  try {
+    return conn.get_remote_ip();
+  } catch (const boost::system::system_error &) {
+    // Can't get the remote IP from a system that has already disconnected.
+    return "disconnected client";
   }
 }
 

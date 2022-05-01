@@ -14,7 +14,6 @@ namespace mobilesacn::rpc {
 ViewLevels::ViewLevels(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {}
 
 void ViewLevels::HandleWsOpen(crow::websocket::connection &conn) {
-  spdlog::info("New view_levels connection from {}", conn.get_remote_ip());
   conn_ = conn;
   res_.set_universe(kSacnMinUniv);
   if (!sacn_receiver_) {

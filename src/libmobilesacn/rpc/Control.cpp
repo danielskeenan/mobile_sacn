@@ -13,7 +13,6 @@
 namespace mobilesacn::rpc {
 
 void Control::HandleWsOpen(crow::websocket::connection &conn) {
-  spdlog::info("New control connection from {}", conn.get_remote_ip());
   if (!sacn_transmitter_) {
     sacn_transmitter_ = GetSacnTransmitter(sacn_address_, "Control", conn.get_remote_ip());
   }

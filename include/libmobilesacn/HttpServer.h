@@ -18,6 +18,7 @@
 #include "CrowLogHandler.h"
 #include <crow/routing.h>
 #include <crow/app.h>
+#include <spdlog/spdlog.h>
 
 namespace mobilesacn {
 
@@ -78,19 +79,27 @@ class HttpServer {
   static crow::response RedirectToIndex();
 
   /**
-   * Verify the static file path is in the webroot
+   * Verify the static file path is in the webroot.
    * @return
    */
   static bool FilePathInWebroot(const std::filesystem::path &path);
 
+  /**
+   * Setup a websocket handler.
+   *
+   * @tparam Handler_T
+   * @param rule A route created using CROW_ROUTE().websocket().
+   * @param identifier The identifier to use in logging.
+   */
   template<class Handler_T>
-  void SetWebsocketHandler(crow::WebSocketRule &rule) {
+  void SetWebsocketHandler(crow::WebSocketRule &rule, const std::string &identifier) {
     // Queries to conn.get_remote_ip() can throw if the socket is dead.
     rule
         .onaccept([this](const crow::request &req) {
           GetHandler<Handler_T>(req.remote_ip_address);
           return true;
-        }).onopen([this](crow::websocket::connection &conn) {
+        }).onopen([this, identifier](crow::websocket::connection &conn) {
+          spdlog::info("New \"{}\" connection from {}", identifier, GetConnRemoteIp(conn));
           try {
             GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsOpen(conn);
           } catch (const boost::system::system_error &) {
@@ -111,7 +120,8 @@ class HttpServer {
             conn.close();
           }
         })
-        .onclose([this](crow::websocket::connection &conn, const std::string &reason) {
+        .onclose([this, identifier](crow::websocket::connection &conn, const std::string &reason) {
+          spdlog::info("Closed \"{}\" connection from {}", identifier, GetConnRemoteIp(conn));
           try {
             auto &it = GetHandler<Handler_T>(conn.get_remote_ip());
             it.second.GetHandler()->HandleWsClose(conn, reason);
@@ -126,6 +136,15 @@ class HttpServer {
   std::pair<const std::string, Handler> &GetHandler(const std::string &ip_addr);
 
   void CleanupUnusedHandlers();
+
+  /**
+   * Try to get the remote up for a websocket connection.
+   *
+   * Used for logging, not guaranteed to return a valid IP if the client has disconnected.
+   * @param conn
+   * @return
+   */
+  static std::string GetConnRemoteIp(crow::websocket::connection &conn);
 };
 
 } // mobilesacn

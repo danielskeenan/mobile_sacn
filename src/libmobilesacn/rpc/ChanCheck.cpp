@@ -15,7 +15,6 @@
 namespace mobilesacn::rpc {
 
 void ChanCheck::HandleWsOpen(crow::websocket::connection &conn) {
-  spdlog::info("New chan_check connection from {}", conn.get_remote_ip());
   if (!sacn_transmitter_) {
     sacn_transmitter_ = GetSacnTransmitter(sacn_address_, "Chan Check", conn.get_remote_ip());
   }
