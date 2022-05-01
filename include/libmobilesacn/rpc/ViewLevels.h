@@ -27,7 +27,7 @@ class ViewLevels : public RpcHandler, public sacn::Receiver::NotifyHandler {
 
   void HandleWsOpen(crow::websocket::connection &conn) override;
   void HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) override;
-  void HandleWsClose(crow::websocket::connection &conn, const std::string &reason) override;
+  void HandleWsClose(crow::websocket::connection *conn, const std::string &reason) override;
 
   void HandleUniverseData(sacn::Receiver::Handle receiver_handle,
                           const etcpal::SockAddr &source_addr,

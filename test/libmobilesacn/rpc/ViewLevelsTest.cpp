@@ -23,17 +23,6 @@ class ViewLevelsTest : public mobilesacn::testing::SacnTest {
 };
 
 TEST_F(ViewLevelsTest, ViewLevels) {
-  // Setup the log observer.
-  static const std::string log_msg = "New view_levels connection from 127.0.0.1";
-  unsigned int log_count = 0;
-  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&log_count](const spdlog::details::log_msg &msg) {
-    EXPECT_LT(msg.level, spdlog::level::warn);
-    EXPECT_EQ(std::string_view(msg.payload.data(), msg.payload.size()), log_msg);
-    ++log_count;
-  };
-  auto test_sink = std::make_shared<mobilesacn::testing::NotifySinkSt>(log_cb);
-  spdlog::default_logger()->sinks() = {test_sink};
-
   // Setup.
   auto test_univ = 1;
   std::map<std::string, std::string> test_sources;
@@ -62,9 +51,8 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   EXPECT_CALL(*conn_mock, send_binary(initial_res.SerializeAsString())).Times(1);
   mobilesacn::rpc::ViewLevels view_levels_handler(etcpal::IpAddr::FromString("127.0.0.1"));
   view_levels_handler.HandleWsOpen(*conn_mock);
-  EXPECT_EQ(log_count, 1);
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  view_levels_handler.HandleWsClose(*conn_mock, "");
+  view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   // Start transmitting.
   test_sources[test_cid.ToString()] = test_source_name;
@@ -85,7 +73,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   sacn_transmitter.UpdateLevels(test_univ, test_buf.data(), test_buf.size());
   view_levels_handler.HandleWsOpen(*conn_mock);
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  view_levels_handler.HandleWsClose(*conn_mock, "");
+  view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   // Change some levels.
   // Some vague simulation of real levels.
@@ -103,7 +91,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString())).Times(AtLeast(1));
   view_levels_handler.HandleWsOpen(*conn_mock);
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  view_levels_handler.HandleWsClose(*conn_mock, "");
+  view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   sacn_transmitter.Shutdown();
 }

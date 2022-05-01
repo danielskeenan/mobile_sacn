@@ -69,6 +69,10 @@ void Control::HandleWsMessage(crow::websocket::connection &conn, const std::stri
   SendCurrentState(conn);
 }
 
+void Control::HandleWsClose(crow::websocket::connection *conn, const std::string &reason) {
+  sacn_transmitter_.reset();
+}
+
 void Control::SendCurrentState(crow::websocket::connection &conn) const {
   ControlRes msg;
   msg.set_transmitting(transmitting_);

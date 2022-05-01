@@ -52,7 +52,7 @@ void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::s
   SendCurrentState(conn);
 }
 
-void ViewLevels::HandleWsClose(crow::websocket::connection &conn, const std::string &reason) {
+void ViewLevels::HandleWsClose(crow::websocket::connection *conn, const std::string &reason) {
   sacn_receiver_.reset();
   sacn_merger_.Reset();
   source_uuid_strings_.clear();

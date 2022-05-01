@@ -26,6 +26,7 @@ class SacnTest : public ::testing::Test {
   void SetUp() override {
     etcpal_init(kEtcPalFeatures);
     sacn::Init();
+    spdlog::default_logger()->sinks() = {};
   }
 
   void TearDown() override {

@@ -105,6 +105,10 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   SendCurrentState(conn);
 }
 
+void ChanCheck::HandleWsClose(crow::websocket::connection *conn, const std::string &reason) {
+  sacn_transmitter_.reset();
+}
+
 void ChanCheck::SendCurrentState(crow::websocket::connection &conn) const {
   ChanCheckRes msg;
   msg.set_transmitting(transmitting_);

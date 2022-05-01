@@ -14,11 +14,12 @@
 #include <chrono>
 #include <filesystem>
 #include <sacn/cpp/source.h>
-#include "libmobilesacn/rpc/RpcHandler.h"
+#include "rpc/RpcHandler.h"
 #include "CrowLogHandler.h"
 #include <crow/routing.h>
 #include <crow/app.h>
 #include <spdlog/spdlog.h>
+#include "HttpReasons.h"
 
 namespace mobilesacn {
 
@@ -47,7 +48,7 @@ class HttpServer {
         client_ip_addr_(client_ip_addr), handler_(std::move(handler)), last_use_(std::chrono::steady_clock::now()) {}
 
     /** Get the handler and update the last use time. */
-    [[nodiscard]] const std::unique_ptr<rpc::RpcHandler> &GetHandler() {
+    [[nodiscard]] const std::unique_ptr<rpc::RpcHandler> &GetHandler() const {
       last_use_ = std::chrono::steady_clock::now();
       return handler_;
     }
@@ -59,7 +60,7 @@ class HttpServer {
    private:
     std::string client_ip_addr_;
     std::unique_ptr<rpc::RpcHandler> handler_;
-    std::chrono::time_point<std::chrono::steady_clock> last_use_;
+    mutable std::chrono::time_point<std::chrono::steady_clock> last_use_;
   };
 
   static inline const unsigned int kServerPort = 5050;
@@ -103,28 +104,31 @@ class HttpServer {
           try {
             GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsOpen(conn);
           } catch (const boost::system::system_error &) {
-            conn.close();
+            conn.close(DisconnectReason::ClientDisconnected);
           }
         })
         .onmessage([this](crow::websocket::connection &conn, const std::string &message, bool is_binary) {
           try {
             GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsMessage(conn, message, is_binary);
           } catch (const boost::system::system_error &) {
-            conn.close();
+            conn.close(DisconnectReason::ClientDisconnected);
           }
         })
         .onerror([this](crow::websocket::connection &conn) {
           try {
             GetHandler<Handler_T>(conn.get_remote_ip()).second.GetHandler()->HandleWsError(conn);
           } catch (const boost::system::system_error &) {
-            conn.close();
+            conn.close(DisconnectReason::ClientDisconnected);
           }
         })
         .onclose([this, identifier](crow::websocket::connection &conn, const std::string &reason) {
           spdlog::info("Closed \"{}\" connection from {}", identifier, GetConnRemoteIp(conn));
+          if (reason == DisconnectReason::ClientDisconnected) {
+            spdlog::debug("Websocket connection \"{}\" closed because client went away unexpectedly", identifier);
+          }
           try {
             auto &it = GetHandler<Handler_T>(conn.get_remote_ip());
-            it.second.GetHandler()->HandleWsClose(conn, reason);
+            it.second.GetHandler()->HandleWsClose(&conn, reason);
             handlers_.erase(it.first);
           } catch (const boost::system::system_error &) {
             // Do nothing; the connection is already closed.

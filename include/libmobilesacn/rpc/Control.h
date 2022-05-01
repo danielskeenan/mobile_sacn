@@ -26,6 +26,7 @@ class Control : public RpcHandler {
 
   void HandleWsOpen(crow::websocket::connection &conn) override;
   void HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) override;
+  void HandleWsClose(crow::websocket::connection *conn, const std::string &reason) override;
 
  private:
   std::unique_ptr<sacn::Source, SacnSourceDeleter> sacn_transmitter_;

@@ -134,16 +134,20 @@ bool HttpServer::FilePathInWebroot(const std::filesystem::path &path) {
 }
 
 void HttpServer::CleanupUnusedHandlers() {
-  spdlog::debug("Cleaning up unused handlers.");
+  spdlog::debug("Cleaning up unused handlers");
+  unsigned int cleanup_count = 0;
   const std::chrono::minutes expires_in(1);
   for (auto it = handlers_.begin(); it != handlers_.end();) {
     if (it->second.GetLastUse() + expires_in < std::chrono::steady_clock::now()) {
       spdlog::info("Closed {} due to inactivity.", it->first);
+      it->second.GetHandler()->HandleWsClose(nullptr, "inactivity");
       it = handlers_.erase(it);
+      ++cleanup_count;
     } else {
       ++it;
     }
   }
+  spdlog::debug("Cleaned up {} handlers", cleanup_count);
 }
 
 std::string HttpServer::GetConnRemoteIp(crow::websocket::connection &conn) {

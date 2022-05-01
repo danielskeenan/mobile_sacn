@@ -23,17 +23,6 @@ class ChanCheckTest : public mobilesacn::testing::SacnTest {
 };
 
 TEST_F(ChanCheckTest, ChanCheck) {
-  // Setup the log observer.
-  static const std::string log_msg = "New chan_check connection from 127.0.0.1";
-  unsigned int log_count = 0;
-  mobilesacn::testing::NotifySinkSt::OnLogCb log_cb = [&log_count](const spdlog::details::log_msg &msg) {
-    EXPECT_LT(msg.level, spdlog::level::warn);
-    EXPECT_EQ(std::string_view(msg.payload.data(), msg.payload.size()), log_msg);
-    ++log_count;
-  };
-  auto test_sink = std::make_shared<mobilesacn::testing::NotifySinkSt>(log_cb);
-  spdlog::default_logger()->sinks() = {test_sink};
-
   // Setup.
   auto test_univ = 1;
   auto test_priority = 100;
@@ -89,7 +78,6 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   mobilesacn::rpc::ChanCheck chan_check_handler(etcpal::IpAddr::FromString("127.0.0.1"));
   chan_check_handler.HandleWsOpen(*conn_mock);
-  EXPECT_EQ(log_count, 1);
   std::this_thread::sleep_for(std::chrono::seconds(1));
   // No transmitting has occurred.
   EXPECT_EQ(sacn_levels_received.size(), 0);
@@ -282,6 +270,30 @@ TEST_F(ChanCheckTest, ChanCheck) {
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_EQ(sacn_levels_received.size(), before_sacn_levels_count);
+  EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
+
+  // Start transmitting, then close client.
+  sacn_handler.ready_for_test = false;
+  test_transmitting = true;
+  req.set_transmit(test_transmitting);
+  res.set_transmitting(test_transmitting);
+  conn_mock.emplace();
+  EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
+  before_sacn_levels_count = sacn_levels_received.size();
+  before_sacn_pap_count = sacn_priorities_received.size();
+  chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  sacn_handler.ready_for_test = true;
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
+  EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
+  sacn_handler.ready_for_test = false;
+  before_sacn_levels_count = sacn_levels_received.size();
+  before_sacn_pap_count = sacn_priorities_received.size();
+  chan_check_handler.HandleWsClose(nullptr, "");
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
   EXPECT_EQ(sacn_levels_received.size(), before_sacn_levels_count);
