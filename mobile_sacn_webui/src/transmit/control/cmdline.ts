@@ -7,7 +7,8 @@ export enum CmdLineTokenType {
     PLUS,
     MINUS,
     THRU,
-    AT
+    AT,
+    ENTER,
 }
 
 export abstract class CmdLineToken {
@@ -71,6 +72,17 @@ export class CmdLineTokenAt extends CmdLineToken {
 
     toString(): string {
         return "@";
+    }
+}
+
+export class CmdLineTokenEnter extends CmdLineToken {
+    type(): CmdLineTokenType {
+        return CmdLineTokenType.ENTER;
+    }
+
+
+    toString(): string {
+        return "*";
     }
 }
 

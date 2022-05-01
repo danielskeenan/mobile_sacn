@@ -27,7 +27,7 @@ import {
     allowedTokens,
     cmdLineIsComplete,
     CmdLineToken,
-    CmdLineTokenAt,
+    CmdLineTokenAt, CmdLineTokenEnter,
     CmdLineTokenMinus,
     CmdLineTokenNumber,
     CmdLineTokenPlus,
@@ -267,7 +267,7 @@ function Keypad(props: KeypadProps) {
     // Button callbacks.
     const updateCmdLine = (token: CmdLineToken) => {
         const lastToken = cmdline.at(-1);
-        const newCmdline = [...cmdline];
+        const newCmdline = lastToken instanceof CmdLineTokenEnter ? [] : [...cmdline];
         if (cmdline.length > 0 && token instanceof CmdLineTokenNumber && lastToken instanceof CmdLineTokenNumber) {
             // Append this digit to the previous one.
             (newCmdline.at(-1) as CmdLineTokenNumber).value += token.value;
@@ -290,6 +290,10 @@ function Keypad(props: KeypadProps) {
             newCmdLine.pop();
         }
         onCmdlineChange(newCmdLine);
+    };
+    const enter = () => {
+        updateCmdLine(new CmdLineTokenEnter());
+        onEnter();
     };
     const nextTokenAllowed = allowedTokens(cmdline);
 
@@ -367,7 +371,7 @@ function Keypad(props: KeypadProps) {
                             onClick={() => updateCmdLine(new CmdLineTokenAt())}>At</Button>
                 </td>
                 <td colSpan={2}>
-                    <Button variant="light" disabled={!cmdLineIsComplete(cmdline)} onClick={onEnter}>Enter</Button>
+                    <Button variant="light" disabled={!cmdLineIsComplete(cmdline)} onClick={enter}>Enter</Button>
                 </td>
             </tr>
             </tbody>
