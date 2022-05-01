@@ -25,6 +25,8 @@ void setup_logging() {
   auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(log_path.string(), 1024*1024, 5, true);
   file_sink->set_level(spdlog::level::debug);
   spdlog::default_logger()->sinks() = {file_sink};
+  spdlog::default_logger()->set_level(spdlog::level::debug);
+  spdlog::default_logger()->flush_on(spdlog::level::warn);
 }
 
 int main(int argc, char *argv[]) {

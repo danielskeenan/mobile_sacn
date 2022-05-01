@@ -28,6 +28,8 @@ class ChanCheck : public RpcHandler {
   void HandleWsClose(crow::websocket::connection *conn, const std::string &reason) override;
 
  private:
+  constexpr static const auto kIdentifier = "Chan Check";
+
   std::unique_ptr<sacn::Source, SacnSourceDeleter> sacn_transmitter_;
   etcpal::IpAddr sacn_address_;
   bool transmitting_ = false;
