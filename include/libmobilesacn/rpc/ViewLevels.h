@@ -38,6 +38,8 @@ class ViewLevels : public RpcHandler, public sacn::Receiver::NotifyHandler {
                          const std::vector<SacnLostSource> &lost_sources) override;
 
  private:
+  constexpr static const auto kIdentifier = "Chan Check";
+
   std::unique_ptr<sacn::Receiver, SacnReceiverDeleter> sacn_receiver_;
   etcpal::IpAddr sacn_address_;
   SacnMerger sacn_merger_;

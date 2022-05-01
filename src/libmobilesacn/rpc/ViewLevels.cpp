@@ -25,14 +25,12 @@ void ViewLevels::HandleWsOpen(crow::websocket::connection &conn) {
 void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) {
   ViewLevelsReq req;
   if (!req.ParseFromString(message)) {
-    spdlog::warn("Bad request in view_levels");
     return;
   }
   spdlog::debug("Received {}", req.ShortDebugString());
 
   // Sanity check request.
   if (req.universe() < kSacnMinUniv || req.universe() > kSacnMaxUniv) {
-    spdlog::warn("Out-of-bounds request in view_levels");
     // Do nothing.
     SendCurrentState(conn);
     return;
@@ -45,6 +43,7 @@ void ViewLevels::HandleWsMessage(crow::websocket::connection &conn, const std::s
     sacn_receiver_.reset();
     sacn_merger_.Reset();
     res_.Clear();
+    spdlog::debug("{} listening on univ {}", kIdentifier, req.universe());
     sacn_receiver_ = GetSacnReceiver(sacn_address_, req.universe(), *this);
   }
 
@@ -82,6 +81,7 @@ void ViewLevels::HandleUniverseData(sacn::Receiver::Handle receiver_handle,
     // New source.
     const auto inserted = source_uuid_strings_.insert({source_info.cid, etcpal::Uuid(source_info.cid).ToString()});
     uuid_string_it = inserted.first;
+    spdlog::debug("{} found new source {} ({})", kIdentifier, source_info.name, uuid_string_it->second);
     (*res_.mutable_sources())[uuid_string_it->second] = source_info.name;
   }
   const auto &uuid_string = uuid_string_it->second;
@@ -122,6 +122,7 @@ void ViewLevels::HandleSourcesLost(sacn::Receiver::Handle handle,
     if (uuid_string_it != source_uuid_strings_.end()) {
       // Remove the source.
       const std::string uuid_string = uuid_string_it->second;
+      spdlog::debug("{} lost source {} ({})", kIdentifier, lost_source.name, uuid_string);
       source_uuid_strings_.erase(uuid_string_it);
       res_.mutable_sources()->erase(uuid_string);
       sacn_merger_.RemoveSource(lost_source.cid);

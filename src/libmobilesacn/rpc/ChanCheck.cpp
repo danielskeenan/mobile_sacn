@@ -136,6 +136,7 @@ void ChanCheck::SendCurrentState(crow::websocket::connection &conn) const {
   msg.set_address(addr_);
   msg.set_level(level_);
   msg.set_per_address_priority(per_address_priority_);
+  spdlog::trace("{} current state: {}", kIdentifier, msg.ShortDebugString());
 
   conn.send_binary(msg.SerializeAsString());
 }
