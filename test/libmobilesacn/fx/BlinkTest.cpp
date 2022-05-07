@@ -26,9 +26,9 @@ static const std::chrono::milliseconds kExtraWait(100);
 
 TEST_F(BlinkTest, Run) {
   // Setup.
-  auto test_univ = 1;
-  auto test_address = 1;
-  auto test_level = 255;
+  unsigned int test_univ = 1;
+  unsigned int test_address = 1;
+  uint8_t test_level = 255;
   std::chrono::milliseconds test_interval(500);
   mobilesacn::DmxBuffer regular_buf{0};
   mobilesacn::DmxBuffer expected_buf{0};
@@ -51,12 +51,11 @@ TEST_F(BlinkTest, Run) {
   const sacn::Source::Settings sacn_transmitter_settings(test_cid, test_source_name);
   sacn::Source sacn_transmitter;
   sacn_transmitter.Startup(sacn_transmitter_settings);
-  mobilesacn::fx::Blink blink(&sacn_transmitter, test_univ, regular_buf);
+  mobilesacn::fx::Blink blink(&sacn_transmitter, test_univ, {test_address}, regular_buf);
 
   // Start effect.
   sacn_transmitter.AddUniverse(test_univ);
   blink.SetInterval(test_interval);
-  blink.SetAddr(test_address);
   blink.SetLevel(test_level);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
@@ -100,7 +99,7 @@ TEST_F(BlinkTest, Run) {
   // Change address.
   sacn_handler.ready_for_test = false;
   test_address = 2;
-  blink.SetAddr(test_address);
+  blink.SetAddresses({test_address});
   expected_buf.fill(0);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;

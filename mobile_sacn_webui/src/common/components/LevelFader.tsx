@@ -1,4 +1,3 @@
-import "./LevelFader.scss";
 import {Form} from "react-bootstrap";
 import {LEVEL_MAX, LEVEL_MIN} from "../constants";
 import React, {useCallback} from "react";

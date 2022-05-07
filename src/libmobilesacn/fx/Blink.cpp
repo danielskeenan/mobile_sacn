@@ -11,11 +11,13 @@
 namespace mobilesacn::fx {
 
 void Blink::Tick() noexcept {
-  auto &buf_level = effect_buf_[addr_ - 1];
-  if (buf_level == 0) {
-    buf_level = level_;
-  } else {
-    buf_level = 0;
+  for (const auto addr : GetAddresses()) {
+    auto &buf_level = effect_buf_[addr - 1];
+    if (buf_level == 0) {
+      buf_level = level_;
+    } else {
+      buf_level = 0;
+    }
   }
 }
 

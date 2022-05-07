@@ -20,18 +20,6 @@ class Blink : public Effect {
  public:
   using Effect::Effect;
 
-  void Tick() noexcept override;
-
-  [[nodiscard]] unsigned int GetAddr() const {
-    return addr_;
-  }
-
-  void SetAddr(unsigned int addr) {
-    // Turn off old address first.
-    effect_buf_[addr_ - 1] = 0;
-    addr_ = addr;
-  }
-
   [[nodiscard]] uint8_t GetLevel() const {
     return level_;
   }
@@ -40,8 +28,14 @@ class Blink : public Effect {
     level_ = level;
   }
 
+ protected:
+  void Tick() noexcept override;
+
+  void AddressesChanged() override {
+    effect_buf_.fill(0);
+  }
+
  private:
-  unsigned int addr_ = 1;
   uint8_t level_ = 255;
 };
 

@@ -8,9 +8,12 @@
 
 #include "libmobilesacn/rpc/ChanCheck.h"
 #include "proto/chan_check.pb.h"
+#include "libmobilesacn/fx/EffectFactory.h"
 #include <spdlog/spdlog.h>
-#include "mobilesacn_config.h"
 #include <etcpal/uuid.h>
+#include <google/protobuf/util/message_differencer.h>
+
+using google::protobuf::util::MessageDifferencer;
 
 namespace mobilesacn::rpc {
 
@@ -38,13 +41,18 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
     return;
   }
 
-  const bool stop_transmitting = (!req.transmit() && transmitting_);
+  // Use the chan check address for any effects.
+  req.mutable_effect()->clear_addresses();
+  req.mutable_effect()->add_addresses(req.address());
+  const bool stop_transmitting = !req.transmit() && transmitting_;
   const bool start_transmitting = req.transmit() && !transmitting_;
   const bool change_univ = (req.universe() != univ_ || start_transmitting) && req.transmit();
   const bool change_addr = (req.address() != addr_ || change_univ || start_transmitting) && req.transmit();
   const bool change_priority = (req.priority() != priority_ || req.per_address_priority() != per_address_priority_
       || (req.per_address_priority() && change_addr) || start_transmitting) && req.transmit();
   const bool change_level = (req.level() != level_ || start_transmitting) && req.transmit();
+  const bool change_effect = (MessageDifferencer::Equals(req.effect(), effect_settings_)
+      || change_univ || start_transmitting) && req.transmit();
   if (!sacn_transmitter_) {
     sacn_transmitter_ = GetSacnTransmitter(sacn_address_, kIdentifier, conn.get_remote_ip());
   }
@@ -76,7 +84,7 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
     // The new level is set below.
   }
 
-  if (change_level || change_addr || change_priority) {
+  if (change_level || change_addr || change_priority || change_effect) {
     spdlog::debug("{} {}/{} @ {} (pri {})",
                   kIdentifier,
                   univ_,
@@ -115,16 +123,39 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
     }
   }
 
+  if (change_effect) {
+    const bool change_effect_type = req.effect().type() != effect_settings_.type();
+    if (change_effect_type || change_univ) {
+      if (effect_) {
+        effect_->Stop();
+      }
+      effect_ = fx::CreateEffect(req.effect(), sacn_transmitter_.get(), univ_, buf_);
+    }
+    if (effect_) {
+      effect_->UpdateFromProtobufMessage(req.effect());
+    }
+  }
+  if (effect_) {
+    if (!effect_->IsRunning() && req.transmit()) {
+      effect_->Start();
+    }
+    if (effect_->IsRunning() && !req.transmit()) {
+      effect_->Stop();
+    }
+  }
+
   transmitting_ = req.transmit();
   priority_ = req.priority();
   per_address_priority_ = req.per_address_priority();
   univ_ = req.universe();
   addr_ = req.address();
   level_ = static_cast<uint8_t>(req.level());
+  effect_settings_ = req.effect();
   SendCurrentState(conn);
 }
 
 void ChanCheck::HandleWsClose(crow::websocket::connection *conn, const std::string &reason) {
+  effect_.reset();
   sacn_transmitter_.reset();
 }
 
@@ -136,6 +167,7 @@ void ChanCheck::SendCurrentState(crow::websocket::connection &conn) const {
   msg.set_address(addr_);
   msg.set_level(level_);
   msg.set_per_address_priority(per_address_priority_);
+  msg.mutable_effect()->CopyFrom(effect_settings_);
   spdlog::trace("{} current state: {}", kIdentifier, msg.ShortDebugString());
 
   conn.send_binary(msg.SerializeAsString());

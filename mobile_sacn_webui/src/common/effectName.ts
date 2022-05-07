@@ -1,10 +1,10 @@
-import {Effect} from "../proto/common";
+import {EffectType} from "../proto/effect";
 
 const names = new Map([
-    [Effect.NONE, "None"],
-    [Effect.BLINK, "Blink"],
+    [EffectType.NONE, "None"],
+    [EffectType.BLINK, "Blink"],
 ]);
 
-export default function effectName(effect: Effect) {
+export default function effectName(effect: EffectType) {
     return names.get(effect);
 }

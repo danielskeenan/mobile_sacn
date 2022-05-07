@@ -11,6 +11,8 @@
 
 #include "RpcHandler.h"
 #include "libmobilesacn/sacn.h"
+#include "libmobilesacn/fx/Effect.h"
+#include "proto/effect.pb.h"
 #include <sacn/cpp/source.h>
 #include <crow/websocket.h>
 
@@ -21,7 +23,9 @@ namespace mobilesacn::rpc {
  */
 class ChanCheck : public RpcHandler {
  public:
-  explicit ChanCheck(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {}
+  explicit ChanCheck(const etcpal::IpAddr &sacn_address) : sacn_address_(sacn_address) {
+    effect_settings_.add_addresses(addr_);
+  }
 
   void HandleWsOpen(crow::websocket::connection &conn) override;
   void HandleWsMessage(crow::websocket::connection &conn, const std::string &message, bool is_binary) override;
@@ -38,6 +42,8 @@ class ChanCheck : public RpcHandler {
   unsigned int addr_ = 1;
   uint8_t level_ = 255;
   bool per_address_priority_ = false;
+  EffectSettings effect_settings_;
+  std::unique_ptr<fx::Effect> effect_;
   DmxBuffer buf_{0};
   DmxBuffer priorities_{0};
 

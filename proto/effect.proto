@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+enum EffectType {
+  NONE = 0;
+  BLINK = 1;
+}
+
+message BlinkSettings {
+  uint32 level = 1;
+}
+
+message EffectSettings {
+  EffectType type = 1;
+  repeated uint32 addresses = 2;
+  uint32 duration_ms = 3;
+  oneof extra {
+    BlinkSettings blink_settings = 4;
+  }
+}

@@ -54,6 +54,8 @@ TEST_F(ChanCheckTest, ChanCheck) {
   sacn_receiver.Startup(sacn_settings, sacn_handler);
   ChanCheckReq req;
   ChanCheckRes res;
+  // The expected response will have a default instance of EffectSettings.
+  res.mutable_effect()->add_addresses(test_address);
 
   // Initial state.
   req.set_universe(test_univ);
@@ -102,6 +104,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_address = 2;
   req.set_address(test_address);
   res.set_address(test_address);
+  res.mutable_effect()->set_addresses(0, test_address);
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf.fill(0);
@@ -141,6 +144,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   res.set_universe(test_univ);
   req.set_address(test_address);
   res.set_address(test_address);
+  res.mutable_effect()->set_addresses(0, test_address);
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   // Pay attention to a different universe.
@@ -204,6 +208,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   res.set_universe(test_univ);
   req.set_address(test_address);
   res.set_address(test_address);
+  res.mutable_effect()->set_addresses(0, test_address);
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   // Pay attention to a different universe.

@@ -81,6 +81,7 @@ export default function ViewLevels() {
 
     }, [sendMessage]);
     const validateAndSetUniv = useCallback((newValue: number) => {
+        // TODO: Debounce.
         if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
         }

@@ -13,6 +13,7 @@
 #include <optional>
 #include <thread>
 #include <chrono>
+#include "proto/effect.pb.h"
 
 namespace mobilesacn::fx {
 
@@ -28,8 +29,26 @@ class Effect {
    * @param univ
    * @param buf The effect's values will be HTP merged with this buffer and then transmitted.
    */
-  explicit Effect(sacn::Source *sacn_transmitter, uint8_t univ, const DmxBuffer &buf) :
-      sacn_transmitter_(sacn_transmitter), univ_(univ), regular_buf_(buf) {}
+  explicit Effect(sacn::Source *sacn_transmitter,
+                  uint8_t univ,
+                  const std::vector<unsigned int> &addresses,
+                  const DmxBuffer &buf) :
+      sacn_transmitter_(sacn_transmitter), univ_(univ), addresses_(addresses), regular_buf_(buf) {}
+
+  /**
+   * Create a new effect runner.
+   *
+   * @param sacn_transmitter
+   * @param univ
+   * @param effect_settings
+   * @param buf
+   */
+  explicit Effect(sacn::Source *sacn_transmitter,
+                  uint8_t univ,
+                  const EffectSettings &effect_settings,
+                  const DmxBuffer &buf) :
+      sacn_transmitter_(sacn_transmitter), univ_(univ),
+      addresses_(effect_settings.addresses().cbegin(), effect_settings.addresses().cend()), regular_buf_(buf) {}
 
   virtual ~Effect() {
     Stop();
@@ -43,36 +62,53 @@ class Effect {
     interval_ = interval;
   }
 
-  void Start() {
-    if (runner_.joinable()) {
-      Stop();
-    }
-    stop_ = false;
-    runner_ = std::thread(&Effect::Run, this);
+  [[nodiscard]] const std::vector<unsigned int> &GetAddresses() const {
+    return addresses_;
   }
 
-  void Stop() {
-    stop_ = true;
-    // Wait for completion.
-    if (runner_.joinable()) {
-      runner_.join();
-    }
+  void SetAddresses(const std::vector<unsigned int> &addresses) {
+    addresses_ = addresses;
+    std::sort(addresses_.begin(), addresses_.end());
+    AddressesChanged();
   }
+
+  [[nodiscard]] bool IsRunning() const {
+    return !stop_;
+  }
+
+  void UpdateFromProtobufMessage(const EffectSettings &effect_settings);
+
+  void Start();
+
+  void Stop();
+
+ protected:
+  DmxBuffer effect_buf_{0};
 
   /**
    * Called every interval to update the effect DMX buffer (effect_buf_).
    */
   virtual void Tick() noexcept = 0;
 
- protected:
-  DmxBuffer effect_buf_{0};
+  /**
+   * Called when the address list changes.
+   */
+  virtual void AddressesChanged() {}
+
+  /**
+   * Called when a new protobuf message is passed in.
+   * @param effect_settings
+   */
+  virtual void DoUpdateFromProtobufMessage(const EffectSettings &effect_settings) {}
 
  private:
   sacn::Source *sacn_transmitter_;
   uint8_t univ_;
   std::chrono::milliseconds interval_{1000};
+  std::vector<unsigned int> addresses_;
   std::thread runner_;
-  bool stop_ = false;
+  // Effects are created stopped.
+  bool stop_ = true;
   /** Holds non-effect data that must be merged with effect data. */
   const DmxBuffer &regular_buf_;
   DmxBuffer output_buf_{0};

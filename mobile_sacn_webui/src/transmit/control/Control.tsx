@@ -93,6 +93,7 @@ export default function Control() {
         request({transmit: false});
     }, [request]);
     const validateAndSetPriority = useCallback((newValue: number) => {
+        // TODO: Debounce.
         if (inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
             request({priority: newValue});
         } else if (newValue === 0) {
@@ -100,6 +101,7 @@ export default function Control() {
         }
     }, [request]);
     const validateAndSetUniv = useCallback((newValue: number) => {
+        // TODO: Debounce.
         if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
         } else if (newValue === 0) {

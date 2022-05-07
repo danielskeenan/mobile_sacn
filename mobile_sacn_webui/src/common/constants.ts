@@ -10,6 +10,8 @@ export const SACN_PRI_MAX = 200;
 export const SACN_PRI_DEFAULT = 100;
 export const LEVEL_MIN = 0;
 export const LEVEL_MAX = 255;
+export const FX_DURATION_MIN = 100;
+export const FX_DURATION_MAX = 10000;
 
 /**
  * Lookup table for mapping DMX values to percentages.

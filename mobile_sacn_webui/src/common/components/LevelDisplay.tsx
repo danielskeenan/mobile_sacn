@@ -1,7 +1,6 @@
 import {useContext} from "react";
 import AppContext from "../Context";
 import {LEVEL_PERCENT_TABLE} from "../constants";
-import "./LevelDisplay.scss";
 
 export enum LevelDisplayMode {
     DECIMAL = "decimal",
