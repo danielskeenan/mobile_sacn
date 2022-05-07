@@ -2,6 +2,9 @@ import React, {ReactElement, useCallback} from "react";
 import {handleNumberFieldChange} from "../common/handleFieldChange";
 import {Accordion, Form} from "react-bootstrap";
 import {SACN_PRI_MAX, SACN_UNIV_MAX} from "../common/constants";
+import {Effect} from "../proto/common";
+import {$enum} from "ts-enum-util";
+import effectName from "../common/effectName";
 
 export interface TransmitState {
     transmit: boolean;
@@ -50,5 +53,29 @@ export function TransmitConfig(props: TransmitConfigProps) {
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
+    );
+}
+
+interface SelectEffectProps {
+    value: Effect;
+    onChange: (effect: Effect) => void;
+}
+
+export function SelectEffect(props: SelectEffectProps) {
+    const {value, onChange} = props;
+
+    return (
+        <div>
+            {$enum(Effect).getValues().map(effect => (
+                <Form.Check key={effect.valueOf()}
+                            type="radio"
+                            inline
+                            label={effectName(effect)}
+                            name="effect"
+                            checked={effect === value}
+                            onChange={() => onChange(effect)}
+                />
+            ))}
+        </div>
     );
 }

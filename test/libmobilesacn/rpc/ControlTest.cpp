@@ -41,8 +41,8 @@ TEST_F(ControlTest, Control) {
   sacn::Receiver::Settings sacn_settings(test_univ);
   sacn::Receiver sacn_receiver;
   sacn_receiver.Startup(sacn_settings, sacn_handler);
-  mobilesacn::rpc::ControlReq req;
-  mobilesacn::rpc::ControlRes res;
+  ControlReq req;
+  ControlRes res;
 
   // Initial state.
   req.set_universe(test_univ);

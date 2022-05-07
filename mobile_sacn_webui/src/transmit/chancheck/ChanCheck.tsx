@@ -20,17 +20,21 @@ import clsx from "clsx";
 import ConnectButton from "../../common/components/ConnectButton";
 import {Connecting} from "../../common/components/Loading";
 import inRange from "../../common/inRange";
-import {mobilesacn} from "../../proto/chan_check";
 import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import {LevelFader} from "../../common/components/LevelFader";
 import {TransmitChanCheckTitle} from "../TransmitTitle";
-import {TransmitConfig, TransmitState} from "../TransmitCommon";
+import {SelectEffect, TransmitConfig, TransmitState} from "../TransmitCommon";
+import {ChanCheckReq, ChanCheckRes} from "../../proto/chan_check";
+import {Effect} from "../../proto/common";
+import effectName from "../../common/effectName";
+import {$enum} from "ts-enum-util";
 
 interface ChanCheckState extends TransmitState {
     address: number;
     level: number;
     per_address_priority: boolean;
+    effect: Effect;
 }
 
 export default function ChanCheck() {
@@ -48,7 +52,7 @@ export default function ChanCheck() {
     const onConnect = useCallback(() => {
         setReady(true);
     }, [setReady]);
-    const onMessage = useCallback((message: mobilesacn.rpc.ChanCheckRes) => {
+    const onMessage = useCallback((message: ChanCheckRes) => {
         setState({
             transmit: message.transmitting,
             priority: message.priority,
@@ -56,12 +60,13 @@ export default function ChanCheck() {
             universe: message.universe,
             address: message.address,
             level: message.level ?? 0,
+            effect: message.effect ?? Effect.NONE,
         } as ChanCheckState);
     }, [setState]);
     const onDisconnect = useCallback(() => {
         setReady(false);
     }, [setReady]);
-    const [connect, sendMessage, closeConnection] = useSession(mobilesacn.rpc.ChanCheckRes, onConnect, onMessage, onDisconnect);
+    const [connect, sendMessage, closeConnection] = useSession(ChanCheckRes, onConnect, onMessage, onDisconnect);
     useEffect(() => {
         connect("chan_check");
         return closeConnection;
@@ -69,7 +74,7 @@ export default function ChanCheck() {
 
     // Setters
     const request = useCallback((newState: Partial<ChanCheckState>) => {
-        const req = new mobilesacn.rpc.ChanCheckReq({...state, ...newState});
+        const req = new ChanCheckReq({...state, ...newState});
         sendMessage(req);
 
     }, [state, sendMessage]);
@@ -108,6 +113,9 @@ export default function ChanCheck() {
             request({level: newValue});
         }
     }, [request]);
+    const setEffect = useCallback((newValue: Effect) => {
+        request({effect: newValue});
+    }, [request]);
 
     return (
         <>
@@ -123,14 +131,10 @@ export default function ChanCheck() {
                                     onChangePriority={validateAndSetPriority}
                     >
                         <>
-                            <Form.Group className="mb-3">
+                            <Form.Group>
                                 <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
                                 <Form.Check inline disabled={state.transmit} type="switch"
                                             onChange={() => setUsePap(!state.per_address_priority)}/>
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Level</Form.Label>
-                                <LevelFader level={state.level} onLevelChange={validateAndSetLevel}/>
                             </Form.Group>
                         </>
                     </TransmitConfig>
@@ -140,6 +144,16 @@ export default function ChanCheck() {
                         onStart={doConnect}
                         onStop={doDisconnect}
                     />
+
+                    <Form.Group className="mt-3">
+                        <Form.Label>Level</Form.Label>
+                        <LevelFader level={state.level} onLevelChange={validateAndSetLevel}/>
+                    </Form.Group>
+
+                    <Form.Group className="mt-3">
+                        <Form.Label>Effect</Form.Label>
+                        <SelectEffect value={state.effect} onChange={setEffect}/>
+                    </Form.Group>
 
                     <h2 className="mt-3">Address</h2>
                     <BigDisplay value={state.address} setValue={validateAndSetAddr} min={0} max={DMX_MAX}

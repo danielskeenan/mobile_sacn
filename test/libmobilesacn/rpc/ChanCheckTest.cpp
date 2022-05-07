@@ -52,8 +52,8 @@ TEST_F(ChanCheckTest, ChanCheck) {
   sacn::Receiver::Settings sacn_settings(test_univ);
   sacn::Receiver sacn_receiver;
   sacn_receiver.Startup(sacn_settings, sacn_handler);
-  mobilesacn::rpc::ChanCheckReq req;
-  mobilesacn::rpc::ChanCheckRes res;
+  ChanCheckReq req;
+  ChanCheckRes res;
 
   // Initial state.
   req.set_universe(test_univ);

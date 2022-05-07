@@ -12,7 +12,6 @@ import {
     SACN_UNIV_MAX,
     SACN_UNIV_MIN,
 } from "../../common/constants";
-import {mobilesacn} from "../../proto/control";
 import useSession from "../../common/useSession";
 import {TransmitControlTitle} from "../TransmitTitle";
 import {Connecting} from "../../common/components/Loading";
@@ -27,7 +26,8 @@ import {
     allowedTokens,
     cmdLineIsComplete,
     CmdLineToken,
-    CmdLineTokenAt, CmdLineTokenEnter,
+    CmdLineTokenAt,
+    CmdLineTokenEnter,
     CmdLineTokenMinus,
     CmdLineTokenNumber,
     CmdLineTokenPlus,
@@ -36,6 +36,7 @@ import {
     updateLevelsFromCmdLine,
 } from "./cmdline";
 import clsx from "clsx";
+import {ControlReq, ControlRes} from "../../proto/control";
 
 enum ControlMode {
     FADERS,
@@ -63,7 +64,7 @@ export default function Control() {
     const onConnect = useCallback(() => {
         setReady(true);
     }, [setReady]);
-    const onMessage = useCallback((message: mobilesacn.rpc.ControlRes) => {
+    const onMessage = useCallback((message: ControlRes) => {
         setState({
             transmit: message.transmitting,
             priority: message.priority,
@@ -74,7 +75,7 @@ export default function Control() {
     const onDisconnect = useCallback(() => {
         setReady(false);
     }, [setReady]);
-    const [connect, sendMessage, closeConnection] = useSession(mobilesacn.rpc.ControlRes, onConnect, onMessage, onDisconnect);
+    const [connect, sendMessage, closeConnection] = useSession(ControlRes, onConnect, onMessage, onDisconnect);
     useEffect(() => {
         connect("control");
         return closeConnection;
@@ -82,7 +83,7 @@ export default function Control() {
 
     // Setters
     const request = useCallback((newState: Partial<ControlState>) => {
-        const req = new mobilesacn.rpc.ControlReq({...state, ...newState});
+        const req = new ControlReq({...state, ...newState});
         sendMessage(req);
     }, [state, sendMessage]);
     const doConnect = useCallback(() => {
@@ -142,7 +143,8 @@ export default function Control() {
                         <LevelFaders levels={state.levels} onLevelChange={validateAndSetLevel}/>
                     }
                     {mode === ControlMode.KEYPAD &&
-                        <LevelKeypad className={state.transmit ? "active" : undefined} levels={state.levels} onLevelChange={setLevels}/>
+                        <LevelKeypad className={state.transmit ? "active" : undefined} levels={state.levels}
+                                     onLevelChange={setLevels}/>
                     }
                 </>
             )}

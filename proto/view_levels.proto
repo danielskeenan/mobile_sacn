@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package mobilesacn.rpc;
-
 message ViewLevelsReq {
   uint32 universe = 1;
 }

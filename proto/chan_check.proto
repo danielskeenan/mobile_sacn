@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package mobilesacn.rpc;
+import "common.proto";
 
 message ChanCheckReq {
   bool transmit = 1;
@@ -9,6 +9,7 @@ message ChanCheckReq {
   uint32 address = 4;
   uint32 level = 5;
   bool per_address_priority = 6;
+  Effect effect = 7;
 }
 
 message ChanCheckRes {
@@ -18,4 +19,5 @@ message ChanCheckRes {
   uint32 address = 4;
   uint32 level = 5;
   bool per_address_priority = 6;
+  Effect effect = 7;
 }

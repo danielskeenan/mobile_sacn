@@ -1,6 +1,7 @@
 include(${PROJECT_SOURCE_DIR}/cmake/proto_compile.cmake)
 proto_compile(_SRCS _HDRS _SCRIPTS
     chan_check.proto
+    common.proto
     control.proto
     view_levels.proto
     )

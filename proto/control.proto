@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-package mobilesacn.rpc;
-
 message ControlReq {
   bool transmit = 1;
   uint32 priority = 2;

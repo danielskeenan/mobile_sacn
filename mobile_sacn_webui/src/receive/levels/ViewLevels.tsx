@@ -5,9 +5,8 @@ import {Connecting} from "../../common/components/Loading";
 import {ReceiveState} from "../ReceiveCommon";
 import {SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
 import useSession from "../../common/useSession";
-import {mobilesacn} from "../../proto/view_levels";
 import inRange from "../../common/inRange";
-import {Accordion, Badge, Button, ButtonGroup, Card, Form, ListGroup, Row, Table, Col} from "react-bootstrap";
+import {Accordion, Badge, Button, ButtonGroup, Card, Col, Form, ListGroup, Row, Table} from "react-bootstrap";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import {LevelBar} from "../../common/components/LevelFader";
 import naturalCompare from "natural-compare";
@@ -15,6 +14,7 @@ import colorIterator from "../../common/colorIterator";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
 import LevelDisplay from "../../common/components/LevelDisplay";
+import {ViewLevelsReq, ViewLevelsRes} from "../../proto/view_levels";
 
 enum ControlMode {
     BARS,
@@ -46,7 +46,7 @@ export default function ViewLevels() {
     const onConnect = useCallback(() => {
         setReady(true);
     }, [setReady]);
-    const onMessage = (message: mobilesacn.rpc.ViewLevelsRes) => {
+    const onMessage = (message: ViewLevelsRes) => {
         // Sort source list alphabetically by name.
         const sources = Array.from(message.sources.entries());
         sources.sort((a, b) => naturalCompare(a[1], b[1]));
@@ -68,7 +68,7 @@ export default function ViewLevels() {
     const onDisconnect = useCallback(() => {
         setReady(false);
     }, [setReady]);
-    const [connect, sendMessage, closeConnection] = useSession(mobilesacn.rpc.ViewLevelsRes, onConnect, onMessage, onDisconnect);
+    const [connect, sendMessage, closeConnection] = useSession(ViewLevelsRes, onConnect, onMessage, onDisconnect);
     useEffect(() => {
         connect("view_levels");
         return closeConnection;
@@ -76,7 +76,7 @@ export default function ViewLevels() {
 
     // Setters
     const request = useCallback((newState) => {
-        const req = new mobilesacn.rpc.ViewLevelsReq(newState);
+        const req = new ViewLevelsReq(newState);
         sendMessage(req);
 
     }, [sendMessage]);

@@ -32,9 +32,9 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   const sacn::Source::Settings sacn_transmitter_settings(test_cid, test_source_name);
   sacn::Source sacn_transmitter;
   sacn_transmitter.Startup(sacn_transmitter_settings);
-  mobilesacn::rpc::ViewLevelsReq req;
+  ViewLevelsReq req;
   // The View Levels RPC handler will always send an initial response upon connection before checking for levels.
-  mobilesacn::rpc::ViewLevelsRes initial_res;
+  ViewLevelsRes initial_res;
 
   // Initial state.
   req.set_universe(test_univ);
@@ -42,7 +42,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   initial_res.clear_sources();
   initial_res.clear_levels();
   initial_res.clear_winning_sources();
-  mobilesacn::rpc::ViewLevelsRes res = initial_res;
+  ViewLevelsRes res = initial_res;
 
   // Open connection.
   std::optional<NiceMock<mobilesacn::testing::CrowConnMock>> conn_mock;
