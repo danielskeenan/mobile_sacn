@@ -14,9 +14,10 @@ namespace mobilesacn::fx {
 std::unique_ptr<Effect> CreateEffect(const EffectSettings &effect_settings,
                                      sacn::Source *sacn_transmitter,
                                      uint8_t univ,
-                                     const DmxBuffer &buf) {
+                                     const DmxBuffer &buf,
+                                     const DmxBuffer &priorities) {
   if (effect_settings.type() == EffectType::BLINK) {
-    auto effect = std::make_unique<Blink>(sacn_transmitter, univ, effect_settings, buf);
+    auto effect = std::make_unique<Blink>(sacn_transmitter, univ, effect_settings, buf, priorities);
     effect->SetLevel(effect_settings.blink_settings().level());
     return effect;
   }

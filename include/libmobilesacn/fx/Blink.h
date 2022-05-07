@@ -29,6 +29,9 @@ class Blink : public Effect {
   }
 
  protected:
+  void DoUpdateFromProtobufMessage(const EffectSettings &effect_settings) override;
+
+ protected:
   void Tick() noexcept override;
 
   void AddressesChanged() override {

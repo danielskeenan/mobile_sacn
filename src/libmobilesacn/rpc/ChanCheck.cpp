@@ -51,8 +51,10 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
   const bool change_priority = (req.priority() != priority_ || req.per_address_priority() != per_address_priority_
       || (req.per_address_priority() && change_addr) || start_transmitting) && req.transmit();
   const bool change_level = (req.level() != level_ || start_transmitting) && req.transmit();
-  const bool change_effect = (MessageDifferencer::Equals(req.effect(), effect_settings_)
+  const bool change_effect = (!MessageDifferencer::Equals(req.effect(), effect_settings_)
       || change_univ || start_transmitting) && req.transmit();
+  // If there is an effect, it will manage sending level data.
+  const bool send_levels = req.effect().type() == EffectType::NONE;
   if (!sacn_transmitter_) {
     sacn_transmitter_ = GetSacnTransmitter(sacn_address_, kIdentifier, conn.get_remote_ip());
   }
@@ -97,28 +99,40 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
     // increase in network traffic.
     if (!change_priority) {
       // Priority hasn't changed OR per-address-priority not in use.
-      spdlog::trace("{} setting univ {}:\n{}", kIdentifier, req.universe(), fmt::join(buf_, ", "));
-      sacn_transmitter_->UpdateLevels(req.universe(), buf_.data(), buf_.size());
+      if (send_levels) {
+        spdlog::trace("{} setting univ {}:\n{}", kIdentifier, req.universe(), fmt::join(buf_, ", "));
+        sacn_transmitter_->UpdateLevels(req.universe(), buf_.data(), buf_.size());
+      }
     } else {
       if (req.per_address_priority()) {
         // Priority or address has changed necessitating a change in per-address-priority.
-        spdlog::trace("{} setting univ {}:\n{}\npri:\n{}",
-                      kIdentifier,
-                      req.universe(),
-                      fmt::join(buf_, ", "),
-                      fmt::join(priorities_, ", "));
-        sacn_transmitter_->UpdateLevelsAndPap(req.universe(),
-                                              buf_.data(), buf_.size(),
-                                              priorities_.data(), priorities_.size());
+        if (send_levels) {
+          spdlog::trace("{} setting univ {}:\n{}\npri:\n{}",
+                        kIdentifier,
+                        req.universe(),
+                        fmt::join(buf_, ", "),
+                        fmt::join(priorities_, ", "));
+          sacn_transmitter_->UpdateLevelsAndPap(req.universe(),
+                                                buf_.data(), buf_.size(),
+                                                priorities_.data(), priorities_.size());
+        }
+        if (effect_) {
+          effect_->SetPerAddressPriority(true);
+        }
       } else {
         // Stop using per-address-priority.
-        spdlog::trace("{} setting univ {}:\n{}\npri: none",
-                      kIdentifier,
-                      req.universe(),
-                      fmt::join(buf_, ", "));
-        sacn_transmitter_->UpdateLevelsAndPap(req.universe(),
-                                              buf_.data(), buf_.size(),
-                                              nullptr, 0);
+        if (send_levels) {
+          spdlog::trace("{} setting univ {}:\n{}\npri: none",
+                        kIdentifier,
+                        req.universe(),
+                        fmt::join(buf_, ", "));
+          sacn_transmitter_->UpdateLevelsAndPap(req.universe(),
+                                                buf_.data(), buf_.size(),
+                                                nullptr, 0);
+        }
+        if (effect_) {
+          effect_->SetPerAddressPriority(false);
+        }
       }
     }
   }
@@ -129,10 +143,11 @@ void ChanCheck::HandleWsMessage(crow::websocket::connection &conn, const std::st
       if (effect_) {
         effect_->Stop();
       }
-      effect_ = fx::CreateEffect(req.effect(), sacn_transmitter_.get(), univ_, buf_);
+      effect_ = fx::CreateEffect(req.effect(), sacn_transmitter_.get(), univ_, buf_, priorities_);
     }
     if (effect_) {
       effect_->UpdateFromProtobufMessage(req.effect());
+      effect_->SetPerAddressPriority(req.per_address_priority());
     }
   }
   if (effect_) {

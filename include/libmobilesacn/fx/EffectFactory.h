@@ -22,7 +22,8 @@ namespace mobilesacn::fx {
 std::unique_ptr<Effect> CreateEffect(const EffectSettings &effect_settings,
                                      sacn::Source *sacn_transmitter,
                                      uint8_t univ,
-                                     const DmxBuffer &buf);
+                                     const DmxBuffer &buf,
+                                     const DmxBuffer &priorities);
 
 } // mobilesacn::fx
 

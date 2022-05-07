@@ -19,7 +19,7 @@ void Effect::UpdateFromProtobufMessage(const EffectSettings &effect_settings) {
     addresses_ = new_addresses;
     AddressesChanged();
   }
-  interval_ = std::chrono::milliseconds(effect_settings.duration_ms());
+  duration_ = std::chrono::milliseconds(effect_settings.duration_ms());
 
   DoUpdateFromProtobufMessage(effect_settings);
 }
@@ -47,11 +47,30 @@ void Effect::Run() noexcept {
   while (!stop_) {
     Tick();
     HtpMerge();
-    sacn_transmitter_->UpdateLevels(univ_, output_buf_.data(), output_buf_.size());
-    std::this_thread::sleep_for(interval_);
+    ProcessBuf(output_buf_);
+    std::this_thread::sleep_for(duration_);
   }
   // Restore old levels
-  sacn_transmitter_->UpdateLevels(univ_, regular_buf_.data(), regular_buf_.size());
+  ProcessBuf(regular_buf_);
+}
+
+void Effect::ProcessBuf(const DmxBuffer &buf) const {
+  if (update_pap_) {
+    if (per_address_priority_) {
+      sacn_transmitter_->UpdateLevelsAndPap(
+          univ_, buf.data(), buf.size(),
+          priorities_.data(), priorities_.size()
+      );
+    } else {
+      sacn_transmitter_->UpdateLevelsAndPap(
+          univ_, buf.data(), buf.size(),
+          nullptr, 0
+      );
+    }
+    update_pap_ = false;
+  } else {
+    sacn_transmitter_->UpdateLevels(univ_, buf.data(), buf.size());
+  }
 }
 
 } // mobilesacn::fx

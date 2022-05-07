@@ -32,6 +32,7 @@ TEST_F(BlinkTest, Run) {
   std::chrono::milliseconds test_interval(500);
   mobilesacn::DmxBuffer regular_buf{0};
   mobilesacn::DmxBuffer expected_buf{0};
+  mobilesacn::DmxBuffer priorities{100};
   // Used to ensure sACN packets have actually been processed.
   std::mutex sacn_levels_received_mx;
   std::vector<mobilesacn::DmxBuffer> sacn_levels_received;
@@ -51,11 +52,11 @@ TEST_F(BlinkTest, Run) {
   const sacn::Source::Settings sacn_transmitter_settings(test_cid, test_source_name);
   sacn::Source sacn_transmitter;
   sacn_transmitter.Startup(sacn_transmitter_settings);
-  mobilesacn::fx::Blink blink(&sacn_transmitter, test_univ, {test_address}, regular_buf);
+  mobilesacn::fx::Blink blink(&sacn_transmitter, test_univ, {test_address}, regular_buf, priorities);
 
   // Start effect.
   sacn_transmitter.AddUniverse(test_univ);
-  blink.SetInterval(test_interval);
+  blink.SetDuration(test_interval);
   blink.SetLevel(test_level);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
@@ -71,7 +72,7 @@ TEST_F(BlinkTest, Run) {
   // Change interval.
   sacn_handler.ready_for_test = false;
   test_interval = std::chrono::seconds(1);
-  blink.SetInterval(test_interval);
+  blink.SetDuration(test_interval);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(test_interval - kExtraWait);

@@ -32,8 +32,13 @@ class Effect {
   explicit Effect(sacn::Source *sacn_transmitter,
                   uint8_t univ,
                   const std::vector<unsigned int> &addresses,
-                  const DmxBuffer &buf) :
-      sacn_transmitter_(sacn_transmitter), univ_(univ), addresses_(addresses), regular_buf_(buf) {}
+                  const DmxBuffer &buf,
+                  const DmxBuffer &priorities) :
+      sacn_transmitter_(sacn_transmitter),
+      univ_(univ),
+      addresses_(addresses),
+      regular_buf_(buf),
+      priorities_(priorities) {}
 
   /**
    * Create a new effect runner.
@@ -46,20 +51,20 @@ class Effect {
   explicit Effect(sacn::Source *sacn_transmitter,
                   uint8_t univ,
                   const EffectSettings &effect_settings,
-                  const DmxBuffer &buf) :
-      sacn_transmitter_(sacn_transmitter), univ_(univ),
-      addresses_(effect_settings.addresses().cbegin(), effect_settings.addresses().cend()), regular_buf_(buf) {}
+                  const DmxBuffer &buf,
+                  const DmxBuffer &priorities) :
+      sacn_transmitter_(sacn_transmitter),
+      univ_(univ),
+      addresses_(effect_settings.addresses().cbegin(), effect_settings.addresses().cend()),
+      regular_buf_(buf),
+      priorities_(priorities) {}
 
   virtual ~Effect() {
     Stop();
   }
 
-  [[nodiscard]] const std::chrono::milliseconds &GetInterval() const {
-    return interval_;
-  }
-
-  void SetInterval(const std::chrono::milliseconds &interval) {
-    interval_ = interval;
+  void SetDuration(const std::chrono::milliseconds &duration) {
+    duration_ = duration;
   }
 
   [[nodiscard]] const std::vector<unsigned int> &GetAddresses() const {
@@ -70,6 +75,15 @@ class Effect {
     addresses_ = addresses;
     std::sort(addresses_.begin(), addresses_.end());
     AddressesChanged();
+  }
+
+  void SetPerAddressPriority(bool per_address_priority) {
+    per_address_priority_ = per_address_priority;
+    update_pap_ = true;
+  }
+
+  void UpdatePap() {
+    update_pap_ = true;
   }
 
   [[nodiscard]] bool IsRunning() const {
@@ -104,7 +118,7 @@ class Effect {
  private:
   sacn::Source *sacn_transmitter_;
   uint8_t univ_;
-  std::chrono::milliseconds interval_{1000};
+  std::chrono::milliseconds duration_{1000};
   std::vector<unsigned int> addresses_;
   std::thread runner_;
   // Effects are created stopped.
@@ -112,6 +126,10 @@ class Effect {
   /** Holds non-effect data that must be merged with effect data. */
   const DmxBuffer &regular_buf_;
   DmxBuffer output_buf_{0};
+  bool per_address_priority_ = false;
+  // Flag is set when priorities change.
+  mutable bool update_pap_ = false;
+  const DmxBuffer &priorities_;
 
   void Run() noexcept;
 
@@ -120,6 +138,8 @@ class Effect {
       output_buf_[i] = std::max(regular_buf_[i], effect_buf_[i]);
     }
   }
+
+  void ProcessBuf(const DmxBuffer &buf) const;
 };
 
 } // mobilesacn::fx
