@@ -4,7 +4,7 @@ import {Accordion, Form} from "react-bootstrap";
 import effectName from "../common/effectName";
 import React from "react";
 import {LevelFader} from "../common/components/LevelFader";
-import {FX_DURATION_MAX, FX_DURATION_MIN, LEVEL_MAX, LEVEL_MIN} from "../common/constants";
+import {LEVEL_MAX, LEVEL_MIN} from "../common/constants";
 import _ from "lodash";
 import {handleNumberFieldChange} from "../common/handleFieldChange";
 
@@ -16,7 +16,8 @@ interface EffectConfigProps {
 export default function SelectEffect(props: EffectConfigProps) {
     const {value, onChange} = props;
     const currentType = value.type ?? EffectType.NONE;
-    const currentDuration = value.duration_ms ?? FX_DURATION_MIN;
+    const durationRange = effectDurationRange(currentType);
+    const currentDuration = value.duration_ms ?? durationRange.min;
 
     const onEffectSelect = (effect: EffectType) => {
         const newSettings = value.clone();
@@ -27,7 +28,7 @@ export default function SelectEffect(props: EffectConfigProps) {
 
     const onDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = handleNumberFieldChange(e);
-        if (!_.inRange(newValue, FX_DURATION_MIN, FX_DURATION_MAX)) {
+        if (!_.inRange(newValue, durationRange.min, durationRange.max)) {
             return;
         }
         const newSettings = value.clone();
@@ -62,7 +63,7 @@ export default function SelectEffect(props: EffectConfigProps) {
                                 <Form.Label>Duration</Form.Label>
                                 <div className="msacn-fader">
                                     <Form.Range value={currentDuration} onChange={onDurationChange}
-                                                min={FX_DURATION_MIN} max={FX_DURATION_MAX}/>
+                                                min={durationRange.min} max={durationRange.max}/>
                                     <TimeDisplay millis={currentDuration}/>
                                 </div>
                             </Form.Group>
@@ -81,7 +82,7 @@ export default function SelectEffect(props: EffectConfigProps) {
  * @param props
  */
 function TimeDisplay(props: { millis: number }) {
-    const seconds = (props.millis / 1000) ?? FX_DURATION_MIN;
+    const seconds = (props.millis / 1000) ?? 0;
 
     return (
         <span className="msacn-level">{seconds.toFixed(3)}&nbsp;s</span>
@@ -117,6 +118,15 @@ function BlinkConfig(props: EffectConfigProps) {
             <LevelFader level={settings.level} onLevelChange={validateAndSetLevel}/>
         </Form.Group>
     );
+}
+
+export function effectDurationRange(type: EffectType): { min: number, max: number } {
+    switch (type) {
+        case EffectType.BLINK:
+            return {min: 500, max: 5000};
+    }
+
+    return {min: 0, max: 0};
 }
 
 /**
