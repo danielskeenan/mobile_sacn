@@ -15,7 +15,6 @@ import {
 import useSession from "../../common/useSession";
 import {TransmitControlTitle} from "../TransmitTitle";
 import {Connecting} from "../../common/components/Loading";
-import inRange from "../../common/inRange";
 import {Button, ButtonGroup, Card} from "react-bootstrap";
 import {LevelFader} from "../../common/components/LevelFader";
 import {TransmitConfig} from "../TransmitCommon";
@@ -37,6 +36,7 @@ import {
 } from "./cmdline";
 import clsx from "clsx";
 import {ControlReq, ControlRes} from "../../proto/control";
+import _ from "lodash";
 
 enum ControlMode {
     FADERS,
@@ -94,7 +94,7 @@ export default function Control() {
     }, [request]);
     const validateAndSetPriority = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
+        if (_.inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
             request({priority: newValue});
         } else if (newValue === 0) {
             setState({priority: 0});
@@ -102,7 +102,7 @@ export default function Control() {
     }, [request]);
     const validateAndSetUniv = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
+        if (_.inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
         } else if (newValue === 0) {
             setState({universe: 0});
@@ -111,7 +111,7 @@ export default function Control() {
     // This callback isn't memoized because it regularly references the current levels, which change frequently.
     const validateAndSetLevel = (ix: number, newValue: number) => {
         state.levels[ix] = newValue;
-        if (inRange(ix, DMX_MIN - 1, DMX_MAX - 1) && inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
+        if (_.inRange(ix, DMX_MIN - 1, DMX_MAX - 1) && _.inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
             request({levels: state.levels});
         } else {
             setState({levels: state.levels});

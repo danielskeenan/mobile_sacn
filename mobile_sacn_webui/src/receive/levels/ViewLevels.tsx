@@ -5,7 +5,6 @@ import {Connecting} from "../../common/components/Loading";
 import {ReceiveState} from "../ReceiveCommon";
 import {SACN_UNIV_DEFAULT, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants";
 import useSession from "../../common/useSession";
-import inRange from "../../common/inRange";
 import {Accordion, Badge, Button, ButtonGroup, Card, Col, Form, ListGroup, Row, Table} from "react-bootstrap";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import {LevelBar} from "../../common/components/LevelFader";
@@ -15,6 +14,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
 import LevelDisplay from "../../common/components/LevelDisplay";
 import {ViewLevelsReq, ViewLevelsRes} from "../../proto/view_levels";
+import _ from "lodash";
 
 enum ControlMode {
     BARS,
@@ -82,7 +82,7 @@ export default function ViewLevels() {
     }, [sendMessage]);
     const validateAndSetUniv = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
+        if (_.inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
         }
         setState({universe: newValue});

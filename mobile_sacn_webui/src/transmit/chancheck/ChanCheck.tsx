@@ -19,7 +19,6 @@ import {
 import clsx from "clsx";
 import ConnectButton from "../../common/components/ConnectButton";
 import {Connecting} from "../../common/components/Loading";
-import inRange from "../../common/inRange";
 import useSession from "../../common/useSession";
 import {handleNumberFieldChange} from "../../common/handleFieldChange";
 import {LevelFader} from "../../common/components/LevelFader";
@@ -28,6 +27,7 @@ import {TransmitConfig, TransmitState} from "../TransmitCommon";
 import {ChanCheckReq, ChanCheckRes} from "../../proto/chan_check";
 import {EffectSettings} from "../../proto/effect";
 import SelectEffect from "../EffectConfig";
+import _ from "lodash";
 
 interface ChanCheckState extends TransmitState {
     address: number;
@@ -86,7 +86,7 @@ export default function ChanCheck() {
     }, [request]);
     const validateAndSetPriority = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
+        if (_.inRange(newValue, SACN_PRI_MIN, SACN_PRI_MAX)) {
             request({priority: newValue});
         } else if (newValue === 0) {
             setState({priority: 0});
@@ -94,7 +94,7 @@ export default function ChanCheck() {
     }, [request]);
     const validateAndSetUniv = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
+        if (_.inRange(newValue, SACN_UNIV_MIN, SACN_UNIV_MAX)) {
             request({universe: newValue});
         } else if (newValue === 0) {
             setState({universe: 0});
@@ -102,7 +102,7 @@ export default function ChanCheck() {
     }, [request]);
     const validateAndSetAddr = useCallback((newValue: number) => {
         // TODO: Debounce.
-        if (inRange(newValue, DMX_MIN, DMX_MAX)) {
+        if (_.inRange(newValue, DMX_MIN, DMX_MAX)) {
             request({address: newValue});
         } else if (newValue === 0) {
             setState({address: 0});
@@ -112,7 +112,7 @@ export default function ChanCheck() {
         request({per_address_priority: newValue});
     }, [request]);
     const validateAndSetLevel = useCallback((newValue: number) => {
-        if (inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
+        if (_.inRange(newValue, LEVEL_MIN, LEVEL_MAX)) {
             request({level: newValue});
         }
     }, [request]);
