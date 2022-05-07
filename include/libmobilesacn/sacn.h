@@ -12,6 +12,7 @@
 #include <sacn/cpp/source.h>
 #include <sacn/cpp/receiver.h>
 #include "etcpal_netint/NetIntInfo.h"
+#include <array>
 
 namespace mobilesacn {
 
@@ -39,6 +40,8 @@ struct ShutdownDeleter {
 
 using SacnSourceDeleter = ShutdownDeleter<sacn::Source>;
 using SacnReceiverDeleter = ShutdownDeleter<sacn::Receiver>;
+
+using DmxBuffer = std::array<uint8_t, DMX_ADDRESS_COUNT>;
 
 std::vector<SacnMcastInterface> GetMulticastInterfacesForAddress(const etcpal::IpAddr &addr);
 

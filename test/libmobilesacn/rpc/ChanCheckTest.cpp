@@ -7,7 +7,6 @@
  */
 
 #include <gtest/gtest.h>
-#include <spdlog/spdlog.h>
 #include "../../common/CrowConnMock.h"
 #include "../../common/SacnTest.h"
 #include "libmobilesacn/rpc/ChanCheck.h"
@@ -17,7 +16,6 @@
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Eq;
-using mobilesacn::testing::RecentPacketIs;
 
 class ChanCheckTest : public mobilesacn::testing::SacnTest {
 };
@@ -29,24 +27,24 @@ TEST_F(ChanCheckTest, ChanCheck) {
   auto test_transmitting = false;
   auto test_address = 1;
   auto test_level = 255;
-  mobilesacn::testing::DmxBuffer test_buf{0};
-  mobilesacn::testing::DmxBuffer test_priorities{0};
+  mobilesacn::DmxBuffer test_buf{0};
+  mobilesacn::DmxBuffer test_priorities{0};
   // Used to ensure sACN packets have actually been processed.
   std::mutex sacn_levels_received_mx;
-  std::vector<mobilesacn::testing::DmxBuffer> sacn_levels_received;
+  std::vector<mobilesacn::DmxBuffer> sacn_levels_received;
   std::mutex sacn_priorities_received_mx;
-  std::vector<mobilesacn::testing::DmxBuffer> sacn_priorities_received;
+  std::vector<mobilesacn::DmxBuffer> sacn_priorities_received;
   mobilesacn::testing::TestSacnNotifyHandler sacn_handler(
       [&test_univ, &test_priority, &sacn_levels_received, &sacn_levels_received_mx](unsigned int univ,
                                                                                     unsigned int priority,
-                                                                                    mobilesacn::testing::DmxBuffer buf) {
+                                                                                    mobilesacn::DmxBuffer buf) {
         EXPECT_EQ(univ, test_univ);
         EXPECT_EQ(priority, test_priority);
         std::lock_guard sacn_levels_received_lock(sacn_levels_received_mx);
         sacn_levels_received.push_back(buf);
       },
       [&test_univ, &sacn_priorities_received, &sacn_priorities_received_mx](unsigned int univ,
-                                                                            mobilesacn::testing::DmxBuffer buf) {
+                                                                            mobilesacn::DmxBuffer buf) {
         EXPECT_EQ(univ, test_univ);
         std::lock_guard sacn_priorities_received_lock(sacn_priorities_received_mx);
         sacn_priorities_received.push_back(buf);
@@ -113,7 +111,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -131,7 +129,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -154,7 +152,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -172,7 +170,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -194,7 +192,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -219,7 +217,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -239,7 +237,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -256,7 +254,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -287,7 +285,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
   sacn_handler.ready_for_test = true;
   std::this_thread::sleep_for(std::chrono::seconds(5));
-  EXPECT_THAT(test_buf, RecentPacketIs(sacn_levels_received));
+  EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
   sacn_handler.ready_for_test = false;

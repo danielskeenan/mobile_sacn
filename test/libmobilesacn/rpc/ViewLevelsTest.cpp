@@ -7,7 +7,6 @@
  */
 
 #include <gtest/gtest.h>
-#include <spdlog/spdlog.h>
 #include <map>
 #include "../../common/CrowConnMock.h"
 #include "../../common/SacnTest.h"
@@ -26,7 +25,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   // Setup.
   auto test_univ = 1;
   std::map<std::string, std::string> test_sources;
-  mobilesacn::testing::DmxBuffer test_buf{0};
+  mobilesacn::DmxBuffer test_buf{0};
   std::array<std::string, DMX_ADDRESS_COUNT> test_winning_sources{};
   const auto test_cid = etcpal::Uuid::V4();
   const std::string test_source_name = "test_transmitter";

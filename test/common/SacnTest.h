@@ -10,12 +10,15 @@
 #define MOBILE_SACN_TEST_COMMON_SACNTEST_H_
 
 #include <gtest/gtest.h>
+#include <spdlog/spdlog.h>
 #include <etcpal/netint.h>
 #include <sacn/cpp/common.h>
 #include <sacn/cpp/receiver.h>
 #include <utility>
 #include <array>
 #include <atomic>
+#include <fmt/ostream.h>
+#include "libmobilesacn/sacn.h"
 
 namespace mobilesacn::testing {
 
@@ -39,7 +42,11 @@ class SacnTest : public ::testing::Test {
 };
 
 /**
- * Sacn notify handler that calls @p on_data whenever new data is received.
+ * sACN notify handler that calls @p on_data whenever new data is received.
+ *
+ * The callbacks will only be called when ready_for_test is true.  This allows
+ * the transmitter to be configured without causing test failures with intermediate
+ * data.
  */
 class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
  public:
@@ -89,21 +96,22 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
   PriorityCb on_pap_;
 };
 
-MATCHER_P(RecentPacketIs, received, "") {
-  static_assert(std::is_same_v<DmxBuffer, std::remove_cv_t<std::remove_reference_t<arg_type>>>,
-                "expected must be a DmxBuffer.");
-  static_assert(std::is_same_v<std::vector<DmxBuffer>, std::remove_cv_t<std::remove_reference_t<received_type>>>,
-                "received must be a std::vector<DmxBuffer>.");
-
-  *result_listener << "most recent sACN packet(s) are " << ::testing::PrintToString(arg);
-
-  if (received.empty()) {
-    return false;
-  }
-
-  return received.back() == arg;
-}
-
 } // mobilesacn::testing
+
+namespace std {
+/**
+ * Print the DMX buffer as a grid of values.
+ * @param buf
+ * @param os
+ */
+inline void PrintTo(const std::array<uint8_t, DMX_ADDRESS_COUNT> &buf, std::ostream *os) {
+  for (size_t ix = 0; ix < buf.size(); ++ix) {
+    if (ix % 16 == 0) {
+      *os << fmt::format("\n{:03}: ", ix + 1);
+    }
+    *os << fmt::format("{:02X} ", buf[ix]);
+  }
+}
+}
 
 #endif //MOBILE_SACN_TEST_COMMON_SACNTEST_H_

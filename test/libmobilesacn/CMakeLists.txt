@@ -9,6 +9,7 @@ target_link_libraries(libmobilesacn_test PRIVATE libmobilesacn GTest::gtest_main
     sACN
     )
 
+add_subdirectory(fx)
 add_subdirectory(rpc)
 
 include(GoogleTest)

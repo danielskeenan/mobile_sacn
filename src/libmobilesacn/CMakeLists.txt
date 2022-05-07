@@ -38,4 +38,5 @@ target_link_libraries(libmobilesacn PRIVATE
     )
 target_link_libraries(libmobilesacn PUBLIC EtcPal spdlog::spdlog)
 
+add_subdirectory(fx)
 add_subdirectory(rpc)
