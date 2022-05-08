@@ -146,6 +146,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Get built packages
         uses: actions/download-artifact@v3
@@ -167,5 +168,5 @@ jobs:
           files: ${{steps.download.outputs.download-path}}/*
       - name: Rebuild site
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SITE_GH_API_TOKEN }}
         run: gh workflow --repo danielskeenan/mobile_sacn_site run main.yml --ref main
