@@ -10,6 +10,8 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
+  # The short paths feature breaks caching.
+  CONAN_USER_HOME_SHORT: None
   QT_VERSION: 5.15.2
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
@@ -78,6 +80,11 @@ jobs:
       - name: Set libstdc++ ABI
         if: ${{runner.os == 'Linux'}}
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
+      - name: Cache Conan
+        uses: actions/cache@v3
+        with:
+          path: ${{env.CONAN_USER_HOME}}
+          key: ${{env.CACHE_IX}}-${{runner.os}}-conan-${{hashfiles('**/conanfile.txt')}}
       - name: Install dependencies
         shell: bash
         run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
