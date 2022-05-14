@@ -154,7 +154,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref_protected == true && github.ref_type == 'tag' }}
     steps:
       - name: Get built packages
         uses: actions/download-artifact@v3
@@ -162,17 +162,13 @@ jobs:
         with:
           name: packages
           path: packages
-      - name: Get current timestamp
-        id: timestamp
-        run: echo "::set-output name=timestamp::$(date --utc)"
       - name: Release (dev build)
         uses: softprops/action-gh-release@v1
         with:
-          name: Latest dev build
-          prerelease: true
-          tag_name: dev-latest
+          prerelease: ${{ startsWith(github.ref_name, 'dev-') }}
+          tag_name: ${{ github.ref_name }}
           fail_on_unmatched_files: true
-          body: Last updated ${{steps.timestamp.outputs.timestamp}}.
+          generate_release_notes: true
           files: ${{steps.download.outputs.download-path}}/*
       - name: Rebuild site
         env:
@@ -183,7 +179,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref_protected == true && github.ref_type == 'tag' }}
     env:
       S3FS_PASSWD_PATH: ${{ github.workspace }}/.passwd-s3fs
       APT_REPO_LOCAL_PATH: ${{ github.workspace }}/msacn-apt
