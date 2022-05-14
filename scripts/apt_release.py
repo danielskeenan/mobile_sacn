@@ -71,20 +71,18 @@ def main():
             'Origin: Mobile sACN Apt Repository\n',
             'Label: Mobile sACN Apt Repository\n',
             'Suite: {}\n'.format(suite_dir.stem),
-            'Version: 1.0\n',
             'Architecture: amd64\n',
             'Description: Mobile sACN Apt Repository\n',
             'Date: {}\n'.format(datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S %Z')),
             'Components: {}\n'.format(' '.join(components))
         ])
-        for component in components:
-            component_dir = suite_dir / component
-            for checksum_algo in ChecksumAlgorithm:
-                release_file.write('{}:\n'.format(checksum_algo.label))
-                for fileinfo in get_fileinfo(component_dir, checksum_algo):
-                    release_file.write('\t{}\t{}\t{}\n'.format(fileinfo.checksum,
-                                                               fileinfo.size,
-                                                               fileinfo.path.relative_to(suite_dir)))
+        for checksum_algo in ChecksumAlgorithm:
+            release_file.write('{}:\n'.format(checksum_algo.label))
+            for fileinfo in get_fileinfo(suite_dir, checksum_algo):
+                release_file.write('\t{}\t{}\t{}\n'.format(fileinfo.checksum,
+                                                           fileinfo.size,
+                                                           fileinfo.path.relative_to(suite_dir)))
+
         release_file.flush()
         release_gpg_file = NamedTemporaryFile('wt', delete=False, encoding='ascii')
         release_file.seek(0)
