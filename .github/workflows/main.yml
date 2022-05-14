@@ -201,7 +201,7 @@ jobs:
       - name: Setup credentials
         run: |
           echo ${{ secrets.AWS_ACCESS }}:${{ secrets.AWS_SECRET }} > ${S3FS_PASSWD_PATH}
-          chmod 600 ${HOME}/.passwd-s3fs
+          chmod 600 ${S3FS_PASSWD_PATH}
           mkdir -p ${APT_REPO_LOCAL}
       - name: Mount repo
         run: s3fs msacn-apt ${APT_REPO_LOCAL_PATH} -o passwd_file=${S3FS_PASSWD_PATH} -o url=${{ secrets.AWS_ENDPOINT }} -o default_acl=public-read
