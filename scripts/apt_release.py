@@ -5,6 +5,7 @@ import enum
 import hashlib
 import os
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -49,6 +50,10 @@ def get_fileinfo(path: Path, algorithm: ChecksumAlgorithm) -> Iterator[FileInfo]
 
 
 def main():
+    if len(sys.argv) != 2:
+        print('Usage: {} <signing key id>'.format(sys.argv[0]), file=sys.stderr)
+        exit(1)
+
     # Iterate over each section.
     dists_dir = Path('./dists')
     if not dists_dir.is_dir():
@@ -80,9 +85,24 @@ def main():
                     release_file.write('\t{}\t{}\t{}\n'.format(fileinfo.checksum,
                                                                fileinfo.size,
                                                                fileinfo.path.relative_to(suite_dir)))
+        release_file.flush()
+        release_gpg_file = NamedTemporaryFile('wt', delete=False, encoding='ascii')
+        release_file.seek(0)
+        subprocess.run(['gpg', '--default-key', sys.argv[1], '--armor', '--sign', '--detach-sign'],
+                       stdin=release_file, stdout=release_gpg_file, check=True)
+        inrelease_file = NamedTemporaryFile('wt', delete=False, encoding='ascii')
+        release_file.seek(0)
+        subprocess.run(['gpg', '--default-key', sys.argv[1], '--armor', '--sign', '--detach-sign', '--clearsign'],
+                       stdin=release_file, stdout=inrelease_file, check=True)
         release_file.close()
+        release_gpg_file.close()
+        inrelease_file.close()
         shutil.copy(release_file.name, suite_dir / 'Release')
         os.unlink(release_file.name)
+        shutil.copy(release_gpg_file.name, suite_dir / 'Release.gpg')
+        os.unlink(release_gpg_file.name)
+        shutil.copy(inrelease_file.name, suite_dir / 'InRelease')
+        os.unlink(inrelease_file.name)
 
 
 if __name__ == '__main__':

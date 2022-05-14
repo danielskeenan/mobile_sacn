@@ -183,8 +183,8 @@ jobs:
     steps:
       - name: Set env vars
         run: |
-          echo "APT_DEBS_PATH=${APT_REPO_LOCAL_PATH}/msacn-apt/pool" >> ${GITHUB_ENV}
-          echo "APT_META_PATH=${APT_REPO_LOCAL_PATH}/msacn-apt/dists/stable/main/binary-$(dpkg --print-architecture)" >> ${GITHUB_ENV}
+          echo "APT_DEBS_PATH=${APT_REPO_LOCAL_PATH}/pool" >> ${GITHUB_ENV}
+          echo "APT_META_PATH=${APT_REPO_LOCAL_PATH}/dists/stable/main/binary-$(dpkg --print-architecture)" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           path: repo
@@ -198,16 +198,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install dpkg-dev gpg s3fs
+      - name: Import repository key
+        id: apt_key
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.APT_REPO_PRIVATE_KEY }}
       - name: Setup credentials
         run: |
           echo ${{ secrets.AWS_ACCESS }}:${{ secrets.AWS_SECRET }} > ${S3FS_PASSWD_PATH}
           chmod 600 ${S3FS_PASSWD_PATH}
-          mkdir -p ${APT_REPO_LOCAL}
+          mkdir -p ${APT_REPO_LOCAL_PATH}
       - name: Mount repo
         run: s3fs msacn-apt ${APT_REPO_LOCAL_PATH} -o passwd_file=${S3FS_PASSWD_PATH} -o url=${{ secrets.AWS_ENDPOINT }} -o default_acl=public-read
       - name: Create directories
         run: |
-          mkdir -p ${APT_DEBS_PATH}
+          mkdir -p ${APT_DEBS_PATH}/main/
           mkdir -p ${APT_META_PATH}
       - name: Copy new packages
         run: cp -v  ${{steps.download.outputs.download-path}}/*.deb ${APT_DEBS_PATH}/main/
@@ -218,4 +223,4 @@ jobs:
           dpkg-scanpackages --arch $(dpkg --print-architecture) ${APT_DEBS_PATH} > ${{ runner.temp }}/Packages
           gzip --stdout ${{ runner.temp }}/Packages > ${{ runner.temp }}/Packages.gz
           mv ${{ runner.temp }}/Packages ${{ runner.temp }}/Packages.gz ${APT_META_PATH}/
-          python3 ${{ github.workspace }}/repo/scripts/apt_release.py
+          python3 ${{ github.workspace }}/repo/scripts/apt_release.py ${{ steps.apt_key.outputs.keyid }}
