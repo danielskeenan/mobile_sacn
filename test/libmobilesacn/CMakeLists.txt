@@ -3,6 +3,7 @@ add_executable(libmobilesacn_test
     EtcPalLogHandlerTest.cpp
     )
 
+find_package(crow REQUIRED)
 target_link_libraries(libmobilesacn_test PRIVATE libmobilesacn GTest::gtest_main GTest::gmock
     mobilesacnproto
     crow::crow
