@@ -24,6 +24,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS On)
     set(CPACK_DEBIAN_PACKAGE_SECTION "misc")
+    set(CPACK_DEBIAN_PACKAGE_NAME "mobilesacn")
 endif ()
 
 # Windows metadata
