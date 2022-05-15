@@ -154,7 +154,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref_protected == true && github.ref_type == 'tag' }}
+    if: ${{ github.ref_type == 'tag' }}
     steps:
       - name: Get built packages
         uses: actions/download-artifact@v3
@@ -179,7 +179,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref_protected == true && github.ref_type == 'tag' }}
+    if: ${{ github.ref_type == 'tag' }}
     env:
       S3FS_PASSWD_PATH: ${{ github.workspace }}/.passwd-s3fs
       APT_REPO_LOCAL_PATH: ${{ github.workspace }}/msacn-apt
