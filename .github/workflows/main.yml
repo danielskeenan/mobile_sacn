@@ -138,16 +138,16 @@ jobs:
         shell: bash
         run: cpack -G "TGZ;DEB" -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ failure() }}
         with:
           name: failed_package_${{runner.os}}
           path: ${{env.BUILD_DIR}}/packages
       - name: Upload packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: packages
-          path: ${{env.BUILD_DIR}}/packages/mobile_sacn*.*
+          path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
 
   release:
