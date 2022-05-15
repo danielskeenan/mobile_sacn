@@ -223,7 +223,7 @@ jobs:
         working-directory: ${{ env.APT_REPO_LOCAL_PATH }}
         # The outputs are first made to a temporary location to avoid unsupported incremental writes to S3 storage.
         run: |
-          dpkg-scanpackages --arch $(dpkg --print-architecture) ${APT_DEBS_PATH} > ${{ runner.temp }}/Packages
+          dpkg-scanpackages --arch $(dpkg --print-architecture) --multiversion pool > ${{ runner.temp }}/Packages
           gzip --stdout ${{ runner.temp }}/Packages > ${{ runner.temp }}/Packages.gz
           mv ${{ runner.temp }}/Packages ${{ runner.temp }}/Packages.gz ${APT_META_PATH}/
           python3 ${{ github.workspace }}/repo/scripts/apt_release.py ${{ steps.apt_key.outputs.keyid }}
