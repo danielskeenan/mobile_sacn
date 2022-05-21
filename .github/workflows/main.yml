@@ -166,7 +166,7 @@ jobs:
           name: packages
           path: packages
       - name: Load signing key
-        run: cat "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
+        run: echo "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
       - name: Determine channel
         id: channel
         uses: dkershner6/switch-case-action@v1
