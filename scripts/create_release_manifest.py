@@ -57,7 +57,7 @@ class ReleaseInfo:
     version: str
     published: datetime
     channel: str
-    assets: list[AssetInfo]
+    assets: list
 
     def to_dict(self) -> dict:
         return {
