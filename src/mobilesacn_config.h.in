@@ -18,6 +18,7 @@ const auto kProjectDescription = "${PROJECT_DESCRIPTION}";
 const auto kProjectHomepageUrl = "${PROJECT_HOMEPAGE_URL}";
 const auto kProjectOrganizationName = "${PROJECT_ORGANIZATION_NAME}";
 const auto kProjectOrganizationDomain = "${PROJECT_ORGANIZATION_DOMAIN}";
+const auto kProjectAuthor = "${PROJECT_AUTHOR}";
 const auto kProjectVersionMajor = ${PROJECT_VERSION_MAJOR}u;
 const auto kProjectVersionMinor = ${PROJECT_VERSION_MINOR}u;
 const auto kProjectVersionPatch = ${PROJECT_VERSION_PATCH}u;

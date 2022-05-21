@@ -3,7 +3,7 @@ string(TIMESTAMP _PROJECT_VERSION_TIMESTAMP "%s" UTC)
 project(mobile_sacn
         VERSION 0.0.1.${_PROJECT_VERSION_TIMESTAMP}
         DESCRIPTION "Mobile sACN test tool"
-        HOMEPAGE_URL "https://dankeenan.org"
+        HOMEPAGE_URL "https://mobilesacn.dankeenan.org"
         )
 set(PROJECT_DISPLAY_NAME "Mobile sACN")
 set(PROJECT_AUTHOR "Dan Keenan")

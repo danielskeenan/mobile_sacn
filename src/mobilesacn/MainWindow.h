@@ -35,7 +35,7 @@ class MainWindow : public QMainWindow {
     QComboBox *sacn_iface_select = nullptr;
     NetIntListModel *sacn_iface_select_model = nullptr;
     QPushButton *start_button = nullptr;
-    QrCode* qr_code = nullptr;
+    QrCode *qr_code = nullptr;
     LogViewer *log_viewer = nullptr;
   };
   Widgets widgets_;

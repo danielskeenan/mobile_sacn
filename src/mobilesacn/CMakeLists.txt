@@ -24,6 +24,12 @@ if (Qt_VERSION EQUAL 6)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::SvgWidgets)
 endif ()
 
+# Updater
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    include(${PROJECT_SOURCE_DIR}/cmake/winsparkle.cmake)
+    target_link_libraries(${PROJECT_NAME} PRIVATE winsparkle::winsparkle)
+endif ()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     find_package(Qt${Qt_VERSION} COMPONENTS DBus REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::DBus)
@@ -62,3 +68,5 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 add_dependencies(${PROJECT_NAME} webui_build)
+
+add_subdirectory(updater)
