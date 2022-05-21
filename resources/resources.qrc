@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
     <file>logo.svg</file>
+    <file>dsa_pub.pem</file>
   </qresource>
 </RCC>

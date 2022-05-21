@@ -156,12 +156,27 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.ref_type == 'tag' }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          path: repo
       - name: Get built packages
         uses: actions/download-artifact@v3
         id: download
         with:
           name: packages
           path: packages
+      - name: Load signing key
+        run: cat "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
+      - name: Determine channel
+        id: channel
+        uses: dkershner6/switch-case-action@v1
+        with:
+          default: "dev"
+          conditionals-with-values: |
+            ${{ startsWith(github.ref_name, 'dev-') }} => dev
+            ${{ startsWith(github.ref_name, 'v') }} => main
+      - name: Build manifest
+        run: python3 ${{ github.workspace }}/repo/scripts/create_release_manifest.py --dsa_key "${{ github.workspace }}/dsa_priv.pem" "${{ github.ref_name }}" "${{ steps.channel.outputs.value }}" "${{ steps.download.outputs.download-path }}/manifest.json"
       - name: Release (dev build)
         uses: softprops/action-gh-release@v1
         with:

@@ -14,6 +14,7 @@
 #include <winsparkle.h>
 #include <Windows.h>
 #include <QApplication>
+#include <QResource>
 
 namespace mobilesacn {
 
@@ -47,6 +48,8 @@ void init_updater() {
                               to_wstring(config::kProjectVersion).c_str());
   win_sparkle_set_registry_path(fmt::format(R"(Software\{}\{}\WinSparkle)",
                                             config::kProjectOrganizationName, config::kProjectName).c_str());
+  const QResource dsa_pub_key(":dsa_pub.pem");
+  win_sparkle_set_dsa_pub_pem(dsa_pub_key.uncompressedData().data());
   win_sparkle_set_shutdown_request_callback([]() {
     qApp->quit();
   });
