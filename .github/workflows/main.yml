@@ -102,7 +102,7 @@ jobs:
           key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
       - name: Configure CMake
         shell: bash
-        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On
+        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On -DBUILD_PACKAGE=On
       - name: Build
         shell: bash
         run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
@@ -124,11 +124,6 @@ jobs:
       #######################
       # PACKAGE
       #######################
-      - name: Package prep
-        shell: bash
-        run: |
-          cmake -DBUILD_PACKAGE=On -DBUILD_TESTING=Off "${BUILD_DIR}"
-          cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
       - name: Package (macOS)
         if: ${{runner.os == 'macOS'}}
         working-directory: ${{env.BUILD_DIR}}
