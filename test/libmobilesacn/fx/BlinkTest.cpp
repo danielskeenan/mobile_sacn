@@ -22,14 +22,14 @@ class BlinkTest : public mobilesacn::testing::SacnTest {};
  *
  * Needed to ensure the check happens at the correct point in the effect.
  */
-static const std::chrono::milliseconds kExtraWait(100);
+static const std::chrono::milliseconds kExtraWait(500);
 
 TEST_F(BlinkTest, Run) {
   // Setup.
   unsigned int test_univ = 1;
   unsigned int test_address = 1;
   uint8_t test_level = 255;
-  std::chrono::milliseconds test_interval(500);
+  std::chrono::milliseconds test_interval(1000);
   mobilesacn::DmxBuffer regular_buf{0};
   mobilesacn::DmxBuffer expected_buf{0};
   mobilesacn::DmxBuffer priorities{100};
@@ -66,21 +66,21 @@ TEST_F(BlinkTest, Run) {
   sacn_handler.ready_for_test = false;
   expected_buf[test_address - 1] = 0;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change interval.
   sacn_handler.ready_for_test = false;
-  test_interval = std::chrono::seconds(1);
+  test_interval = std::chrono::seconds(2);
   blink.SetDuration(test_interval);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
   sacn_handler.ready_for_test = false;
   expected_buf[test_address - 1] = 0;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change level.
@@ -89,12 +89,12 @@ TEST_F(BlinkTest, Run) {
   blink.SetLevel(test_level);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
   sacn_handler.ready_for_test = false;
   expected_buf[test_address - 1] = 0;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change address.
@@ -104,12 +104,12 @@ TEST_F(BlinkTest, Run) {
   expected_buf.fill(0);
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
   sacn_handler.ready_for_test = false;
   expected_buf[test_address - 1] = 0;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Check merge with other levels.
@@ -118,12 +118,12 @@ TEST_F(BlinkTest, Run) {
   expected_buf = regular_buf;
   expected_buf[test_address - 1] = test_level;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval - kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
   sacn_handler.ready_for_test = false;
   expected_buf = regular_buf;
   sacn_handler.ready_for_test = true;
-  std::this_thread::sleep_for(test_interval + kExtraWait);
+  std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Stop effect
