@@ -5,27 +5,40 @@ else ()
     set(_NODE_NPM_NAME npm)
 endif ()
 find_program(_NODE_NPM ${_NODE_NPM_NAME} REQUIRED)
-message(STATUS "Installing webui dependencies")
-execute_process(
-    COMMAND "${_NODE_NPM}" install
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ERROR_IS_FATAL ANY
-    ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
-)
-add_custom_target(webui_build
+include(${PROJECT_SOURCE_DIR}/cmake/hashfiles.cmake)
+hashfiles(_PACKAGE_LOCK_JSON_HASH package-lock.json)
+if (PACKAGE_LOCK_JSON_HASH STREQUAL _PACKAGE_LOCK_JSON_HASH)
+    message(STATUS "package-lock.json hasn't changed; skipping installation.")
+else ()
+    message(STATUS "Installing webui dependencies")
+    execute_process(
+        COMMAND "${_NODE_NPM}" install
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMAND_ERROR_IS_FATAL ANY
+        ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+    )
+    set(PACKAGE_LOCK_JSON_HASH "${_PACKAGE_LOCK_JSON_HASH}" CACHE INTERNAL "package-lock.json SHA256 hash")
+endif ()
+file(GLOB_RECURSE WEBUI_SOURCES
+    public/* src/* config-overrides.js package-lock.json package.json tsconfig.json
+    )
+add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/build/index.html"
     COMMAND "${_NODE_NPM}" run build
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Building web ui..."
+    DEPENDS ${WEBUI_SOURCES}
+    BYPRODUCTS "${CMAKE_CURRENT_SOURCE_DIR}/build"
     )
+add_custom_target(webui_build DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/build/index.html")
 add_dependencies(webui_build mobilesacnproto)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     add_custom_command(TARGET webui_build POST_BUILD
-            COMMAND "${CMAKE_COMMAND}"
-            -E copy_directory "${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/"
-            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web\"
-            )
-else()
+        COMMAND "${CMAKE_COMMAND}"
+        -E copy_directory "${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/"
+        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web\"
+        )
+else ()
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/ DESTINATION ${PROJECT_WEBUI_PATH})
 endif ()
 
