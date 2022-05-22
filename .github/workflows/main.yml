@@ -12,7 +12,7 @@ env:
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
   # The short paths feature breaks caching.
   CONAN_USER_HOME_SHORT: None
-  QT_VERSION: 5.15.2
+  QT_VERSION: 6.2.4
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
 

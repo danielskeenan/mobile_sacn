@@ -21,7 +21,7 @@ namespace mobilesacn {
 void throw_last_error() {
   const auto err = GetLastError();
   PSTR msg;
-  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, nullptr, err, 0, (LPSTR) &msg, 100,
+  FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, nullptr, err, 0, (LPSTR) &msg, 100,
                 nullptr);
   throw std::runtime_error(msg);
 }
