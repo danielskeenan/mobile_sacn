@@ -17,6 +17,8 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Eq;
 
+static const std::chrono::seconds kCheckWait(1);
+
 class ControlTest : public mobilesacn::testing::SacnTest {
 };
 
@@ -66,7 +68,7 @@ TEST_F(ControlTest, Control) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   mobilesacn::rpc::Control control_handler(etcpal::IpAddr::FromString("127.0.0.1"));
   control_handler.HandleWsOpen(*conn_mock);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   // No transmitting has occurred.
   EXPECT_EQ(sacn_levels_received.size(), 0);
 
@@ -78,9 +80,10 @@ TEST_F(ControlTest, Control) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   auto before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_count);
 
@@ -100,9 +103,10 @@ TEST_F(ControlTest, Control) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_count);
 
@@ -125,9 +129,10 @@ TEST_F(ControlTest, Control) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_count);
 
@@ -151,9 +156,10 @@ TEST_F(ControlTest, Control) {
   // Pay attention to a different universe.
   sacn_receiver.ChangeUniverse(test_univ);
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_count);
 
@@ -165,9 +171,10 @@ TEST_F(ControlTest, Control) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_EQ(sacn_levels_received.size(), before_sacn_count);
 
@@ -179,16 +186,18 @@ TEST_F(ControlTest, Control) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   control_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(kCheckWait * 5);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_count);
   sacn_handler.NotReadyForTest();
   control_handler.HandleWsClose(nullptr, "");
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_count = sacn_levels_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.size(), before_sacn_count);
 
   sacn_receiver.Shutdown();

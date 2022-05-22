@@ -17,6 +17,8 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Eq;
 
+static const std::chrono::seconds kCheckWait(1);
+
 class ChanCheckTest : public mobilesacn::testing::SacnTest {
 };
 
@@ -83,7 +85,7 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   mobilesacn::rpc::ChanCheck chan_check_handler(etcpal::IpAddr::FromString("127.0.0.1"));
   chan_check_handler.HandleWsOpen(*conn_mock);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   // No transmitting has occurred.
   EXPECT_EQ(sacn_levels_received.size(), 0);
   EXPECT_EQ(sacn_priorities_received.size(), 0);
@@ -97,10 +99,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   auto before_sacn_levels_count = sacn_levels_received.size();
   auto before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -115,10 +118,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -133,10 +137,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -157,10 +162,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -175,10 +181,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -197,10 +204,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_priorities.fill(0);
   test_priorities[test_address - 1] = test_priority;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -223,10 +231,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_priorities.fill(0);
   test_priorities[test_address - 1] = test_priority;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -243,10 +252,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_priorities.fill(0);
   test_priorities[test_address - 1] = test_priority;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_GT(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -260,10 +270,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   test_buf.fill(0);
   test_buf[test_address - 1] = test_level;
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
@@ -276,10 +287,11 @@ TEST_F(ChanCheckTest, ChanCheck) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 
@@ -291,19 +303,21 @@ TEST_F(ChanCheckTest, ChanCheck) {
   conn_mock.emplace();
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString()));
   chan_check_handler.HandleWsMessage(*conn_mock, req.SerializeAsString(), true);
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(kCheckWait * 5);
   EXPECT_EQ(sacn_levels_received.back(), test_buf);
   EXPECT_GT(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
   sacn_handler.NotReadyForTest();
   chan_check_handler.HandleWsClose(nullptr, "");
+  std::this_thread::sleep_for(kCheckWait);
   before_sacn_levels_count = sacn_levels_received.size();
   before_sacn_pap_count = sacn_priorities_received.size();
   sacn_handler.ReadyForTest(__LINE__);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   EXPECT_EQ(sacn_levels_received.size(), before_sacn_levels_count);
   EXPECT_EQ(sacn_priorities_received.size(), before_sacn_pap_count);
 

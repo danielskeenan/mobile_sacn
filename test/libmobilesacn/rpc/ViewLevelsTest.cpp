@@ -18,6 +18,8 @@
 using ::testing::NiceMock;
 using ::testing::AtLeast;
 
+static const std::chrono::seconds kCheckWait(2);
+
 class ViewLevelsTest : public mobilesacn::testing::SacnTest {
 };
 
@@ -50,7 +52,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   EXPECT_CALL(*conn_mock, send_binary(initial_res.SerializeAsString())).Times(1);
   mobilesacn::rpc::ViewLevels view_levels_handler(etcpal::IpAddr::FromString("127.0.0.1"));
   view_levels_handler.HandleWsOpen(*conn_mock);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   // Start transmitting.
@@ -71,7 +73,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   sacn_transmitter.AddUniverse(test_univ);
   sacn_transmitter.UpdateLevels(test_univ, test_buf.data(), test_buf.size());
   view_levels_handler.HandleWsOpen(*conn_mock);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   // Change some levels.
@@ -89,7 +91,7 @@ TEST_F(ViewLevelsTest, ViewLevels) {
   EXPECT_CALL(*conn_mock, send_binary(initial_res.SerializeAsString())).Times(1);
   EXPECT_CALL(*conn_mock, send_binary(res.SerializeAsString())).Times(AtLeast(1));
   view_levels_handler.HandleWsOpen(*conn_mock);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(kCheckWait);
   view_levels_handler.HandleWsClose(&*conn_mock, "");
 
   sacn_transmitter.Shutdown();
