@@ -32,6 +32,12 @@
     "ts-enum-util": "^4.0.2",
     "typescript": "^4.6.3"
   },
+  "devDependencies": {
+    "react-app-rewired": "^2.2.1"
+  },
+  "overrides": {
+    "autoprefixer": "10.4.5"
+  },
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
@@ -55,8 +61,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "react-app-rewired": "^2.2.1"
   }
 }
