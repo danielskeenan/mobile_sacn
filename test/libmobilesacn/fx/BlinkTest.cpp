@@ -39,8 +39,10 @@ TEST_F(BlinkTest, Run) {
   mobilesacn::testing::TestSacnNotifyHandler sacn_handler(
       [&test_univ, &sacn_levels_received, &sacn_levels_received_mx](unsigned int univ,
                                                                     unsigned int priority,
-                                                                    mobilesacn::DmxBuffer buf) {
-        EXPECT_EQ(univ, test_univ);
+                                                                    mobilesacn::DmxBuffer buf,
+                                                                    unsigned int test_line_num) {
+        EXPECT_EQ(univ, test_univ) << "Expected univ " << test_univ << ", got " << univ
+                                   << " for line " << test_line_num;
         std::lock_guard sacn_levels_received_lock(sacn_levels_received_mx);
         sacn_levels_received.push_back(buf);
       }, {});
@@ -59,77 +61,77 @@ TEST_F(BlinkTest, Run) {
   blink.SetDuration(test_interval);
   blink.SetLevel(test_level);
   expected_buf[test_address - 1] = test_level;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   blink.Start();
   std::this_thread::sleep_for(test_interval - kExtraWait);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   expected_buf[test_address - 1] = 0;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change interval.
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   test_interval = std::chrono::seconds(2);
   blink.SetDuration(test_interval);
   expected_buf[test_address - 1] = test_level;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   expected_buf[test_address - 1] = 0;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change level.
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   test_level = 127;
   blink.SetLevel(test_level);
   expected_buf[test_address - 1] = test_level;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   expected_buf[test_address - 1] = 0;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Change address.
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   test_address = 2;
   blink.SetAddresses({test_address});
   expected_buf.fill(0);
   expected_buf[test_address - 1] = test_level;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   expected_buf[test_address - 1] = 0;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Check merge with other levels.
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   regular_buf.fill(31);
   expected_buf = regular_buf;
   expected_buf[test_address - 1] = test_level;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   expected_buf = regular_buf;
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
 
   // Stop effect
-  sacn_handler.ready_for_test = false;
+  sacn_handler.NotReadyForTest();
   blink.Stop();
-  sacn_handler.ready_for_test = true;
+  sacn_handler.ReadyForTest(__LINE__);
   std::this_thread::sleep_for(test_interval);
   EXPECT_EQ(sacn_levels_received.back(), expected_buf);
   std::this_thread::sleep_for(test_interval);

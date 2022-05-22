@@ -50,25 +50,36 @@ class SacnTest : public ::testing::Test {
  */
 class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
  public:
-  using DataCb = std::function<void(unsigned int univ, unsigned int priority, DmxBuffer buf)>;
-  using PriorityCb = std::function<void(unsigned int univ, DmxBuffer buf)>;
+  using DataCb = std::function<void(unsigned int univ,
+                                    unsigned int priority,
+                                    DmxBuffer buf,
+                                    unsigned int test_line_num)>;
+  using PriorityCb = std::function<void(unsigned int univ, DmxBuffer buf, unsigned int test_line_num)>;
 
   explicit TestSacnNotifyHandler(DataCb on_data, PriorityCb on_pap)
       : on_data_(std::move(on_data)), on_pap_(std::move(on_pap)) {}
 
   /**
-   * Set this to `true` when the incoming data is ready for verification.
-   *
-   * The `on_data_ callback will only be called when this is true!
+   * Call when incoming data is ready for verification.
+   * @param line_no The line number to print when expectations fail.
    */
-  std::atomic<bool> ready_for_test = false;
+  void ReadyForTest(unsigned int line_no) {
+    test_line_num_ = line_no;
+  }
+
+  /**
+   * Call to stop verifying incoming data.
+   */
+  void NotReadyForTest() {
+    test_line_num_ = 0;
+  }
 
   /** @internal */
   void HandleUniverseData(sacn::Receiver::Handle receiver_handle,
                           const etcpal::SockAddr &source_addr,
                           const SacnRemoteSource &source_info,
                           const SacnRecvUniverseData &universe_data) override {
-    if (!ready_for_test) {
+    if (test_line_num_ == 0) {
       return;
     }
 
@@ -78,9 +89,9 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
       buf[addr] = universe_data.values[ix];
     }
     if (universe_data.start_code == SACN_STARTCODE_DMX && on_data_) {
-      on_data_(universe_data.universe_id, universe_data.priority, buf);
+      on_data_(universe_data.universe_id, universe_data.priority, buf, test_line_num_);
     } else if (universe_data.start_code == SACN_STARTCODE_PRIORITY && on_pap_) {
-      on_pap_(universe_data.universe_id, buf);
+      on_pap_(universe_data.universe_id, buf, test_line_num_);
     }
   }
 
@@ -94,6 +105,7 @@ class TestSacnNotifyHandler : public sacn::Receiver::NotifyHandler {
  private:
   DataCb on_data_;
   PriorityCb on_pap_;
+  std::atomic<unsigned int> test_line_num_ = 0;
 };
 
 } // mobilesacn::testing
