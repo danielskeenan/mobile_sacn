@@ -22,7 +22,6 @@ const auto kProjectAuthor = "${PROJECT_AUTHOR}";
 const auto kProjectVersionMajor = ${PROJECT_VERSION_MAJOR}u;
 const auto kProjectVersionMinor = ${PROJECT_VERSION_MINOR}u;
 const auto kProjectVersionPatch = ${PROJECT_VERSION_PATCH}u;
-const auto kProjectVersionTimestamp = ${PROJECT_VERSION_TWEAK}u;
 
 const auto kWebPath = "${PROJECT_WEBUI_PATH}";
 }
