@@ -175,7 +175,6 @@ jobs:
         with:
           default: "dev"
           conditionals-with-values: |
-            ${{ startsWith(github.ref_name, 'dev-') }} => dev
             ${{ startsWith(github.ref_name, 'v') }} => main
       - name: Build manifest
         working-directory: ${{steps.download.outputs.download-path}}
@@ -183,7 +182,7 @@ jobs:
       - name: Release (dev build)
         uses: softprops/action-gh-release@v1
         with:
-          prerelease: ${{ startsWith(github.ref_name, 'dev-') }}
+          prerelease: ${{ steps.channel.outputs.value != 'main' }}
           tag_name: ${{ github.ref_name }}
           fail_on_unmatched_files: true
           generate_release_notes: true
