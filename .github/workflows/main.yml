@@ -12,6 +12,7 @@ env:
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
   # The short paths feature breaks caching.
   CONAN_USER_HOME_SHORT: None
+  CONAN_CMAKE_GENERATOR: Ninja
   QT_VERSION: 6.2.4
   # Increment when the cache must be invalidated.
   CACHE_IX: 1
@@ -50,17 +51,18 @@ jobs:
           python-version: '3.x'
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
-        run: brew install pandoc
+        run: brew install ninja pandoc
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
+          choco install ninja -y
           choco install pandoc -y --ia=ALLUSERS=1
           refreshenv
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install pandoc qtbase5-dev libqt5svg5-dev
+          sudo apt-get -y install pandoc qtbase5-dev libqt5svg5-dev ninja-build
       - name: Cache Qt
         id: cache-qt
         # Don't need this on Linux, as Qt will come from the system package manager above
@@ -104,7 +106,7 @@ jobs:
           key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
       - name: Configure CMake
         shell: bash
-        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On -DBUILD_PACKAGE=On -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+        run: cmake -G Ninja -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On -DBUILD_PACKAGE=On -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
       - name: Build
         shell: bash
         run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}

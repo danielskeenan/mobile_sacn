@@ -25,11 +25,15 @@ if (Qt_VERSION EQUAL 6)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::SvgWidgets)
 endif ()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
+endif ()
+
 # Sentry
 set(SENTRY_DSN "" CACHE STRING "sentry.io DSN; unset to not use Sentry.")
 if (SENTRY_DSN)
-    find_package(sentry REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE sentry::sentry)
+    include(${PROJECT_SOURCE_DIR}/cmake/sentry.cmake)
+    target_link_libraries(${PROJECT_NAME} PRIVATE sentry)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "SENTRY_DSN=\"${SENTRY_DSN}\"")
 endif ()
 

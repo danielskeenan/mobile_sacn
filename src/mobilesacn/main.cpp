@@ -43,7 +43,7 @@ void setup_sentry() {
   sentry_options_t *options = sentry_options_new();
   const auto db_path =
       std::filesystem::path(QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString()) / "sentry";
-  sentry_options_set_database_path(options, db_path.c_str());
+  sentry_options_set_database_path(options, db_path.string().c_str());
   sentry_options_set_dsn(options, SENTRY_DSN);
   sentry_options_set_release(options, config::kProjectCommitSha);
 

@@ -6,7 +6,6 @@ gtest/1.11.0
 # protobuf MUST MATCH package.json
 protobuf/3.15.5
 qr-code-generator/1.7.0
-sentry-native/0.4.17
 spdlog/1.10.0
 
 [generators]
