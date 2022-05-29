@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC ON)
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${PROJECT_SOURCE_DIR}/resources/resources.qrc
     main.cpp
+    log_files.cpp
     LogViewer.cpp
     MainWindow.cpp
     NetIntModel.cpp
