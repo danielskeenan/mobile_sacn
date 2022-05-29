@@ -92,6 +92,8 @@ jobs:
         with:
           path: ${{env.CONAN_USER_HOME}}
           key: ${{env.CACHE_IX}}-${{runner.os}}-conan-${{hashfiles('**/conanfile.txt')}}
+          restore-keys: |
+            ${{env.CACHE_IX}}-${{runner.os}}-conan-
       - name: Install dependencies
         shell: bash
         run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing

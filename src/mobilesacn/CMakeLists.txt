@@ -25,6 +25,14 @@ if (Qt_VERSION EQUAL 6)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::SvgWidgets)
 endif ()
 
+# Sentry
+set(SENTRY_DSN "" CACHE STRING "sentry.io DSN; unset to not use Sentry.")
+if (SENTRY_DSN)
+    find_package(sentry REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE sentry::sentry)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "SENTRY_DSN=\"${SENTRY_DSN}\"")
+endif ()
+
 # Updater
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include(${PROJECT_SOURCE_DIR}/cmake/winsparkle.cmake)

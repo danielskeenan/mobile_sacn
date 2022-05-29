@@ -19,7 +19,7 @@ static const auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETI
 
 void setup_logging() {
   // Cap log file size at 1MB before rotating.  Keep at most 5 log files.
-  auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(get_log_path(), 1024*1024, 5, true);
+  auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(get_log_path(), 1024 * 1024, 5, true);
   file_sink->set_level(spdlog::level::debug);
   spdlog::default_logger()->sinks() = {file_sink};
   spdlog::default_logger()->set_level(spdlog::level::debug);
