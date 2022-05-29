@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows:
+      - Build/Test
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: repo
+      - name: Get built packages
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow.id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: packages
+          path: ${{ github.workspace }}/packages
+      - name: Load signing key
+        run: echo "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
+      - name: Determine channel
+        id: channel
+        uses: dkershner6/switch-case-action@v1
+        with:
+          default: "dev"
+          conditionals-with-values: |
+            ${{ startsWith(github.ref_name, 'v') }} => main
+      - name: Build manifest
+        working-directory: ${{ github.workspace }}/packages
+        run: python3 ${{ github.workspace }}/repo/scripts/create_release_manifest.py --dsa_key "${{ github.workspace }}/dsa_priv.pem" "${{ github.ref_name }}" "${{ steps.channel.outputs.value }}" "${{ github.workspace }}/packages/manifest.json"
+      - name: Release (dev build)
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: ${{ steps.channel.outputs.value != 'main' }}
+          tag_name: ${{ github.ref_name }}
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          files: ${{ github.workspace }}/packages/*
+      - name: Rebuild site
+        env:
+          GITHUB_TOKEN: ${{ secrets.SITE_GH_API_TOKEN }}
+        run: gh workflow --repo danielskeenan/mobile_sacn_site run main.yml --ref main
+
+  apt:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' && github.event.workflow_run.conclusion == 'success' }}
+    env:
+      S3FS_PASSWD_PATH: ${{ github.workspace }}/.passwd-s3fs
+      APT_REPO_LOCAL_PATH: ${{ github.workspace }}/msacn-apt
+    steps:
+      - name: Set env vars
+        run: |
+          echo "APT_DEBS_PATH=${APT_REPO_LOCAL_PATH}/pool" >> ${GITHUB_ENV}
+          echo "APT_META_PATH=${APT_REPO_LOCAL_PATH}/dists/stable/main/binary-$(dpkg --print-architecture)" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          path: repo
+      - name: Get built packages
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow.id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: packages
+          path: ${{ github.workspace }}/packages
+      - name: Install System Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install dpkg-dev gpg s3fs
+      - name: Import repository key
+        id: apt_key
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.APT_REPO_PRIVATE_KEY }}
+      - name: Setup credentials
+        run: |
+          echo ${{ secrets.AWS_ACCESS }}:${{ secrets.AWS_SECRET }} > ${S3FS_PASSWD_PATH}
+          chmod 600 ${S3FS_PASSWD_PATH}
+          mkdir -p ${APT_REPO_LOCAL_PATH}
+      - name: Mount repo
+        run: s3fs msacn-apt ${APT_REPO_LOCAL_PATH} -o passwd_file=${S3FS_PASSWD_PATH} -o url=${{ secrets.AWS_ENDPOINT }} -o default_acl=public-read
+      - name: Create directories
+        run: |
+          mkdir -p ${APT_DEBS_PATH}/main/
+          mkdir -p ${APT_META_PATH}
+      - name: Copy new packages
+        run: cp -v  ${{ github.workspace }}/packages/*.deb ${APT_DEBS_PATH}/main/
+      - name: Generate repo metadata
+        working-directory: ${{ env.APT_REPO_LOCAL_PATH }}
+        # The outputs are first made to a temporary location to avoid unsupported incremental writes to S3 storage.
+        run: |
+          dpkg-scanpackages --arch $(dpkg --print-architecture) --multiversion pool > ${{ runner.temp }}/Packages
+          gzip --stdout ${{ runner.temp }}/Packages > ${{ runner.temp }}/Packages.gz
+          mv ${{ runner.temp }}/Packages ${{ runner.temp }}/Packages.gz ${APT_META_PATH}/
+          python3 ${{ github.workspace }}/repo/scripts/apt_release.py ${{ steps.apt_key.outputs.keyid }}
+
