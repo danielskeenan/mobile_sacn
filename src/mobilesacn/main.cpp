@@ -7,6 +7,10 @@
  */
 
 #include <QApplication>
+#ifdef SENTRY_DSN
+#include <sentry.h>
+#include "SentryLogSink.h"
+#endif
 #include "mobilesacn_config.h"
 #include "MainWindow.h"
 #include "updater/updater.h"
@@ -18,10 +22,7 @@
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <QStandardPaths>
-#ifdef SENTRY_DSN
-#include <sentry.h>
-#include "SentryLogSink.h"
-#endif
+#include <QMessageBox>
 
 using namespace mobilesacn;
 
@@ -75,6 +76,21 @@ void setup_sentry() {
 #endif
 }
 
+/**
+ * Ask the user about resetting settings
+ * @param app The QApplication instance with an installed translator
+ */
+bool ReallyClearSettings(QApplication &app) {
+  auto *dialog = new QMessageBox(
+      QMessageBox::Question,
+      app.translate("entrypoint", "Clear settings?"),
+      app.translate("entrypoint", "Holding SHIFT while launching this program will clear all settings.\n"
+                                  "Are you sure you wish to reset the settings to their defaults?"),
+      QMessageBox::Yes | QMessageBox::No);
+  dialog->setDefaultButton(QMessageBox::No);
+  return dialog->exec() == QMessageBox::Yes;
+}
+
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   app.setOrganizationName(mobilesacn::config::kProjectOrganizationName);
@@ -84,9 +100,15 @@ int main(int argc, char *argv[]) {
   app.setApplicationVersion(mobilesacn::config::kProjectVersion);
   app.setWindowIcon(QIcon(":/logo.svg"));
 
+  // Clear all settings if program is launched while holding [Shift].
+  if (app.queryKeyboardModifiers() == Qt::ShiftModifier) {
+    if (ReallyClearSettings(app)) {
+      Settings::Clear();
+    }
+  }
+
   setup_logging();
   setup_sentry();
-  spdlog::error("Test error!");
 
   // Init EtcPal.
   etcpal_init(kEtcPalFeatures);
