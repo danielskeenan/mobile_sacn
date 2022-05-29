@@ -1,13 +1,20 @@
 cmake_minimum_required(VERSION 3.19)
 project(mobile_sacn
-        VERSION 0.1.0
-        DESCRIPTION "Mobile sACN test tool"
-        HOMEPAGE_URL "https://mobilesacn.dankeenan.org"
-        )
+    VERSION 0.1.0
+    DESCRIPTION "Mobile sACN test tool"
+    HOMEPAGE_URL "https://mobilesacn.dankeenan.org"
+    )
 set(PROJECT_DISPLAY_NAME "Mobile sACN")
 set(PROJECT_AUTHOR "Dan Keenan")
 set(PROJECT_ORGANIZATION_NAME "dankeenan")
 set(PROJECT_ORGANIZATION_DOMAIN "dankeenan.org")
+string(TIMESTAMP PROJECT_BUILD_TIMESTAMP "%s" UTC)
+find_package(Git REQUIRED)
+execute_process(COMMAND "${GIT_EXECUTABLE}" log -n1 --format=%H
+    OUTPUT_VARIABLE PROJECT_COMMIT_SHA
+    COMMAND_ERROR_IS_FATAL ANY
+    )
+string(STRIP "${PROJECT_COMMIT_SHA}" PROJECT_COMMIT_SHA)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -28,7 +35,7 @@ endif ()
 include(GNUInstallDirs)
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(PROJECT_WEBUI_PATH "Resources/web")
-else()
+else ()
     set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
 endif ()
 

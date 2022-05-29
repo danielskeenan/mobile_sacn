@@ -23,6 +23,8 @@ class Settings : public dragoonboots::qsettingscontainer::QSettingsContainer {
   DGSETTINGS_SETTING(QString, LastWebUiInterfaceName, {})
 
   DGSETTINGS_SETTING(QString, LastSacnInterfaceName, {})
+
+  DGSETTINGS_SETTING(QString, UserId, {})
 };
 
 } // mobilesacn
