@@ -35,15 +35,51 @@ endfunction()
 sphinx_build(doc_html html "${CMAKE_CURRENT_BINARY_DIR}/html/index.html")
 if (TARGET webui_build)
     sphinx_build(doc_webui html "${CMAKE_CURRENT_BINARY_DIR}/webui/index.html")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        add_custom_command(TARGET doc_webui POST_BUILD
+            COMMAND "${CMAKE_COMMAND}"
+            -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/webui/"
+            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web/doc\"
+            )
+    else ()
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/webui/" DESTINATION "${PROJECT_WEBUI_PATH}/doc")
+    endif ()
 endif ()
-sphinx_build(doc_qthelp qthelp "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp")
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    add_custom_command(TARGET doc_webui POST_BUILD
-        COMMAND "${CMAKE_COMMAND}"
-        -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/webui/"
-        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web/doc\"
+if (Qt_VERSION)
+    find_package(Qt${Qt_VERSION} COMPONENTS Help REQUIRED)
+    sphinx_build(doc_qthelp qthelp "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp")
+    # Need to add a few more options to the qhcp file.
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
+        COMMAND Python3::Interpreter "${PROJECT_SOURCE_DIR}/scripts/qhcp.py"
+        "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp"
+        "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
+        DEPENDS "${PROJECT_SOURCE_DIR}/scripts/qhcp.py" "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp"
+        COMMENT "Adding Qt Assistant configuration to ${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp"
         )
-else ()
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/webui/" DESTINATION "${PROJECT_WEBUI_PATH}/doc")
+    file(COPY "${PROJECT_SOURCE_DIR}/resources/logo.svg" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/qthelp/")
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/qthelp"
+        COMMAND Qt${Qt_VERSION}::qcollectiongenerator
+        "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
+        -o "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
+        )
+    add_custom_target(doc_qthelp_qhc DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc")
+
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        add_custom_command(TARGET doc_webui POST_BUILD
+            COMMAND "${CMAKE_COMMAND}"
+            -E copy
+            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
+            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
+            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/${PROJECT_HELP_PATH}\"
+            )
+    else ()
+        install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
+            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
+            DESTINATION "${PROJECT_HELP_PATH}"
+            )
+    endif ()
 endif ()

@@ -13,7 +13,9 @@
 #include <QPushButton>
 #include "NetIntModel.h"
 #include <QApplication>
+#include <QProcess>
 #include "Settings.h"
+#include "mobilesacn_config.h"
 
 namespace mobilesacn {
 
@@ -43,6 +45,7 @@ void MainWindow::InitUi() {
   // Config form
   auto *config_form = new QFormLayout;
   sidebar_layout->addLayout(config_form);
+
   // Web ui interface
   widgets_.webui_iface_select = new QComboBox(this);
   widgets_.webui_iface_select_model = new NetIntListModel(widgets_.webui_iface_select);
@@ -62,6 +65,7 @@ void MainWindow::InitUi() {
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this,
           &MainWindow::SCurrentWebUiIfaceChanged);
+
   // sACN interface
   widgets_.sacn_iface_select = new QComboBox(this);
   widgets_.sacn_iface_select_model = new NetIntListModel(widgets_.sacn_iface_select);
@@ -81,10 +85,19 @@ void MainWindow::InitUi() {
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this,
           &MainWindow::SCurrentSacnIfaceChanged);
+
+  auto *buttons_layout = new QHBoxLayout;
   // Start button
   widgets_.start_button = new QPushButton(this);
-  config_form->addWidget(widgets_.start_button);
+  buttons_layout->addWidget(widgets_.start_button);
   connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
+
+  // Help button
+  auto *help_button = new QPushButton(tr("Help"), this);
+  buttons_layout->addWidget(help_button);
+  connect(help_button, &QPushButton::clicked, this, &MainWindow::SHelp);
+
+  config_form->addRow(buttons_layout);
   sidebar_layout->addStretch();
 
   // QR code
@@ -114,6 +127,25 @@ void MainWindow::SStopApp() {
   disconnect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStopApp);
   connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
   SAppStopped();
+}
+
+void MainWindow::SHelp() {
+  std::filesystem::path collection_file(qApp->applicationDirPath().toStdString());
+  collection_file = collection_file.parent_path() / config::kHelpPath / fmt::format("{}.qhc", config::kProjectName);
+
+  auto *process = new QProcess(this);
+  connect(process, &QProcess::readyRead, [process]() {
+    while (process->canReadLine()) {
+      spdlog::debug(QString::fromUtf8(process->readLine()).toStdString());
+    }
+  });
+  QStringList args(
+      {
+          "-collectionFile",
+          QString::fromStdString(collection_file.string()),
+      });
+  process->start("assistant", args);
+  process->waitForStarted();
 }
 
 void MainWindow::SAppStarted() {

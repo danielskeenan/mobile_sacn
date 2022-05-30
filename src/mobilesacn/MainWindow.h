@@ -50,6 +50,7 @@ class MainWindow : public QMainWindow {
  private Q_SLOTS:
   void SStartApp();
   void SStopApp();
+  void SHelp();
   void SAppStarted();
   void SAppStopped();
   void SCurrentWebUiIfaceChanged(int row);

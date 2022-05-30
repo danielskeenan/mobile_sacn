@@ -26,6 +26,7 @@ const auto kProjectOrganizationDomain = "${PROJECT_ORGANIZATION_DOMAIN}";
 const auto kProjectAuthor = "${PROJECT_AUTHOR}";
 
 const auto kWebPath = "${PROJECT_WEBUI_PATH}";
+const auto kHelpPath = "${PROJECT_HELP_PATH}";
 }
 
 #endif //MOBILE_SACN_MOBILESACN_CONFIG_H

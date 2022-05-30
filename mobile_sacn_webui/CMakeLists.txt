@@ -36,10 +36,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     add_custom_command(TARGET webui_build POST_BUILD
         COMMAND "${CMAKE_COMMAND}"
         -E copy_directory "${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/"
-        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/web\"
+        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_WEBUI_PATH}\"
         )
 else ()
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/ DESTINATION ${PROJECT_WEBUI_PATH})
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/mobile_sacn_webui/build/" DESTINATION "${PROJECT_WEBUI_PATH}")
 endif ()
 
 if (BUILD_TESTING)
