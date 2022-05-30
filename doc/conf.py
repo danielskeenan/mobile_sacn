@@ -47,7 +47,7 @@ nitpicky = True
 
 defs = []
 for image in Path('./img/buttons').iterdir():
-    defs.append('.. |button_{}| image:: /{}\n   :class: no-scaled-link btn-img'.format(image.stem, image))
+    defs.append('.. |button_{}| image:: /{}\n   :class: no-scaled-link btn-img'.format(image.stem, image.as_posix()))
 rst_epilog = '\n'.join(defs)
 del defs
 
