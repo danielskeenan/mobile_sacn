@@ -1,0 +1,10 @@
+img.btn-img {
+    height: 1.5em;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+img.screenshot {
+    max-width: 375px;
+    max-height: max-content;
+}
