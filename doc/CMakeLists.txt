@@ -7,7 +7,13 @@ function(sphinx_build BUILDER PRIMARY_OUTPUT)
 
     string(TIMESTAMP CURRENT_YEAR "%Y" UTC)
     add_custom_command(OUTPUT "${PRIMARY_OUTPUT}"
-        COMMAND "${SPHINX_EXECUTABLE}" -b ${BUILDER} -j auto -W --keep-going -T "${CMAKE_CURRENT_SOURCE_DIR}" "${OUTPUT_DIR}"
+        COMMAND "${SPHINX_EXECUTABLE}"
+        -b ${BUILDER}
+        -j auto
+        -W --keep-going
+        -T
+        -d "${CMAKE_CURRENT_BINARY_DIR}/doctrees_${BUILDER}"
+        "${CMAKE_CURRENT_SOURCE_DIR}" "${OUTPUT_DIR}"
         -D "project=${PROJECT_DISPLAY_NAME}"
         -D "author=${PROJECT_AUTHOR}"
         -D "version=${PROJECT_VERSION}"

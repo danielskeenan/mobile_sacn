@@ -39,30 +39,33 @@ else ()
     set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
 endif ()
 
-# Allow testing.
-include(CTest)
+option(BUILD_EXEC "Build the executable program.  You probably want to do this." ON)
+if (BUILD_EXEC)
+    # Allow testing.
+    include(CTest)
 
-# Decide which Qt version to use.
-set(Qt_COMPONENTS Widgets Svg)
-find_package(Qt6 COMPONENTS ${Qt_COMPONENTS})
-if (NOT Qt6_FOUND)
-    find_package(Qt5 COMPONENTS ${Qt_COMPONENTS})
-    set(Qt_VERSION 5)
-else ()
-    set(Qt_VERSION 6)
-endif ()
+    # Decide which Qt version to use.
+    set(Qt_COMPONENTS Widgets Svg)
+    find_package(Qt6 COMPONENTS ${Qt_COMPONENTS})
+    if (NOT Qt6_FOUND)
+        find_package(Qt5 COMPONENTS ${Qt_COMPONENTS})
+        set(Qt_VERSION 5)
+    else ()
+        set(Qt_VERSION 6)
+    endif ()
 
-add_subdirectory(mobile_sacn_webui)
-add_subdirectory(proto)
-add_subdirectory(src)
+    add_subdirectory(mobile_sacn_webui)
+    add_subdirectory(proto)
+    add_subdirectory(src)
 
-if (BUILD_TESTING)
-    add_subdirectory(test)
-endif ()
+    if (BUILD_TESTING)
+        add_subdirectory(test)
+    endif ()
 
-option(BUILD_PACKAGE "Create packages, installers, etc." Off)
-if (BUILD_PACKAGE)
-    include(cmake/install.cmake)
+    option(BUILD_PACKAGE "Create packages, installers, etc." Off)
+    if (BUILD_PACKAGE)
+        include(cmake/install.cmake)
+    endif ()
 endif ()
 
 option(BUILD_DOC "Build user documentation." Off)

@@ -1,0 +1,49 @@
+name: Documentation
+
+on:
+  push:
+    paths:
+      - doc/**
+  pull_request:
+    paths:
+      - doc/**
+  workflow_dispatch: ~
+
+env:
+  BUILD_TYPE: Release
+  SOURCE_DIR: ${{github.workspace}}
+  BUILD_DIR: ${{github.workspace}}/build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
+      - name: Set CMake Parallel level
+        run: |
+          echo "CMAKE_BUILD_PARALLEL_LEVEL=${{ steps.cpu-cores.outputs.count }}" >> ${GITHUB_ENV}
+      #######################
+      # BUILD
+      #######################
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install sphinx
+        run: pipx install sphinx
+      - name: Configure CMake
+        shell: bash
+        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_EXEC=Off -DBUILD_DOC=On
+      - name: Build
+        shell: bash
+        run: cmake --build "${BUILD_DIR}" --target doc
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.BUILD_DIR }}/doc/html
+          cname: docs.mobilesacn.dankeenan.org
