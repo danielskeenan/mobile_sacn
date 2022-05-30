@@ -1,0 +1,19 @@
+name: Update website
+
+on:
+  release:
+    types:
+      - created
+      - edited
+      - deleted
+      - published
+      - unpublished
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebuild site
+        env:
+          GITHUB_TOKEN: ${{ secrets.SITE_GH_API_TOKEN }}
+        run: gh workflow --repo danielskeenan/mobile_sacn_site run main.yml --ref main
