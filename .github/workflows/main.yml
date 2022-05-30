@@ -62,7 +62,7 @@ jobs:
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install libcurl4-openssl-dev pandoc qtbase5-dev libqt5svg5-dev
+          sudo apt-get -y install libcurl4-openssl-dev pandoc qtbase5-dev libqt5svg5-dev libqttools5-dev
       - name: Cache Qt
         id: cache-qt
         # Don't need this on Linux, as Qt will come from the system package manager above
