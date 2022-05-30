@@ -19,7 +19,7 @@ else ()
     )
     set(PACKAGE_LOCK_JSON_HASH "${_PACKAGE_LOCK_JSON_HASH}" CACHE INTERNAL "package-lock.json SHA256 hash")
 endif ()
-file(GLOB_RECURSE WEBUI_SOURCES
+file(GLOB_RECURSE WEBUI_SOURCES CONFIGURE_DEPENDS
     public/* src/* config-overrides.js package-lock.json package.json tsconfig.json
     )
 add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/build/index.html"

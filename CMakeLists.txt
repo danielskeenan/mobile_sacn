@@ -60,7 +60,12 @@ if (BUILD_TESTING)
     add_subdirectory(test)
 endif ()
 
-set(BUILD_PACKAGE Off CACHE BOOL "Create packages, installers, etc.")
+option(BUILD_PACKAGE "Create packages, installers, etc." Off)
 if (BUILD_PACKAGE)
     include(cmake/install.cmake)
+endif ()
+
+option(BUILD_DOC "Build user documentation." Off)
+if (BUILD_DOC)
+    add_subdirectory(doc)
 endif ()
