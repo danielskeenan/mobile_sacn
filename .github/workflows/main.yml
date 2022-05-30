@@ -161,7 +161,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref_type == 'tag' && secrets.DSA_PRIVATE_KEY }}
+    if: ${{ github.ref_type == 'tag' }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -201,7 +201,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ github.ref_type == 'tag' && secrets.APT_REPO_PRIVATE_KEY }}
+    if: ${{ github.ref_type == 'tag' }}
     env:
       S3FS_PASSWD_PATH: ${{ github.workspace }}/.passwd-s3fs
       APT_REPO_LOCAL_PATH: ${{ github.workspace }}/msacn-apt
