@@ -33,8 +33,9 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
 endfunction()
 
 sphinx_build(doc_html html "${CMAKE_CURRENT_BINARY_DIR}/html/index.html")
-sphinx_build(doc_webui html "${CMAKE_CURRENT_BINARY_DIR}/webui/index.html")
-add_dependencies(doc_webui webui_build)
+if (TARGET webui_build)
+    sphinx_build(doc_webui html "${CMAKE_CURRENT_BINARY_DIR}/webui/index.html")
+endif ()
 sphinx_build(doc_qthelp qthelp "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
