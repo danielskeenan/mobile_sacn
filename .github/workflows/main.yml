@@ -48,6 +48,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+      - name: Install sphinx
+        run: pipx install sphinx
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
         run: brew install pandoc

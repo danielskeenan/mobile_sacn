@@ -43,9 +43,17 @@ HttpServer::HttpServer(HttpServer::Options options)
       [](const crow::request &req, const std::string &file_path_partial) {
         crow::response resp;
         std::filesystem::path static_file_path;
-        if (std::filesystem::path(file_path_partial).has_extension()) {
+        const auto file_path_partial_view = CleanUrlPath(file_path_partial);
+        const std::filesystem::path check_path = std::filesystem::path(file_path_partial_view);
+        if (check_path.has_extension()) {
           // Try a real file.
-          static_file_path = GetWebUiRoot() / file_path_partial;
+          static_file_path = GetWebUiRoot() / file_path_partial_view;
+        } else if (std::filesystem::is_directory(static_file_path = GetWebUiRoot() / check_path)
+            && FilePathInWebroot(static_file_path / "index.html")) {
+          // Directory with an index.html file in it.
+          resp.clear();
+          resp.redirect(fmt::format("/{}/index.html", file_path_partial_view));
+          return resp;
         } else {
           // Serve index.html to enable client-side routing.
           // See https://create-react-app.dev/docs/deployment#serving-apps-with-client-side-routing
@@ -108,8 +116,10 @@ std::string HttpServer::GetUrl() const {
 }
 
 std::filesystem::path HttpServer::GetWebUiRoot() {
+  static std::mutex web_ui_root_mutex;
   static std::optional<std::filesystem::path> web_ui_root;
   if (!web_ui_root.has_value()) {
+    std::scoped_lock web_ui_root_lock(web_ui_root_mutex);
     const auto program_location = boost::dll::program_location().parent_path();
     web_ui_root = (program_location.parent_path() / config::kWebPath).string();
     web_ui_root = std::filesystem::canonical(*web_ui_root);
@@ -123,6 +133,15 @@ crow::response HttpServer::RedirectToIndex() {
   resp.redirect("/index.html");
 
   return resp;
+}
+
+std::string_view HttpServer::CleanUrlPath(const std::string &file_path_partial) {
+  std::string_view sv = file_path_partial;
+  while (!sv.empty() && sv.ends_with('/')) {
+    sv.remove_suffix(1);
+  }
+
+  return sv;
 }
 
 bool HttpServer::FilePathInWebroot(const std::filesystem::path &path) {

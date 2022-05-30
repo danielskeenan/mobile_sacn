@@ -80,6 +80,13 @@ class HttpServer {
   static crow::response RedirectToIndex();
 
   /**
+   * Remove trailing slashes from the path.
+   * @param file_path_partial
+   * @return
+   */
+  static std::string_view CleanUrlPath(const std::string& file_path_partial);
+
+  /**
    * Verify the static file path is in the webroot.
    * @return
    */

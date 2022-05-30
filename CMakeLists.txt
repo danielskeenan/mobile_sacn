@@ -68,7 +68,7 @@ if (BUILD_EXEC)
     endif ()
 endif ()
 
-option(BUILD_DOC "Build user documentation." Off)
+option(BUILD_DOC "Build user documentation." On)
 if (BUILD_DOC)
     add_subdirectory(doc)
 endif ()

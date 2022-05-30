@@ -44,6 +44,9 @@ export default function Navbar() {
                               to={generatePath(Links.FRONT_ABOUT)}>
                         About
                     </Nav.Link>
+                    <Nav.Link href="/doc" target="_blank">
+                        Help
+                    </Nav.Link>
                 </Nav>
             </BsNavbar.Collapse>
         </BsNavbar>

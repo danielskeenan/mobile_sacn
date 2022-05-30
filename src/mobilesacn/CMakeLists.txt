@@ -81,5 +81,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 add_dependencies(${PROJECT_NAME} webui_build)
+add_dependencies(${PROJECT_NAME} doc_webui)
 
 add_subdirectory(updater)
