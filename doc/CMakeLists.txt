@@ -74,11 +74,11 @@ if (Qt_VERSION)
     # Help installation
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         add_custom_command(TARGET doc_webui POST_BUILD
-            COMMAND "${CMAKE_COMMAND}"
-            -E copy
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
+            COMMAND "${CMAKE_COMMAND}" -E copy
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
-            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}\"
+            "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
             )
     else ()
         install(FILES
@@ -105,7 +105,7 @@ if (Qt_VERSION)
                 env \"PATH=$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
                     --no-compiler-runtime ${_NO_ANGLE}
                     --no-opengl-sw
-                    --dir \"${CMAKE_INSTALL_FULL_BINDIR}\"
+                    --dir \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
                     \"${ASSISTANT_PATH}\"
             COMMAND_ERROR_IS_FATAL ANY
         )
