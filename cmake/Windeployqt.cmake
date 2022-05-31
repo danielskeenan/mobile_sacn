@@ -20,11 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Retrieve the absolute path to qmake and then use that path to find
-# the windeployqt binary
-get_target_property(_qmake_executable Qt${Qt_VERSION}::qmake IMPORTED_LOCATION)
-get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+function(find_windeployqt)
+    # Retrieve the absolute path to qmake and then use that path to find
+    # the windeployqt binary
+    get_target_property(_qmake_executable Qt${Qt_VERSION}::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+    mark_as_advanced(WINDEPLOYQT_EXECUTABLE)
+endfunction()
 
 # Running this with MSVC 2015 requires CMake 3.6+
 if((MSVC_VERSION VERSION_EQUAL 1900 OR MSVC_VERSION VERSION_GREATER 1900)
@@ -43,6 +46,7 @@ function(windeployqt target directory)
     endif ()
 
     # Run windeployqt immediately after build
+    find_windeployqt()
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E
             env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
@@ -89,5 +93,3 @@ function(windeployqt target directory)
         "
     )
 endfunction()
-
-mark_as_advanced(WINDEPLOYQT_EXECUTABLE)

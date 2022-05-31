@@ -55,18 +55,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         MACOSX_BUNDLE_ICON_FILE ${PROJECT_NAME}.icns
         MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
-#    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#        COMMAND "${CMAKE_COMMAND}"
-#        -E copy
-#        "${PROJECT_SOURCE_DIR}/resources/logo.svg"
-#        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/\"
-#        )
 else ()
     install(TARGETS ${PROJECT_NAME} RUNTIME)
-#    install(FILES
-#        "${PROJECT_SOURCE_DIR}/resources/logo.svg"
-#        DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}"
-#        )
 endif ()
 
 # Qt packaging

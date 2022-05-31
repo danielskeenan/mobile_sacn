@@ -46,7 +46,11 @@ if (TARGET webui_build)
     endif ()
 endif ()
 if (Qt_VERSION)
-    find_package(Qt${Qt_VERSION} COMPONENTS Help REQUIRED)
+    if (Qt_VERSION EQUAL 5)
+        find_package(Qt${Qt_VERSION} COMPONENTS Help REQUIRED)
+    else ()
+        find_package(Qt${Qt_VERSION} COMPONENTS Help Tools REQUIRED)
+    endif ()
     sphinx_build(doc_qthelp qthelp "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhcp")
     # Need to add a few more options to the qhcp file.
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
@@ -61,19 +65,29 @@ if (Qt_VERSION)
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/qthelp"
-        COMMAND Qt${Qt_VERSION}::qcollectiongenerator
+        COMMAND Qt${Qt_VERSION}::qhelpgenerator
         "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}_configured.qhcp"
         -o "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
         )
     add_custom_target(doc_qthelp_qhc DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc")
 
+    # Help installation
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         add_custom_command(TARGET doc_webui POST_BUILD
             COMMAND "${CMAKE_COMMAND}"
             -E copy
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
-            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/${PROJECT_HELP_PATH}\"
+            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}\"
+            )
+
+        # Install assistant.
+        set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/Assistant.app")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}"
+            -E copy_directory
+            "${ASSISTANT_PATH}/"
+            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
             )
     else ()
         install(FILES
@@ -81,5 +95,33 @@ if (Qt_VERSION)
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
             DESTINATION "${PROJECT_HELP_PATH}"
             )
+        if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+            # Install assistant.
+            set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/assistant${CMAKE_EXECUTABLE_SUFFIX}")
+            install(FILES "${ASSISTANT_PATH}" TYPE BIN)
+            include(GNUInstallDirs)
+            find_windeployqt()
+            if (${Qt_VERSION} EQUAL 6)
+                # Qt6 doesn't use this option.
+                set(_NO_ANGLE "")
+            else ()
+                set(_NO_ANGLE "--no-angle")
+            endif ()
+            install(CODE
+                "
+        execute_process(
+            COMMAND \"${CMAKE_COMMAND}\" -E
+                env PATH=\"$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
+                    --no-compiler-runtime
+                    ${_NO_ANGLE}
+                    --no-opengl-sw
+                    --list mapping
+                    --dir ${CMAKE_INSTALL_FULL_BINDIR}
+                    \"${ASSISTANT_PATH}\"
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+        "
+                )
+        endif ()
     endif ()
 endif ()

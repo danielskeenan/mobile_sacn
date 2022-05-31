@@ -14,6 +14,7 @@
 #include "NetIntModel.h"
 #include <QApplication>
 #include <QProcess>
+#include <QStandardPaths>
 #include "Settings.h"
 #include "mobilesacn_config.h"
 
@@ -130,8 +131,28 @@ void MainWindow::SStopApp() {
 }
 
 void MainWindow::SHelp() {
-  std::filesystem::path collection_file(qApp->applicationDirPath().toStdString());
-  collection_file = collection_file.parent_path() / config::kHelpPath / fmt::format("{}.qhc", config::kProjectName);
+  const std::filesystem::path app_dir_path(qApp->applicationDirPath().toStdString());
+  const auto collection_file = app_dir_path.parent_path() / config::kHelpPath
+      / fmt::format("{}.qhc", config::kProjectName);
+  const auto assistant_path = [&app_dir_path]() {
+    for (const auto &assistant_name : {"assistant", "Assistant"}) {
+      auto found_path = QStandardPaths::findExecutable(assistant_name);
+      if (!found_path.isEmpty()) {
+        return found_path;
+      }
+#ifdef PLATFORM_MACOS
+      const auto extra_path = QString::fromStdString((app_dir_path.parent_path() / "Resources" / "Assistant.app"
+          / "Contents" / "MacOS").string());
+#else
+      const auto extra_path = qApp->applicationDirPath();
+#endif
+      found_path = QStandardPaths::findExecutable(assistant_name, {extra_path});
+      if (!found_path.isEmpty()) {
+        return found_path;
+      }
+    }
+    return QString();
+  }();
 
   auto *process = new QProcess(this);
   connect(process, &QProcess::readyRead, [process]() {
@@ -144,7 +165,7 @@ void MainWindow::SHelp() {
           "-collectionFile",
           QString::fromStdString(collection_file.string()),
       });
-  process->start("assistant", args);
+  process->start(assistant_path, args);
   process->waitForStarted();
 }
 

@@ -21,19 +21,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Retrieve the absolute path to qmake and then use that path to find
-# the macdeployqt binary
-get_target_property(_qmake_executable Qt${Qt_VERSION}::qmake IMPORTED_LOCATION)
-get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-find_program(macdeployqt_PROG macdeployqt HINTS "${_qt_bin_dir}")
+function(find_macdeployqt)
+    # Retrieve the absolute path to qmake and then use that path to find
+    # the macdeployqt binary
+    get_target_property(_qmake_executable Qt${Qt_VERSION}::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(macdeployqt_PROG macdeployqt HINTS "${_qt_bin_dir}")
+    mark_as_advanced(macdeployqt_PROG)
+endfunction()
 
 function(macdeployqt target directory)
     # Run macdeployqt immediately after build
+    find_macdeployqt()
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${macdeployqt_PROG}"
         \"$<TARGET_BUNDLE_DIR:${target}>\"
         -verbose=2
         )
 endfunction()
-
-mark_as_advanced(macdeployqt_PROG)
