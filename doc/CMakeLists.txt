@@ -73,13 +73,7 @@ if (Qt_VERSION)
 
     # Help installation
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        add_custom_command(TARGET doc_webui POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
-            COMMAND "${CMAKE_COMMAND}" -E copy
-            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
-            "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
-            "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
-            )
+        # This is installed as part of the main executable build.
     else ()
         install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"

@@ -88,6 +88,13 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         "${ASSISTANT_PATH}/"
         \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
         )
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
+        COMMAND "${CMAKE_COMMAND}" -E copy
+        "${PROJECT_BINARY_DIR}/doc/qthelp/${PROJECT_NAME}.qhc"
+        "${PROJECT_BINARY_DIR}/doc/qthelp/${PROJECT_NAME}.qch"
+        "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
+        )
     if (BUILD_PACKAGE)
         include("${PROJECT_SOURCE_DIR}/cmake/Macdeployqt.cmake")
         macdeployqt(${PROJECT_NAME} bin)
