@@ -80,15 +80,6 @@ if (Qt_VERSION)
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qch"
             \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}\"
             )
-
-        # Install assistant.
-        set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/Assistant.app")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}"
-            -E copy_directory
-            "${ASSISTANT_PATH}/"
-            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
-            )
     else ()
         install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/qthelp/${PROJECT_NAME}.qhc"
@@ -111,12 +102,10 @@ if (Qt_VERSION)
                 "
         execute_process(
             COMMAND \"${CMAKE_COMMAND}\" -E
-                env PATH=\"$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
-                    --no-compiler-runtime
-                    ${_NO_ANGLE}
+                env \"PATH=$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
+                    --no-compiler-runtime ${_NO_ANGLE}
                     --no-opengl-sw
-                    --list mapping
-                    --dir ${CMAKE_INSTALL_FULL_BINDIR}
+                    --dir \"${CMAKE_INSTALL_FULL_BINDIR}\"
                     \"${ASSISTANT_PATH}\"
             COMMAND_ERROR_IS_FATAL ANY
         )

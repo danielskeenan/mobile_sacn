@@ -75,6 +75,19 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     file(RENAME "${PROJECT_BINARY_DIR}/meta/logo.icns" "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
     target_sources(${PROJECT_NAME} PRIVATE "${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns")
     set_source_files_properties("${PROJECT_BINARY_DIR}/meta/${PROJECT_NAME}.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    # Install assistant.
+    if (Qt_VERSION EQUAL 5)
+        find_package(Qt${Qt_VERSION} COMPONENTS Help REQUIRED)
+    else ()
+        find_package(Qt${Qt_VERSION} COMPONENTS Help Tools REQUIRED)
+    endif ()
+    set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/Assistant.app")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+        -E copy_directory
+        "${ASSISTANT_PATH}/"
+        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
+        )
     if (BUILD_PACKAGE)
         include("${PROJECT_SOURCE_DIR}/cmake/Macdeployqt.cmake")
         macdeployqt(${PROJECT_NAME} bin)

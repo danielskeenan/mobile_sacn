@@ -119,10 +119,10 @@ jobs:
         shell: bash
         run: ctest -C ${BUILD_TYPE}
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ failure() }}
         with:
-          name: test_results
+          name: test_results_${{runner.os}}
           path: ${{env.BUILD_DIR}}/Testing/Temporary/LastTest.log
 
       #######################
@@ -155,6 +155,12 @@ jobs:
           name: packages
           path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
+      - name: Upload failed build dir
+        uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: failed_build_${{runner.os}}
+          path: ${{env.BUILD_DIR}}
 
   #######################
   # RELEASE
