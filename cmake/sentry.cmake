@@ -6,5 +6,9 @@ FetchContent_Declare(
 )
 
 set(SENTRY_BUILD_SHARED_LIBS Off CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(sentry_native)
+FetchContent_GetProperties(sentry_native)
+if (NOT sentry_native_POPULATED)
+    FetchContent_Populate(sentry_native)
+    add_subdirectory("${sentry_native_SOURCE_DIR}" "${sentry_native_BINARY_DIR}" EXCLUDE_FROM_ALL)
+endif ()
 target_compile_definitions(sentry INTERFACE SENTRY_BUILD_STATIC=1)
