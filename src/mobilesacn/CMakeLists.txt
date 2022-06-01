@@ -46,9 +46,9 @@ if (SENTRY_DSN)
         )
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         install_sentry_deps(
-            RUNTIME_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
-            ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
-            LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
+            RUNTIME_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
+            ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
+            LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
         )
     endif ()
 endif ()
