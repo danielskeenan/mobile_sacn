@@ -1,7 +1,6 @@
 find_program(SPHINX_EXECUTABLE sphinx-build REQUIRED)
-file(GLOB_RECURSE DOC_SOURCES CONFIGURE_DEPENDS ./*)
 
-add_custom_target(doc SOURCES ${DOC_SOURCES})
+add_custom_target(doc SOURCES)
 function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
     get_filename_component(OUTPUT_DIR "${PRIMARY_OUTPUT}" DIRECTORY)
 
@@ -24,7 +23,6 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
         "${CMAKE_CURRENT_SOURCE_DIR}" "${OUTPUT_DIR}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT "Building documentation (${BUILDER})..."
-        DEPENDS ${DOC_SOURCES}
         BYPRODUCTS "${OUTPUT_DIR}"
         )
 

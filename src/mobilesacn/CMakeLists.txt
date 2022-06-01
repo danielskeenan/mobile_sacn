@@ -36,6 +36,21 @@ if (SENTRY_DSN)
     include(${PROJECT_SOURCE_DIR}/cmake/sentry.cmake)
     target_link_libraries(${PROJECT_NAME} PRIVATE sentry)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "SENTRY_DSN=\"${SENTRY_DSN}\"")
+
+    if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        include(GNUInstallDirs)
+        install_sentry_deps(
+            RUNTIME_DIR "${CMAKE_INSTALL_BINDIR}"
+            ARCHIVE_DIR "${CMAKE_INSTALL_LIBDIR}"
+            LIBRARY_DIR "${CMAKE_INSTALL_LIBDIR}"
+        )
+    elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        install_sentry_deps(
+            RUNTIME_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
+            ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
+            LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/MacOS"
+        )
+    endif ()
 endif ()
 
 # Updater
