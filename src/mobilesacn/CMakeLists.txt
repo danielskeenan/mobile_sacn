@@ -40,14 +40,12 @@ if (SENTRY_DSN)
     if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         include(GNUInstallDirs)
         install_sentry_deps(
-            TARGET "${PROJECT_NAME}"
             RUNTIME_DIR "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE_DIR "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY_DIR "${CMAKE_INSTALL_LIBDIR}"
         )
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         install_sentry_deps(
-            TARGET "${PROJECT_NAME}"
             RUNTIME_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
             ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
             LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
@@ -99,11 +97,11 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         find_package(Qt${Qt_VERSION} COMPONENTS Help Tools REQUIRED)
     endif ()
     set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/Assistant.app")
+    include(${PROJECT_SOURCE_DIR}/cmake/find_qt_tool.cmake)
+    find_qt_tool(macdeployqt REQUIRED)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}"
-        -E copy_directory
-        "${ASSISTANT_PATH}/"
-        \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${ASSISTANT_PATH}/" \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
+        COMMAND "${macdeployqt_PROG}" \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/Assistant.app\"
         )
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_HELP_PATH}"
