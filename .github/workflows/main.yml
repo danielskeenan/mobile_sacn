@@ -155,12 +155,6 @@ jobs:
           name: packages
           path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
-      - name: Upload failed build dir
-        uses: actions/upload-artifact@v3
-#        if: ${{ failure() }}
-        with:
-          name: failed_build_${{runner.os}}
-          path: ${{env.BUILD_DIR}}
 
   #######################
   # RELEASE
