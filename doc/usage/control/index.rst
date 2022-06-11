@@ -13,6 +13,7 @@ Control mode allows you to set levels for individual addresses.  Only one univer
    Control screen
 
 .. contents::
+   :local:
 
 Usage
 -----

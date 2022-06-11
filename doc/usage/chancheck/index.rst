@@ -13,8 +13,7 @@ Channel Check mode allows you to set a single address to a defined level, moving
    Channel Check screen
 
 .. contents::
-
-.. _chancheck-usage:
+   :local:
 
 Usage
 -----
