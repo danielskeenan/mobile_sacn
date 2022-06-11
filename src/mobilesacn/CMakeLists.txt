@@ -37,8 +37,8 @@ if (SENTRY_DSN)
     target_link_libraries(${PROJECT_NAME} PRIVATE sentry)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "SENTRY_DSN=\"${SENTRY_DSN}\"")
 
+    include(GNUInstallDirs)
     if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        include(GNUInstallDirs)
         install_sentry_deps(
             RUNTIME_DIR "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE_DIR "${CMAKE_INSTALL_LIBDIR}"
@@ -50,6 +50,14 @@ if (SENTRY_DSN)
             ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
             LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
         )
+
+        # For some reason, installing the sentry deps into the bundle also installs them into the root of the generated
+        # disk image.  Remove that nonsense.
+        install(CODE
+            "
+                file(REMOVE_RECURSE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\" \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}\")
+            "
+            )
     endif ()
 endif ()
 
