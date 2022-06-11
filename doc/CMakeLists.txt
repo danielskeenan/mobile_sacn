@@ -1,6 +1,13 @@
 find_program(SPHINX_EXECUTABLE sphinx-build REQUIRED)
 
-add_custom_target(doc SOURCES)
+file(GLOB_RECURSE DOC_SOURCES CONFIGURE_DEPENDS
+    *.css
+    *.png
+    *.py
+    *.rst
+    *.svg
+    )
+add_custom_target(doc)
 function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
     get_filename_component(OUTPUT_DIR "${PRIMARY_OUTPUT}" DIRECTORY)
 
@@ -10,8 +17,9 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
         -b ${BUILDER}
         -j auto
         -W --keep-going
+        -a
         -T
-        -d "${CMAKE_CURRENT_BINARY_DIR}/doctrees_${BUILDER}"
+        -d "${CMAKE_CURRENT_BINARY_DIR}/doctrees_${TARGET_NAME}"
         -D "project=${PROJECT_DISPLAY_NAME}"
         -D "author=${PROJECT_AUTHOR}"
         -D "version=${PROJECT_VERSION}"
@@ -22,8 +30,9 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
         ${ARGN}
         "${CMAKE_CURRENT_SOURCE_DIR}" "${OUTPUT_DIR}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Building documentation (${BUILDER})..."
+        COMMENT "Building documentation (${TARGET_NAME})..."
         BYPRODUCTS "${OUTPUT_DIR}"
+        DEPENDS ${DOC_SOURCES}
         )
 
     add_custom_target(${TARGET_NAME} DEPENDS "${PRIMARY_OUTPUT}")
