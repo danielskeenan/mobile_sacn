@@ -1,7 +1,6 @@
 find_program(SPHINX_EXECUTABLE sphinx-build REQUIRED)
-file(GLOB_RECURSE DOC_SOURCES CONFIGURE_DEPENDS ./*)
 
-add_custom_target(doc SOURCES ${DOC_SOURCES})
+add_custom_target(doc SOURCES)
 function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
     get_filename_component(OUTPUT_DIR "${PRIMARY_OUTPUT}" DIRECTORY)
 
@@ -24,7 +23,6 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
         "${CMAKE_CURRENT_SOURCE_DIR}" "${OUTPUT_DIR}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT "Building documentation (${BUILDER})..."
-        DEPENDS ${DOC_SOURCES}
         BYPRODUCTS "${OUTPUT_DIR}"
         )
 
@@ -85,7 +83,8 @@ if (Qt_VERSION)
             set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/assistant${CMAKE_EXECUTABLE_SUFFIX}")
             install(FILES "${ASSISTANT_PATH}" TYPE BIN)
             include(GNUInstallDirs)
-            find_windeployqt()
+            include(${PROJECT_SOURCE_DIR}/cmake/find_qt_tool.cmake)
+            find_qt_tool(windeployqt REQUIRED)
             if (${Qt_VERSION} EQUAL 6)
                 # Qt6 doesn't use this option.
                 set(_NO_ANGLE "")
@@ -95,8 +94,7 @@ if (Qt_VERSION)
             install(CODE
                 "
         execute_process(
-            COMMAND \"${CMAKE_COMMAND}\" -E
-                env \"PATH=$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
+            COMMAND \"${Qt_WINDEPLOYQT_COMMAND}\"
                     --no-compiler-runtime ${_NO_ANGLE}
                     --no-opengl-sw
                     --dir \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
