@@ -40,12 +40,14 @@ if (SENTRY_DSN)
     if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         include(GNUInstallDirs)
         install_sentry_deps(
+            TARGET "${PROJECT_NAME}"
             RUNTIME_DIR "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE_DIR "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY_DIR "${CMAKE_INSTALL_LIBDIR}"
         )
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         install_sentry_deps(
+            TARGET "${PROJECT_NAME}"
             RUNTIME_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
             ARCHIVE_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"
             LIBRARY_DIR "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/MacOS"

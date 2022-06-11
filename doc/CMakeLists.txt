@@ -83,7 +83,8 @@ if (Qt_VERSION)
             set(ASSISTANT_PATH "$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qhelpgenerator>/assistant${CMAKE_EXECUTABLE_SUFFIX}")
             install(FILES "${ASSISTANT_PATH}" TYPE BIN)
             include(GNUInstallDirs)
-            find_windeployqt()
+            include(${PROJECT_SOURCE_DIR}/cmake/find_qt_tool.cmake)
+            find_qt_tool(windeployqt REQUIRED)
             if (${Qt_VERSION} EQUAL 6)
                 # Qt6 doesn't use this option.
                 set(_NO_ANGLE "")
@@ -93,8 +94,7 @@ if (Qt_VERSION)
             install(CODE
                 "
         execute_process(
-            COMMAND \"${CMAKE_COMMAND}\" -E
-                env \"PATH=$<TARGET_FILE_DIR:Qt${Qt_VERSION}::qmake>\" \"${WINDEPLOYQT_EXECUTABLE}\"
+            COMMAND \"${Qt_WINDEPLOYQT_COMMAND}\"
                     --no-compiler-runtime ${_NO_ANGLE}
                     --no-opengl-sw
                     --dir \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
