@@ -8,3 +8,13 @@ img.screenshot {
     max-width: 375px;
     max-height: max-content;
 }
+
+kbd:not(.compound) {
+    font-family: sans-serif;
+    color: #000000;
+    background-color: #dee2e6;
+    border: #dee2e6 1px solid;
+    border-radius: 4px;
+    padding: 0 0.25em;
+    margin: 0;
+}
