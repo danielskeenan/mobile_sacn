@@ -1,3 +1,23 @@
+.. |btn_left| button::
+   :color: primary
+
+   .. image:: /img/icons/caret-left-solid.svg
+
+.. |btn_right| button::
+   :color: primary
+
+   .. image:: /img/icons/caret-right-solid.svg
+
+.. |btn_start| button::
+   :color: success
+
+   Start
+
+.. |btn_stop| button::
+   :color: danger
+
+   Stop
+
 .. index:: Channel Check
 
 .. _chancheck:
@@ -23,9 +43,9 @@ Usage
    .. image:: screenshots/level.png
       :class: screenshot
 
-2. Use |button_right| and |button_left| buttons to set the first address
+2. Use |btn_right| and |btn_left| buttons to set the first address
    to check.
-3. Press |button_start| to begin transmitting.
+3. Press |btn_start| to begin transmitting.
 4. The current address will be displayed in green while the program is transmitting:
 
 .. |addr_transmit| image:: screenshots/addr_transmit.png
@@ -40,7 +60,7 @@ Usage
    * - |addr_transmit|
      - |addr_notransmit|
 
-5. Press |button_stop| to stop transmitting.
+5. Press |btn_stop| to stop transmitting.
 
    .. note:: If this program was the only device transmitting sACN on the network, receivers will follow their
       programmed data loss behavior. This means that lights may not turn off immediately.
@@ -127,6 +147,6 @@ per-address-priority option and Blink effect:
 2. Enable :ref:`per-address-priority <chancheck-config-pap>`.
 3. Set the level to ``20%`` (or some other low level).
 4. Enable the :ref:`chancheck-effect-blink` effect. Set the blink level to ``100%``
-5. Press |button_start|.
+5. Press |btn_start|.
 
 The address currently being checked will blink, while all others will remain at their previous level.

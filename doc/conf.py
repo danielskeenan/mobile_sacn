@@ -3,7 +3,7 @@
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-
+import sys
 from pathlib import Path
 
 # -- Path setup --------------------------------------------------------------
@@ -30,7 +30,13 @@ release = 'dev'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+sys.path.append(str(Path('./_ext').absolute()))
 extensions = [
+    'sphinx-ext-button',
+    'sphinx-ext-sass',
+]
+sass_files = [
+    '_style/style.scss'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -46,9 +52,13 @@ primary_domain = None
 nitpicky = True
 
 defs = []
-for image in Path('./img/buttons').iterdir():
-    defs.append('.. |button_{}| image:: /{}\n   :class: no-scaled-link btn-img'.format(image.stem, image.as_posix()))
-rst_epilog = '\n'.join(defs)
+
+# Substitutions
+substitutions = {}
+defs.extend(['.. |{}| {}'.format(k, v) for k, v in substitutions.items()])
+del substitutions
+
+rst_prolog = '\n\n'.join(defs)
 del defs
 
 # -- Options for HTML output -------------------------------------------------
@@ -67,7 +77,6 @@ html_logo = 'logo.svg'
 html_favicon = '../resources/logo.ico'
 html_copy_source = False
 html_show_sphinx = False
-html_css_files = ['style.css']
 html_permalinks = False
 
 # -- Options for LaTeX output -------------------------------------------------

@@ -5,6 +5,7 @@ file(GLOB_RECURSE DOC_SOURCES CONFIGURE_DEPENDS
     *.png
     *.py
     *.rst
+    *.scss
     *.svg
     )
 add_custom_target(doc)

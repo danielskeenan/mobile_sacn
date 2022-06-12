@@ -49,7 +49,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install sphinx
-        run: pipx install sphinx
+        run: |
+          pipx install sphinx
+          pipx inject sphinx libsass
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
         run: brew install pandoc

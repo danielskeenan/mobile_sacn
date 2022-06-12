@@ -1,3 +1,13 @@
+.. |btn_list| button::
+   :color: secondary
+
+   .. image:: /img/icons/list-solid.svg
+
+.. |btn_grid| button::
+   :color: secondary
+
+   .. image:: /img/icons/table-cells-solid.svg
+
 .. index:: View Levels
 
 .. _viewlevels:
@@ -36,10 +46,7 @@ Multiple display modes are available.
 List
 ^^^^
 
-.. |button_list| image:: buttons/list.svg
-   :class: no-scaled-link btn-img
-
-Press |button_list| to show list mode.
+Press |btn_list| to show list mode.
 
 .. figure:: screenshots/viewlevels_list.png
    :class: screenshot
@@ -55,10 +62,7 @@ bar corresponds to the color of the winning source.
 Grid
 ^^^^
 
-.. |button_grid| image:: buttons/grid.svg
-   :class: no-scaled-link btn-img
-
-Press |button_grid| to show grid mode.
+Press |btn_grid| to show grid mode.
 
 .. figure:: screenshots/viewlevels_grid.png
    :class: screenshot
