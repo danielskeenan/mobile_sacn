@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="30" height="30" version="1.1" xmlns="http://www.w3.org/2000/svg"><style>.bg {
+<svg width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg"><style>.bg {
       fill:#052c65;
       stroke:#052c65;
     }
@@ -11,4 +11,4 @@
     .fg-fill {
       fill:#e9ecef;
       stroke:none;
-    }</style><rect x=".46875" y=".46875" width="29.062" height="29.062" rx="3.75" ry="3.75" fill="#052c65" stroke="#052c65" stroke-width=".9375"/><g transform="matrix(.038906 0 0 .038906 5.04 8.7697)"><circle cx="256" cy="256" r="227.58" fill="none" stroke="#e9ecef" stroke-width="28.8"/><g fill="#e9ecef"><circle cx="124.28" cy="256" r="25"/><circle cx="162.86" cy="349.14" r="25"/><circle cx="256" cy="387.72" r="25"/><circle cx="349.14" cy="349.14" r="25"/><circle cx="387.72" cy="256" r="25"/></g></g><path d="m11.85 6.7248a8.8547 8.8547 0 0 1 3.1501-0.57928 8.8547 8.8547 0 0 1 3.1498 0.57916" fill="none" stroke="#e9ecef" stroke-width="1.4062"/><path d="m9.477 4.3495a8.8547 8.8547 0 0 1 5.5229-1.9336 8.8547 8.8547 0 0 1 5.5243 1.9346" fill="none" stroke="#e9ecef" stroke-width="1.4062"/></svg>
+    }</style><g transform="matrix(.90801 0 0 .90801 -1.6202 -1.5552)"><g transform="matrix(.038906 0 0 .038906 5.04 8.7697)"><circle cx="256" cy="256" r="227.58" fill="none" stroke="#e9ecef" stroke-width="28.8"/><g fill="#e9ecef"><circle cx="124.28" cy="256" r="25"/><circle cx="162.86" cy="349.14" r="25"/><circle cx="256" cy="387.72" r="25"/><circle cx="349.14" cy="349.14" r="25"/><circle cx="387.72" cy="256" r="25"/></g></g><path d="m11.85 6.7248a8.8547 8.8547 0 0 1 3.1501-0.57928 8.8547 8.8547 0 0 1 3.1498 0.57916" fill="none" stroke="#e9ecef" stroke-width="1.4062"/><path d="m9.477 4.3495a8.8547 8.8547 0 0 1 5.5229-1.9336 8.8547 8.8547 0 0 1 5.5243 1.9346" fill="none" stroke="#e9ecef" stroke-width="1.4062"/></g></svg>
