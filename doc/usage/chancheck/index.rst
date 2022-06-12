@@ -48,17 +48,15 @@ Usage
 3. Press |btn_start| to begin transmitting.
 4. The current address will be displayed in green while the program is transmitting:
 
-.. |addr_transmit| image:: screenshots/addr_transmit.png
+   .. figure:: screenshots/addr_transmit.png
+      :class: screenshot
 
-.. |addr_notransmit| image:: screenshots/addr_notransmit.png
+      Transmitting
 
-.. list-table::
-   :header-rows: 1
+   .. figure:: screenshots/addr_notransmit.png
+      :class: screenshot
 
-   * - Transmitting
-     - Not Transmitting
-   * - |addr_transmit|
-     - |addr_notransmit|
+      Not transmitting
 
 5. Press |btn_stop| to stop transmitting.
 
