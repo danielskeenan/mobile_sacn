@@ -32,10 +32,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      - name: Install sphinx
-        run: |
-          pipx install sphinx
-          pipx inject sphinx libsass
       - name: Configure CMake
         shell: bash
         run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_EXEC=Off -DBUILD_DOC=On

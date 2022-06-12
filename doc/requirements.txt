@@ -1,0 +1,2 @@
+Sphinx ~= 5.0.1
+libsass ~= 0.21.0

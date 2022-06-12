@@ -48,10 +48,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      - name: Install sphinx
-        run: |
-          pipx install sphinx
-          pipx inject sphinx libsass
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
         run: brew install pandoc
@@ -85,8 +81,7 @@ jobs:
       - name: Setup Conan
         shell: bash
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install conan
+          pipx install conan
           conan profile new --detect --force default
       - name: Set libstdc++ ABI
         if: ${{runner.os == 'Linux'}}

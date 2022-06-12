@@ -1,4 +1,15 @@
-find_program(SPHINX_EXECUTABLE sphinx-build REQUIRED)
+# Create the Python venv for building documentation.
+set(DOC_VENV "${CMAKE_CURRENT_BINARY_DIR}/venv")
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+execute_process(COMMAND "${Python3_EXECUTABLE}" -m venv --upgrade "${DOC_VENV}")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(DOC_PYTHON "${DOC_VENV}/Scripts/python${CMAKE_EXECUTABLE_SUFFIX}")
+else ()
+    set(DOC_PYTHON "${DOC_VENV}/bin/python${CMAKE_EXECUTABLE_SUFFIX}")
+endif ()
+message(STATUS "Installing documentation Python dependencies")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS requirements.txt)
+execute_process(COMMAND "${DOC_PYTHON}" -m pip install -r "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt")
 
 file(GLOB_RECURSE DOC_SOURCES CONFIGURE_DEPENDS
     *.css
@@ -14,7 +25,7 @@ function(sphinx_build TARGET_NAME BUILDER PRIMARY_OUTPUT)
 
     string(TIMESTAMP CURRENT_YEAR "%Y" UTC)
     add_custom_command(OUTPUT "${PRIMARY_OUTPUT}"
-        COMMAND "${SPHINX_EXECUTABLE}"
+        COMMAND "${DOC_PYTHON}" -m sphinx
         -b ${BUILDER}
         -j auto
         -W --keep-going
