@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(mobile_sacn
-    VERSION 0.1.1
+    VERSION 0.2.0
     DESCRIPTION "Mobile sACN test tool"
     HOMEPAGE_URL "https://mobilesacn.dankeenan.org"
     )
