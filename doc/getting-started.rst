@@ -12,4 +12,4 @@ Getting Started
 2. Click "Start" and use your mobile device's camera to scan the QR code and
    open the web UI.
 
-.. image:: img/base_started.png
+.. image:: img/screenshots/base_started.png
