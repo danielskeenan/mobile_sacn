@@ -7,6 +7,7 @@ gtest/1.11.0
 protobuf/3.15.5
 qr-code-generator/1.7.0
 spdlog/1.10.0
+zlib/1.2.13
 
 [generators]
 cmake_find_package
