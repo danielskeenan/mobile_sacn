@@ -18,6 +18,7 @@
 #include "log_files.h"
 #include "Settings.h"
 #include <QUuid>
+#include <etcpal/cpp/common.h>
 #include <chrono>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
@@ -26,7 +27,7 @@
 
 using namespace mobilesacn;
 
-static const auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
+static constexpr auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
 
 void setup_logging() {
   // Cap log file size at 1MB before rotating.  Keep at most 5 log files.

@@ -12,21 +12,19 @@
 #include <dragoonboots/qsettingscontainer/QSettingsContainer.h>
 
 namespace mobilesacn {
-
 /**
  * Application settings.
  */
 class Settings : public dragoonboots::qsettingscontainer::QSettingsContainer {
- public:
-  DGSETTINGS_SETTING(QByteArray, MainWindowGeometry, {})
+  public:
+    DGSETTINGS_SETTING(QByteArray, MainWindowGeometry, {})
 
-  DGSETTINGS_SETTING(QString, LastWebUiInterfaceName, {})
+    DGSETTINGS_SETTING(QString, LastWebUiInterfaceName, {})
 
-  DGSETTINGS_SETTING(QString, LastSacnInterfaceName, {})
+    DGSETTINGS_SETTING(QString, LastSacnInterfaceName, {})
 
-  DGSETTINGS_SETTING(QString, UserId, {})
+    DGSETTINGS_SETTING(QString, UserId, {})
 };
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_SRC_MOBILESACN_SETTINGS_H_

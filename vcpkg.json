@@ -1,0 +1,22 @@
+{
+  "name" : "mobile-sacn",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "7aeffc91033ad35cc4e2c152f213a866ec6c11ac",
+  "dependencies" : [ {
+    "name" : "spdlog",
+    "version>=" : "1.14.1"
+  }, {
+    "name" : "flatbuffers",
+    "version>=" : "24.3.25"
+  }, {
+    "name" : "nayuki-qr-code-generator",
+    "version>=" : "1.8.0#1"
+  }, {
+    "name" : "winsparkle",
+    "version>=" : "0.8.1",
+    "platform" : "windows"
+  }, {
+    "name" : "fmt",
+    "version>=" : "10.2.1#2"
+  } ]
+}

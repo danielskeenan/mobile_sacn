@@ -1,3 +1,4 @@
+# TODO: Refactor this out into a subdirectory per-platform (like Patchman).
 set(CPACK_PACKAGE_NAME "${PROJECT_DISPLAY_NAME}")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR "${PROJECT_AUTHOR}")

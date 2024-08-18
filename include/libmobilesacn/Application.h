@@ -13,39 +13,36 @@
 
 #include "EtcPalLogHandler.h"
 #include <memory>
-#include <mutex>
-#include <vector>
 #include <string>
 #include <filesystem>
-#include <etcpal/cpp/inet.h>
+#include <string>
+#include <QObject>
 
 namespace mobilesacn {
-
 class HttpServer;
 
 /**
  * Application instance.
  */
-class Application {
- public:
-  struct Options {
-    std::string backend_address;
-    etcpal::IpAddr sacn_address;
-  };
+class Application : public QObject {
+  public:
+    struct Options {
+      std::string backend_address;
+      std::string sacn_address;
+    };
 
-  explicit Application();
-  ~Application();
+    explicit Application(QObject* parent = nullptr);
+    ~Application() override;
 
-  void Run(Options options);
-  void Stop();
-  std::string GetWebUrl() const;
+    void run(const Options &options);
+    void stop();
+    [[nodiscard]] std::string getWebUrl() const;
 
- private:
-  etcpal::Logger etc_pal_logger_;
-  EtcPalLogHandler etc_pal_log_handler_;
-  std::unique_ptr<HttpServer> http_server_;
+  private:
+    etcpal::Logger etcPalLogger_;
+    EtcPalLogHandler etcPalLogHandler_;
+    HttpServer* httpServer_ = nullptr;
 };
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_APPLICATION_H

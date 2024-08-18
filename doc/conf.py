@@ -4,26 +4,22 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import sys
+import json
 from pathlib import Path
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+# -- Build info --------------------------------------------------------------
+with open('build_info.json') as f:
+    build_info = json.load(f)
 
 
 # -- Project information -----------------------------------------------------
 
-# These are automatically set when the docs are generated using CMake.
-project = 'Mobile sACN'
-copyright = 'year, author'
-author = 'author'
-release = 'dev'
+project = build_info['name']
+copyright = '{year}, {author}'.format(year=date.today().year, author=build_info['author'])
+author = build_info['author']
+# The full version, including alpha/beta/rc tags
+version = build_info['version']
+release = version
 
 # -- General configuration ---------------------------------------------------
 

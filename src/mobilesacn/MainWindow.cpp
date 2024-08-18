@@ -7,12 +7,12 @@
  */
 
 #include "MainWindow.h"
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QPushButton>
 #include "NetIntModel.h"
 #include <QApplication>
+#include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
 #include "Settings.h"
@@ -20,182 +20,159 @@
 
 namespace mobilesacn {
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-  InitUi();
-  SCurrentWebUiIfaceChanged(widgets_.webui_iface_select->currentIndex());
-  SCurrentSacnIfaceChanged(widgets_.sacn_iface_select->currentIndex());
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent)
+{
+    initUi();
+    currentWebUiIfaceChanged(widgets_.webuiIfaceSelect->currentIndex());
+    currentSacnIfaceChanged(widgets_.sacnIfaceSelect->currentIndex());
 
-  // Tell spdlog to log to this window.
-  auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex>>(widgets_.log_viewer);
-  widget_log_sink->set_level(spdlog::level::info);
-  spdlog::default_logger()->sinks().push_back(widget_log_sink);
+    // Tell spdlog to log to this window.
+    auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex> >(widgets_.logViewer);
+    widget_log_sink->set_level(spdlog::level::info);
+    spdlog::default_logger()->sinks().push_back(widget_log_sink);
 }
 
-void MainWindow::InitUi() {
-  if (!restoreGeometry(Settings::GetMainWindowGeometry())) {
-    resize(1024, 600);
+void MainWindow::initUi()
+{
+    if (!restoreGeometry(Settings::GetMainWindowGeometry())) {
+        resize(1024, 600);
+        Settings::SetMainWindowGeometry(saveGeometry());
+    }
+
+    auto central = new QWidget(this);
+    setCentralWidget(central);
+    auto layout = new QHBoxLayout(central);
+    auto sidebarLayout = new QVBoxLayout;
+    layout->addLayout(sidebarLayout);
+
+    // Config form
+    auto* configForm = new QFormLayout;
+    sidebarLayout->addLayout(configForm);
+
+    // Web ui interface
+    widgets_.webuiIfaceSelect = new QComboBox(this);
+    widgets_.webuiIfaceSelectModel = new NetIntListModel(widgets_.webuiIfaceSelect);
+    widgets_.webuiIfaceSelect->setModel(widgets_.webuiIfaceSelectModel);
+    const QString& lastWebUiIfaceName = Settings::GetLastWebUiInterfaceName();
+    if (lastWebUiIfaceName.isEmpty()) {
+        const auto defautIfaceRow = widgets_.webuiIfaceSelectModel->GetDefaultRow();
+        widgets_.webuiIfaceSelect->setCurrentIndex(defautIfaceRow);
+        Settings::SetLastWebUiInterfaceName(QString::fromStdString(
+            widgets_.webuiIfaceSelectModel->GetNetIntInfo(defautIfaceRow).friendly_name()));
+    } else {
+        widgets_.webuiIfaceSelect->setCurrentIndex(
+            widgets_.webuiIfaceSelectModel->GetRowForInterfaceName(
+                lastWebUiIfaceName.toStdString()));
+    }
+    configForm->addRow(tr("Web UI Interface"), widgets_.webuiIfaceSelect);
+    connect(widgets_.webuiIfaceSelect,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &MainWindow::currentWebUiIfaceChanged);
+
+    // sACN interface
+    widgets_.sacnIfaceSelect = new QComboBox(this);
+    widgets_.sacnIfaceSelectModel = new NetIntListModel(widgets_.sacnIfaceSelect);
+    widgets_.sacnIfaceSelect->setModel(widgets_.sacnIfaceSelectModel);
+    const QString& lastSacnInterfaceName = Settings::GetLastSacnInterfaceName();
+    if (lastSacnInterfaceName.isEmpty()) {
+        const auto default_iface_row = widgets_.sacnIfaceSelectModel->GetDefaultRow();
+        widgets_.sacnIfaceSelect->setCurrentIndex(default_iface_row);
+        Settings::SetLastSacnInterfaceName(QString::fromStdString(
+            widgets_.sacnIfaceSelectModel->GetNetIntInfo(default_iface_row).friendly_name()));
+    } else {
+        widgets_.sacnIfaceSelect->setCurrentIndex(
+            widgets_.sacnIfaceSelectModel->GetRowForInterfaceName(
+                lastSacnInterfaceName.toStdString()));
+    }
+    configForm->addRow(tr("sACN Interface"), widgets_.sacnIfaceSelect);
+    connect(widgets_.sacnIfaceSelect,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &MainWindow::currentSacnIfaceChanged);
+
+    auto* buttonsLayout = new QHBoxLayout;
+    // Start button
+    widgets_.startButton = new QPushButton(this);
+    buttonsLayout->addWidget(widgets_.startButton);
+    connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
+
+    // Help button
+    auto* helpButton = new QPushButton(tr("Help"), this);
+    buttonsLayout->addWidget(helpButton);
+    connect(helpButton, &QPushButton::clicked, this, &MainWindow::help);
+
+    configForm->addRow(buttonsLayout);
+    sidebarLayout->addStretch();
+
+    // QR code
+    auto* qrLayout = new QHBoxLayout;
+    qrLayout->setAlignment(Qt::AlignCenter);
+    sidebarLayout->addLayout(qrLayout);
+    widgets_.qrCode = new QrCode(this);
+    qrLayout->addWidget(widgets_.qrCode);
+    sidebarLayout->addStretch();
+
+    // Log viewer
+    widgets_.logViewer = new LogViewer(this);
+    layout->addWidget(widgets_.logViewer);
+
+    appStopped();
+}
+
+void MainWindow::startApp()
+{
+    app_.run(appOptions);
+    disconnect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
+    connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::stopApp);
+    appStarted();
+}
+
+void MainWindow::stopApp()
+{
+    app_.stop();
+    disconnect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::stopApp);
+    connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
+    appStopped();
+}
+
+void MainWindow::help()
+{
+    // TODO: Implement help.
+    QMessageBox::information(this, tr("Help"), tr("Not implemented yet."));
+}
+
+void MainWindow::appStarted()
+{
+    widgets_.startButton->setText(tr("Stop"));
+    widgets_.qrCode->setContents(app_.getWebUrl());
+}
+
+void MainWindow::appStopped()
+{
+    widgets_.startButton->setText(tr("Start"));
+    widgets_.qrCode->clear();
+}
+
+void MainWindow::currentWebUiIfaceChanged(int row)
+{
+    const auto& iface = widgets_.webuiIfaceSelectModel->GetNetIntInfo(row);
+    appOptions.backend_address = iface.addr().ToString();
+}
+
+void MainWindow::currentSacnIfaceChanged(int row)
+{
+    const auto& iface = widgets_.sacnIfaceSelectModel->GetNetIntInfo(row);
+    appOptions.sacn_address = iface.addr().ToString();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    stopApp();
     Settings::SetMainWindowGeometry(saveGeometry());
-  }
-
-  auto central = new QWidget(this);
-  setCentralWidget(central);
-  auto layout = new QHBoxLayout(central);
-  auto sidebar_layout = new QVBoxLayout;
-  layout->addLayout(sidebar_layout);
-
-  // Config form
-  auto *config_form = new QFormLayout;
-  sidebar_layout->addLayout(config_form);
-
-  // Web ui interface
-  widgets_.webui_iface_select = new QComboBox(this);
-  widgets_.webui_iface_select_model = new NetIntListModel(widgets_.webui_iface_select);
-  widgets_.webui_iface_select->setModel(widgets_.webui_iface_select_model);
-  const QString &last_web_ui_interface_name = Settings::GetLastWebUiInterfaceName();
-  if (last_web_ui_interface_name.isEmpty()) {
-    const auto default_iface_row = widgets_.webui_iface_select_model->GetDefaultRow();
-    widgets_.webui_iface_select->setCurrentIndex(default_iface_row);
-    Settings::SetLastWebUiInterfaceName(QString::fromStdString(
-        widgets_.webui_iface_select_model->GetNetIntInfo(default_iface_row).GetFriendlyName()));
-  } else {
-    widgets_.webui_iface_select->setCurrentIndex(widgets_.webui_iface_select_model->GetRowForInterfaceName(
-        last_web_ui_interface_name.toStdString()));
-  }
-  config_form->addRow(tr("Web UI Interface"), widgets_.webui_iface_select);
-  connect(widgets_.webui_iface_select,
-          QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this,
-          &MainWindow::SCurrentWebUiIfaceChanged);
-
-  // sACN interface
-  widgets_.sacn_iface_select = new QComboBox(this);
-  widgets_.sacn_iface_select_model = new NetIntListModel(widgets_.sacn_iface_select);
-  widgets_.sacn_iface_select->setModel(widgets_.sacn_iface_select_model);
-  const QString &last_sacn_interface_name = Settings::GetLastSacnInterfaceName();
-  if (last_sacn_interface_name.isEmpty()) {
-    const auto default_iface_row = widgets_.sacn_iface_select_model->GetDefaultRow();
-    widgets_.sacn_iface_select->setCurrentIndex(default_iface_row);
-    Settings::SetLastSacnInterfaceName(QString::fromStdString(
-        widgets_.sacn_iface_select_model->GetNetIntInfo(default_iface_row).GetFriendlyName()));
-  } else {
-    widgets_.sacn_iface_select->setCurrentIndex(widgets_.sacn_iface_select_model->GetRowForInterfaceName(
-        last_sacn_interface_name.toStdString()));
-  }
-  config_form->addRow(tr("sACN Interface"), widgets_.sacn_iface_select);
-  connect(widgets_.sacn_iface_select,
-          QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this,
-          &MainWindow::SCurrentSacnIfaceChanged);
-
-  auto *buttons_layout = new QHBoxLayout;
-  // Start button
-  widgets_.start_button = new QPushButton(this);
-  buttons_layout->addWidget(widgets_.start_button);
-  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
-
-  // Help button
-  auto *help_button = new QPushButton(tr("Help"), this);
-  buttons_layout->addWidget(help_button);
-  connect(help_button, &QPushButton::clicked, this, &MainWindow::SHelp);
-
-  config_form->addRow(buttons_layout);
-  sidebar_layout->addStretch();
-
-  // QR code
-  auto *qr_layout = new QHBoxLayout;
-  qr_layout->setAlignment(Qt::AlignCenter);
-  sidebar_layout->addLayout(qr_layout);
-  widgets_.qr_code = new QrCode(this);
-  qr_layout->addWidget(widgets_.qr_code);
-  sidebar_layout->addStretch();
-
-  // Log viewer
-  widgets_.log_viewer = new LogViewer(this);
-  layout->addWidget(widgets_.log_viewer);
-
-  SAppStopped();
-}
-
-void MainWindow::SStartApp() {
-  app_.Run(app_options_);
-  disconnect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
-  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStopApp);
-  SAppStarted();
-}
-
-void MainWindow::SStopApp() {
-  app_.Stop();
-  disconnect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStopApp);
-  connect(widgets_.start_button, &QPushButton::clicked, this, &MainWindow::SStartApp);
-  SAppStopped();
-}
-
-void MainWindow::SHelp() {
-  const std::filesystem::path app_dir_path(qApp->applicationDirPath().toStdString());
-  const auto collection_file = app_dir_path.parent_path() / config::kHelpPath
-      / fmt::format("{}.qhc", config::kProjectName);
-  const auto assistant_path = [&app_dir_path]() {
-    for (const auto &assistant_name : {"assistant", "Assistant"}) {
-      auto found_path = QStandardPaths::findExecutable(assistant_name);
-      if (!found_path.isEmpty()) {
-        return found_path;
-      }
-#ifdef PLATFORM_MACOS
-      const auto extra_path = QString::fromStdString((app_dir_path.parent_path() / "Resources" / "Assistant.app"
-          / "Contents" / "MacOS").string());
-#else
-      const auto extra_path = qApp->applicationDirPath();
-#endif
-      found_path = QStandardPaths::findExecutable(assistant_name, {extra_path});
-      if (!found_path.isEmpty()) {
-        return found_path;
-      }
-    }
-    return QString();
-  }();
-
-  auto *process = new QProcess(this);
-  connect(process, &QProcess::readyRead, [process]() {
-    while (process->canReadLine()) {
-      spdlog::debug(QString::fromUtf8(process->readLine()).toStdString());
-    }
-  });
-  QStringList args(
-      {
-          "-collectionFile",
-          QString::fromStdString(collection_file.string()),
-      });
-  process->start(assistant_path, args);
-  process->waitForStarted();
-}
-
-void MainWindow::SAppStarted() {
-  widgets_.start_button->setText(tr("Stop"));
-  widgets_.qr_code->SetContents(app_.GetWebUrl());
-}
-
-void MainWindow::SAppStopped() {
-  widgets_.start_button->setText(tr("Start"));
-  widgets_.qr_code->Clear();
-}
-
-void MainWindow::SCurrentWebUiIfaceChanged(int row) {
-  const auto &iface = widgets_.webui_iface_select_model->GetNetIntInfo(row);
-  // TODO: Pass an iface index.
-  app_options_.backend_address = iface.GetAddr().ToString();
-}
-
-void MainWindow::SCurrentSacnIfaceChanged(int row) {
-  const auto &iface = widgets_.sacn_iface_select_model->GetNetIntInfo(row);
-  // TODO: Pass an iface index.
-  app_options_.sacn_address = iface.GetAddr();
-}
-
-void MainWindow::closeEvent(QCloseEvent *event) {
-  SStopApp();
-  Settings::SetMainWindowGeometry(saveGeometry());
-  Settings::Sync();
-  event->accept();
+    Settings::Sync();
+    event->accept();
 }
 
 } // mobilesacn

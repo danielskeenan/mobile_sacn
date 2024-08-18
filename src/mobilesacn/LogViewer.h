@@ -14,47 +14,47 @@
 #include <spdlog/sinks/base_sink.h>
 
 namespace mobilesacn {
-
 /**
  * Display log messages.
  */
 class LogViewer : public QWidget {
- Q_OBJECT
- public:
-  explicit LogViewer(QWidget *parent = nullptr);
+    Q_OBJECT
 
- public Q_SLOTS:
-  void SLog(const QString &msg);
+  public:
+    explicit LogViewer(QWidget *parent = nullptr);
 
- private:
-  struct Widgets {
-    QPlainTextEdit *text_view = nullptr;
-  };
-  Widgets widgets_;
-  struct Actions {
-    QAction* act_copy = nullptr;
-    QAction* act_save_logs = nullptr;
-  };
-  Actions actions_;
+  public Q_SLOTS:
+    void log(const QString &msg);
 
- private Q_SLOTS:
-  void SCopy();
-  void SSaveLogs();
+  private:
+    struct Widgets {
+      QPlainTextEdit *text_view = nullptr;
+    };
+    Widgets widgets_;
+    struct Actions {
+      QAction *act_copy = nullptr;
+      QAction *act_save_logs = nullptr;
+    };
+    Actions actions_;
+
+  private Q_SLOTS:
+    void copy() const;
+    void saveLogs();
 };
 
 /**
  * Formatter for logs in a LogViewer widget.
  */
 class WidgetLogFormatter : public spdlog::formatter {
- public:
-  void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) override;
+  public:
+    void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) override;
 
-  [[nodiscard]] std::unique_ptr<formatter> clone() const override {
-    return std::make_unique<WidgetLogFormatter>();
-  }
+    [[nodiscard]] std::unique_ptr<formatter> clone() const override {
+      return std::make_unique<WidgetLogFormatter>();
+    }
 
- private:
-  static const char *LogStyle(spdlog::level::level_enum level);
+  private:
+    static const char *logStyle(spdlog::level::level_enum level);
 };
 
 /**
@@ -63,27 +63,29 @@ class WidgetLogFormatter : public spdlog::formatter {
  */
 template<typename Mutex>
 class WidgetLogSink : public spdlog::sinks::base_sink<Mutex> {
- public:
-  explicit WidgetLogSink(LogViewer *log_viewer) : log_viewer_(log_viewer) {
-    this->set_formatter(std::make_unique<WidgetLogFormatter>());
-  }
+  public:
+    explicit WidgetLogSink(LogViewer *log_viewer) : log_viewer_(log_viewer) {
+      this->set_formatter(std::make_unique<WidgetLogFormatter>());
+    }
 
- protected:
-  void sink_it_(const spdlog::details::log_msg &msg) override {
-    spdlog::memory_buf_t formatted;
-    WidgetLogSink::formatter_->format(msg, formatted);
-    spdlog::string_view_t str(formatted.data(), formatted.size());
-    QMetaObject::invokeMethod(
-        log_viewer_, "SLog", Qt::AutoConnection,
+  protected:
+    void sink_it_(const spdlog::details::log_msg &msg) override {
+      spdlog::memory_buf_t formatted;
+      WidgetLogSink::formatter_->format(msg, formatted);
+      const spdlog::string_view_t str(formatted.data(), formatted.size());
+      QMetaObject::invokeMethod(
+        log_viewer_,
+        "SLog",
+        Qt::AutoConnection,
         Q_ARG(QString, QString::fromUtf8(str.data(), static_cast<int>(str.size())).trimmed()));
-  }
+    }
 
-  void flush_() override {}
+    void flush_() override {
+    }
 
- private:
-  LogViewer *log_viewer_;
+  private:
+    LogViewer *log_viewer_;
 };
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_SRC_MOBILESACN_LOGVIEWER_H_

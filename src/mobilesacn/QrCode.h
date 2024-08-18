@@ -12,32 +12,31 @@
 #include <QSvgWidget>
 
 namespace mobilesacn {
-
 class QrCode : public QSvgWidget {
- Q_OBJECT
- public:
-  explicit QrCode(QWidget *parent = nullptr);
+    Q_OBJECT
 
-  [[nodiscard]] const std::string &GetContents() const {
-    return contents_;
-  }
+  public:
+    explicit QrCode(QWidget *parent = nullptr);
 
-  void SetContents(const std::string &contents) {
-    contents_ = contents;
-    UpdateDisplay();
-  }
+    [[nodiscard]] const std::string &getContents() const {
+      return contents_;
+    }
 
-  void Clear() {
-    contents_.clear();
-    UpdateDisplay();
-  };
+    void setContents(const std::string &contents) {
+      contents_ = contents;
+      updateDisplay();
+    }
 
- private:
-  std::string contents_;
+    void clear() {
+      contents_.clear();
+      updateDisplay();
+    };
 
-  void UpdateDisplay();
+  private:
+    std::string contents_;
+
+    void updateDisplay();
 };
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_SRC_MOBILESACN_QRCODE_H_

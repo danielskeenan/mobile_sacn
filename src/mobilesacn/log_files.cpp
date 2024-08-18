@@ -14,12 +14,14 @@
 
 namespace mobilesacn {
 
-std::string get_log_path() {
-  const auto shared_path =
-      std::filesystem::path(QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString());
-  const auto log_path = shared_path / fmt::format("{}.log", config::kProjectName);
+std::string get_log_path()
+{
+    const auto shared_path =
+            std::filesystem::path(
+                QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString());
+    const auto log_path = shared_path / fmt::format("{}.log", config::kProjectName);
 
-  return log_path.string();
+    return log_path.string();
 }
 
 } // mobilesacn

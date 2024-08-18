@@ -7,63 +7,70 @@
  */
 
 #include "libmobilesacn/Application.h"
+
 #include <spdlog/spdlog.h>
+#include <sacn/cpp/common.h>
+#include <etcpal/cpp/netint.h>
 #include "mobilesacn_config.h"
 #include "libmobilesacn/HttpServer.h"
-#include "etcpal_netint/NetIntInfo.h"
 
 namespace mobilesacn {
 
-Application::Application() {
-  // Init EtcPal.
-  etc_pal_logger_.SetSyslogAppName(config::kProjectName);
-  if (!etc_pal_logger_.Startup(etc_pal_log_handler_)) {
-    spdlog::critical("Error starting the logger for the sACN subsystem.  Some logs will not be available.");
-  }
+Application::Application(QObject* parent)
+    : QObject(parent)
+{
+    // Init EtcPal.
+    etcPalLogger_.SetSyslogAppName(config::kProjectName);
+    if (!etcPalLogger_.Startup(etcPalLogHandler_)) {
+        spdlog::critical(
+            "Error starting the logger for the sACN subsystem.  Some logs will not be available.");
+    }
 
-  // Init sACN.
-  auto result = sacn::Init(etc_pal_logger_);
-  if (!result.IsOk()) {
-    spdlog::critical("Error initializing the sACN subsystem: {}", result.ToCString());
-  }
+    // Init sACN.
+    auto result = sacn::Init(etcPalLogger_);
+    if (!result.IsOk()) {
+        spdlog::critical("Error initializing the sACN subsystem: {}", result.ToString());
+    }
 }
 
-Application::~Application() {
-  // Shutdown sACN.
-  sacn::Deinit();
+Application::~Application()
+{
+    // Shutdown sACN.
+    sacn::Deinit();
 
-  // Shutdown EtcPal.
-  etc_pal_logger_.Shutdown();
+    // Shutdown EtcPal.
+    etcPalLogger_.Shutdown();
 }
 
-void Application::Run(Options options) {
-  if (!options.sacn_address.IsValid()) {
-    options.sacn_address = etcpal_netint::GetDefaultInterface(etcpal::IpAddrType::kV4)->GetAddr();
-  }
+void Application::run(const Options& options)
+{
+    // Setup web server.
+    httpServer_ = new HttpServer(
+        HttpServer::Options{
+            .backend_address = options.backend_address,
+            .sacn_address = options.sacn_address,
+        },
+        this
+    );
 
-  // Setup web server.
-  http_server_ = std::make_unique<HttpServer>(
-      HttpServer::Options{
-          .backend_address = options.backend_address,
-          .sacn_address = options.sacn_address,
-      }
-  );
-
-  http_server_->Run();
+    httpServer_->run();
 }
 
-void Application::Stop() {
-  if (http_server_) {
-    http_server_->Stop();
-    http_server_.reset();
-  }
+void Application::stop()
+{
+    if (httpServer_) {
+        httpServer_->stop();
+        httpServer_->deleteLater();
+        httpServer_ = nullptr;
+    }
 }
 
-std::string Application::GetWebUrl() const {
-  if (http_server_) {
-    return http_server_->GetUrl();
-  }
-  return "";
+std::string Application::getWebUrl() const
+{
+    if (httpServer_) {
+        return httpServer_->getUrl();
+    }
+    return "";
 }
 
 } // mobilesacn

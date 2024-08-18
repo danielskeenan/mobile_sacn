@@ -12,15 +12,13 @@
 #include <etcpal/cpp/log.h>
 
 namespace mobilesacn {
-
 /**
  * Connect EtcPal's logging facility to ours.
  */
-class EtcPalLogHandler : public etcpal::LogMessageHandler {
- public:
-  void HandleLogMessage(const EtcPalLogStrings &strings) override;
+class EtcPalLogHandler final : public etcpal::LogMessageHandler {
+  public:
+    void HandleLogMessage(const EtcPalLogStrings &strings) override;
 };
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_ETCPALLOGHANDLER_H

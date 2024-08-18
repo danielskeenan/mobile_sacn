@@ -1,4 +1,6 @@
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_package(WinSparkle REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE WinSparkle::WinSparkle)
     target_sources(${PROJECT_NAME} PRIVATE updater_win.cpp)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # TODO: Mac updater

@@ -1,29 +1,26 @@
-add_library(libmobilesacn
+add_library(libmobilesacn STATIC
     Application.cpp
-    CrowLogHandler.cpp
     EtcPalLogHandler.cpp
     HttpServer.cpp
-    sacn.cpp
-    SacnMerger.cpp
-    )
+)
 
-include(${PROJECT_SOURCE_DIR}/cmake/sacn.cmake)
-find_package(Boost COMPONENTS filesystem headers REQUIRED)
-find_package(crow REQUIRED)
-if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
-endif ()
+include(FetchContent)
+FetchContent_Declare(sACN
+    GIT_REPOSITORY "https://github.com/ETCLabs/sACN.git"
+    GIT_TAG "v3.1.0.2"
+)
+FetchContent_MakeAvailable(sACN)
+
+#if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+#    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
+#endif ()
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 target_link_libraries(libmobilesacn PRIVATE
-    mobilesacnproto
-    Boost::filesystem
-    Boost::headers
-    crow::crow
     fmt::fmt
+    Qt::Core
+    Qt::HttpServer
+    Qt::WebSockets
     sACN
     )
-target_link_libraries(libmobilesacn PUBLIC EtcPal spdlog::spdlog)
-
-add_subdirectory(fx)
-add_subdirectory(rpc)
+target_link_libraries(libmobilesacn PUBLIC spdlog::spdlog EtcPal)

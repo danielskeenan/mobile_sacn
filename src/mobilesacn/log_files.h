@@ -12,12 +12,10 @@
 #include <string>
 
 namespace mobilesacn {
-
 /**
  * Get the path to log files.
  */
 std::string get_log_path();
-
 } // mobilesacn
 
 #endif //MOBILE_SACN_SRC_MOBILESACN_LOG_FILES_H_
