@@ -1,0 +1,37 @@
+@import "assets/styles/bootstrap";
+@import "assets/styles/content";
+
+html, body {
+  @extend .h-100;
+}
+
+.msacn-navbar-main {
+  @extend .p-2;
+
+  .msacn-logo {
+    @extend .me-1;
+    vertical-align: text-bottom;
+  }
+
+  img {
+    height: $navbar-brand-height;
+  }
+
+  .btn {
+    background-color: $gray-100;
+  }
+
+  .nav-item {
+    &, .nav-link {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .dropdown-item.nav-link {
+      color: $dropdown-link-color;
+    }
+  }
+}
+
+footer {
+  @extend .mt-auto;
+}

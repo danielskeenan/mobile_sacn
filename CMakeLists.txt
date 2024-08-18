@@ -26,8 +26,10 @@ string(STRIP "${PROJECT_COMMIT_TAG}" PROJECT_COMMIT_TAG)
 
 include(GNUInstallDirs)
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(PROJECT_WEBUI_PATH "Resources/web")
     set(PROJECT_HELP_PATH "Resources/help")
 else ()
+    set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
     set(PROJECT_HELP_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/help")
 endif ()
 
@@ -70,7 +72,7 @@ if (BUILD_EXEC)
     )
     qt_standard_project_setup()
 
-#    add_subdirectory(mobile_sacn_webui)
+    add_subdirectory(mobile_sacn_webui)
 #    add_subdirectory(proto)
     add_subdirectory(src)
 
