@@ -10,7 +10,6 @@
 
 main.container {
   $padding: calc($grid-gutter-width / 2);
-  background-color: $gray-800;
   padding: $padding $padding;
 
   // Compensate for fixed header and footer

@@ -1,0 +1,27 @@
+@import "../../assets/styles/bootstrap";
+
+input.msacn-bigdisplay {
+  @extend .px-3;
+  @extend .py-3;
+
+  width: 100%;
+  appearance: none;
+  text-align: center;
+  font-size: $font-size-base * 4;
+  font-family: monospace;
+  color: var(--#{$prefix}secondary-color);
+  background-color: var(--#{$prefix}secondary-bg);
+
+  &.active {
+    color: $green;
+  }
+}
+
+.msacn-nextlast {
+  @extend .mb-3;
+  @extend .d-flex;
+
+  .btn {
+    @extend .flex-fill;
+  }
+}

@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {Links} from "./routes.ts";
 import App from "./App.tsx";
+import {Loading} from "./common/components/Loading.tsx";
 
 const router = createBrowserRouter([
     {
@@ -13,12 +14,20 @@ const router = createBrowserRouter([
                 index: true,
                 lazy: () => import('./front/FrontPage.tsx'),
             },
+            {
+                path: Links.FRONT_SETTINGS,
+                lazy: () => import('./front/SettingsPage.tsx'),
+            },
+            {
+                path: Links.TRANSMIT_CHANCHECK,
+                lazy: () => import('./transmit/chancheck/ChanCheck.tsx'),
+            },
         ],
     },
 ]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-      <RouterProvider router={router}/>
+      <RouterProvider router={router} fallbackElement={<Loading/>}/>
   </StrictMode>,
 )
