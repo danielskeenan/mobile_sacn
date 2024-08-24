@@ -6,7 +6,7 @@ import {Links} from "../routes.ts";
 import {TransmitChanCheckTitle, TransmitControlTitle} from "../transmit/TransmitTitle.tsx";
 import {ReceiveLevelsTitle} from "../recieve/RecieveTitle.tsx";
 
-export default function FrontPage() {
+export function Component() {
     setPageTitle();
 
     return (

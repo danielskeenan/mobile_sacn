@@ -1,23 +1,21 @@
 import "./App.scss";
 import {Container, Nav, Navbar as BsNavbar} from "react-bootstrap";
-import {Suspense} from "react";
-import {Loading} from "./common/components/Loading.tsx";
 import {APP_NAME} from "./common/constants.ts";
-import logo from "assets/mobile_sacn.svg";
-import {TransmitChanCheckTitle, TransmitControlTitle } from "./transmit/TransmitTitle.tsx";
-import { ReceiveLevelsTitle } from "./recieve/RecieveTitle.tsx";
-import { SettingsTitle } from "./front/FrontTitle.tsx";
-import { Link } from "react-router-dom";
-import { Links } from "./routes.ts";
+import logo from "./assets/mobile_sacn.svg";
+import {TransmitChanCheckTitle, TransmitControlTitle} from "./transmit/TransmitTitle.tsx";
+import {ReceiveLevelsTitle} from "./recieve/RecieveTitle.tsx";
+import {SettingsTitle} from "./front/FrontTitle.tsx";
+import {Link, Outlet} from "react-router-dom";
+import {Links} from "./routes.ts";
 
 
 export default function App() {
     return (
         <div className="content-wrapper">
-            <Container as="main">
-                <Suspense fallback={<Loading/>}>
+            <Navbar/>
 
-                </Suspense>
+            <Container as="main">
+                <Outlet/>
             </Container>
         </div>
     );
@@ -49,9 +47,6 @@ export function Navbar() {
                     </Nav.Link>
                     <Nav.Link>
                         <SettingsTitle/>
-                    </Nav.Link>
-                    <Nav.Link>
-                        About
                     </Nav.Link>
                     <Nav.Link href="/doc" target="_blank">
                         Help
