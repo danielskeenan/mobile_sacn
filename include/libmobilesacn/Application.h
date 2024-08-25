@@ -25,6 +25,7 @@ class HttpServer;
  * Application instance.
  */
 class Application : public QObject {
+  Q_OBJECT
   public:
     struct Options {
       std::string backend_address;
