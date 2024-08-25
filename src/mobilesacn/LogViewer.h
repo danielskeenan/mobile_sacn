@@ -75,7 +75,7 @@ class WidgetLogSink : public spdlog::sinks::base_sink<Mutex> {
       const spdlog::string_view_t str(formatted.data(), formatted.size());
       QMetaObject::invokeMethod(
         log_viewer_,
-        "SLog",
+        "log",
         Qt::AutoConnection,
         Q_ARG(QString, QString::fromUtf8(str.data(), static_cast<int>(str.size())).trimmed()));
     }

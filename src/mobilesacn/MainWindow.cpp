@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include "NetIntModel.h"
 #include <QApplication>
-#include <QMessageBox>
+#include <QDesktopServices>
 #include <QProcess>
 #include <QStandardPaths>
 #include "Settings.h"
@@ -21,7 +21,8 @@
 namespace mobilesacn {
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      app_(new Application(this))
 {
     initUi();
     currentWebUiIfaceChanged(widgets_.webuiIfaceSelect->currentIndex());
@@ -123,7 +124,7 @@ void MainWindow::initUi()
 
 void MainWindow::startApp()
 {
-    app_.run(appOptions);
+    app_->run(appOptions);
     disconnect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
     connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::stopApp);
     appStarted();
@@ -131,7 +132,7 @@ void MainWindow::startApp()
 
 void MainWindow::stopApp()
 {
-    app_.stop();
+    app_->stop();
     disconnect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::stopApp);
     connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
     appStopped();
@@ -139,14 +140,15 @@ void MainWindow::stopApp()
 
 void MainWindow::help()
 {
-    // TODO: Implement help.
-    QMessageBox::information(this, tr("Help"), tr("Not implemented yet."));
+    const auto helpPath = QString("file:///%1/../%2/index.html")
+            .arg(qApp->applicationDirPath(), config::kHelpPath);
+    QDesktopServices::openUrl(QUrl(helpPath, QUrl::TolerantMode));
 }
 
 void MainWindow::appStarted()
 {
     widgets_.startButton->setText(tr("Stop"));
-    widgets_.qrCode->setContents(app_.getWebUrl());
+    widgets_.qrCode->setContents(app_->getWebUrl());
 }
 
 void MainWindow::appStopped()

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.26)
 project(mobile_sacn
     VERSION 0.3.0
     DESCRIPTION "Mobile sACN test tool"
@@ -73,7 +73,7 @@ if (BUILD_EXEC)
     qt_standard_project_setup()
 
     add_subdirectory(mobile_sacn_webui)
-#    add_subdirectory(proto)
+    add_subdirectory(messages)
     add_subdirectory(src)
 
     include(CTest)

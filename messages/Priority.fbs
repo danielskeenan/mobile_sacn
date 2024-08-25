@@ -1,0 +1,5 @@
+namespace mobilesacn.message;
+
+table Priority {
+    priority:uint8 = 100;
+}

@@ -18,6 +18,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Widgets
     QSettingsContainer
     )
+add_dependencies(${PROJECT_NAME} mobile_sacn_webui ${PROJECT_NAME}_doc)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)

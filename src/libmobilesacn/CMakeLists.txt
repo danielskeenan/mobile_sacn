@@ -21,6 +21,7 @@ target_link_libraries(libmobilesacn PRIVATE
     Qt::Core
     Qt::HttpServer
     Qt::WebSockets
+    mobile_sacn_messages
     sACN
     )
 target_link_libraries(libmobilesacn PUBLIC spdlog::spdlog EtcPal)

@@ -28,6 +28,7 @@ add_custom_target(mobile_sacn_webui
     COMMAND "${npm_PROG}" run build
     SOURCES ${WEBUI_SOURCES}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    DEPENDS mobile_sacn_messages_ts
     VERBATIM
 )
 # Ensure make clean does what it should.

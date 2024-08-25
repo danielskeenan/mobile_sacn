@@ -1,0 +1,5 @@
+namespace mobilesacn.message;
+
+table PerAddressPriority {
+    use_pap:bool;
+}

@@ -5,6 +5,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import sys
 import json
+from datetime import date
 from pathlib import Path
 
 # -- Build info --------------------------------------------------------------
@@ -34,6 +35,9 @@ extensions = [
 sass_files = [
     '_style/style.scss'
 ]
+sass_include_paths = [
+    str(Path('../mobile_sacn_webui/node_modules').absolute())
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -62,18 +66,31 @@ del defs
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
-
+html_title = '{name} v{version}'.format(name=build_info['display_name'], version=release)
 html_logo = 'logo.svg'
 html_favicon = '../resources/logo.ico'
 html_copy_source = False
+html_domain_indices = False
+html_show_sourcelink = False
 html_show_sphinx = False
-html_permalinks = False
+html_show_copyright = False
+html_theme_options = {
+    'navigation_with_keys': False,
+    'repository_url': 'https://github.com/danielskeenan/mobile_sacn',
+    'use_source_button': False,
+    'use_edit_page_button': False,
+    'use_repository_button': True,
+    'use_issues_button': True,
+    'use_download_button': False,
+    'use_fullscreen_button': False,
+    'path_to_docs': 'doc/',
+    'repository_branch': 'main',
+    'logo': {
+        'text': html_title,
+    }
+}
 
 # -- Options for LaTeX output -------------------------------------------------
 
@@ -84,5 +101,5 @@ latex_show_urls = 'inline'
 # -- Options for QtHelp output -------------------------------------------------
 
 # These are automatically set when the docs are generated using CMake.
-qthelp_basename = 'mobilesacn'
-qthelp_namespace = 'org.dankeenan.mobilesacn'
+qthelp_basename = build_info['name']
+qthelp_namespace = 'org.dankeenan.{}'.format(build_info['name'])

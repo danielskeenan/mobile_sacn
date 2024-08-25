@@ -50,7 +50,7 @@ def _compile_sass(app: sphinx.application.Sphinx, config):
         # Compile Sass
         logger.info('Compiling {}'.format(abs_sass_file_path.relative_to(app.srcdir)))
         try:
-            css = sass.compile(filename=str(abs_sass_file_path))
+            css = sass.compile(filename=str(abs_sass_file_path), include_paths=config.sass_include_paths)
         except sass.CompileError as e:
             raise SassError(sass_file_path, e)
 
@@ -64,6 +64,7 @@ def _compile_sass(app: sphinx.application.Sphinx, config):
 def setup(app: sphinx.application.Sphinx):
     # Config
     app.add_config_value('sass_files', default=[], rebuild='html')
+    app.add_config_value('sass_include_paths', default=[], rebuild='html')
 
     app.connect('config-inited', _compile_sass)
 

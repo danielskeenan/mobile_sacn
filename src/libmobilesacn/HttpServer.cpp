@@ -33,6 +33,7 @@ void HttpServer::run()
             break;
         }
     }
+    spdlog::info("Server listening on {}", getUrl());
 }
 
 void HttpServer::stop()

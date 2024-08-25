@@ -27,3 +27,4 @@ dist-ssr
 vite.config.ts
 public/mobile_sacn.svg
 src/assets/mobile_sacn.svg
+src/messages

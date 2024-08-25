@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow {
       LogViewer *logViewer = nullptr;
     };
     Widgets widgets_;
-    Application app_;
+    Application* app_ = nullptr;
     Application::Options appOptions;
 
     void initUi();
