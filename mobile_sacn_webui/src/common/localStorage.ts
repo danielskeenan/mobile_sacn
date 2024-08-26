@@ -1,4 +1,6 @@
 export enum LocalStorageItem {
+    // Development override, stores path to the backend. No way to set this from UI.
+    SERVER = "server",
     DARK_MODE = "dark_mode",
     LEVEL_DISPLAY_MODE = "level_display_mode",
 }
@@ -11,7 +13,7 @@ export enum LocalStorageItem {
 export function localStorageGet<T, D extends T = T>(key: LocalStorageItem, defaultValue: D): T {
     const value = localStorage.getItem(key);
     if (value === null) {
-        localStorage.setItem(key, JSON.stringify(defaultValue));
+        localStorageSet(key, defaultValue);
         return defaultValue;
     }
 

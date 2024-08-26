@@ -1,4 +1,8 @@
 add_library(libmobilesacn STATIC
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/ChanCheck.h
+    rpc/ChanCheck.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/RpcHandler.h
+    rpc/RpcHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Application.h
     Application.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/EtcPalLogHandler.h

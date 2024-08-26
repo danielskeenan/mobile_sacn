@@ -14,7 +14,7 @@ interface ThrobberProps extends Pick<LoadingProps, "label"> {
 export function Throbber(props: ThrobberProps) {
     const icon = props.icon ?? faSpinner;
 
-    const throbber = <FontAwesomeIcon icon={icon}/>;
+    const throbber = <FontAwesomeIcon icon={icon} spin/>;
     if (props.label == undefined) {
         return throbber;
     }

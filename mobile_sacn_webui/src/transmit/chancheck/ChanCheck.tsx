@@ -1,7 +1,6 @@
 import "./ChanCheck.scss";
 import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useState} from "react";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
-import {ReadyState} from "react-use-websocket";
 import {TransmitChanCheckTitle} from "../TransmitTitle.tsx";
 import {Connecting} from "../../common/components/Loading.tsx";
 import TransmitConfig from "../TransmitConfig.tsx";
@@ -12,6 +11,8 @@ import clsx from "clsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretLeft, faCaretRight} from "@fortawesome/free-solid-svg-icons";
 import clampState from "../../common/clampState.ts";
+import useWebsocket from "../../common/useWebsocket.ts";
+import {ReadyState} from "react-use-websocket";
 
 export function Component() {
     // State
@@ -22,8 +23,8 @@ export function Component() {
     const [address, setAddress] = useState(DMX_DEFAULT.toString());
     const [level, setLevel] = useState(LEVEL_MAX.toString());
 
-    // TODO
-    const readyState = ReadyState.OPEN;
+    // Websocket
+    const {readyState} = useWebsocket("ChanCheck");
 
     // RPC Setters
     const sendTransmit = useCallback((val: typeof transmit) => {

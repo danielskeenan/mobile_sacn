@@ -14,6 +14,7 @@
 #include "mobilesacn_config.h"
 #include "MainWindow.h"
 #include "updater/updater.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include "log_files.h"
 #include "Settings.h"
@@ -29,16 +30,20 @@ using namespace mobilesacn;
 
 static constexpr auto kEtcPalFeatures = ETCPAL_FEATURE_LOGGING | ETCPAL_FEATURE_NETINTS;
 
-void setup_logging() {
-  // Cap log file size at 1MB before rotating.  Keep at most 5 log files.
-  auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(get_log_path(), 1024 * 1024, 5, true);
-  file_sink->set_level(spdlog::level::debug);
-  spdlog::default_logger()->sinks() = {file_sink};
-  spdlog::default_logger()->set_level(spdlog::level::debug);
-  spdlog::default_logger()->flush_on(spdlog::level::warn);
+void setup_logging()
+{
+    // Cap log file size at 1MB before rotating.  Keep at most 5 log files.
+    auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+        get_log_path(), 1024 * 1024, 5, true);
+    file_sink->set_level(spdlog::level::debug);
+    auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    spdlog::default_logger()->sinks() = { stdout_sink, file_sink };
+    spdlog::default_logger()->set_level(spdlog::level::debug);
+    spdlog::default_logger()->flush_on(spdlog::level::warn);
 }
 
-void setup_sentry() {
+void setup_sentry()
+{
 #ifdef SENTRY_DSN
   // Set options.
   sentry_options_t *options = sentry_options_new();
@@ -81,54 +86,57 @@ void setup_sentry() {
  * Ask the user about resetting settings
  * @param app The QApplication instance with an installed translator
  */
-bool ReallyClearSettings(QApplication &app) {
-  auto *dialog = new QMessageBox(
-      QMessageBox::Question,
-      app.translate("entrypoint", "Clear settings?"),
-      app.translate("entrypoint", "Holding SHIFT while launching this program will clear all settings.\n"
-                                  "Are you sure you wish to reset the settings to their defaults?"),
-      QMessageBox::Yes | QMessageBox::No);
-  dialog->setDefaultButton(QMessageBox::No);
-  return dialog->exec() == QMessageBox::Yes;
+bool ReallyClearSettings(QApplication& app)
+{
+    auto* dialog = new QMessageBox(
+        QMessageBox::Question,
+        app.translate("entrypoint", "Clear settings?"),
+        app.translate("entrypoint",
+                      "Holding SHIFT while launching this program will clear all settings.\n"
+                      "Are you sure you wish to reset the settings to their defaults?"),
+        QMessageBox::Yes | QMessageBox::No);
+    dialog->setDefaultButton(QMessageBox::No);
+    return dialog->exec() == QMessageBox::Yes;
 }
 
-int main(int argc, char *argv[]) {
-  QApplication app(argc, argv);
-  app.setOrganizationName(mobilesacn::config::kProjectOrganizationName);
-  app.setOrganizationDomain(mobilesacn::config::kProjectOrganizationDomain);
-  app.setApplicationName(mobilesacn::config::kProjectName);
-  app.setApplicationDisplayName(mobilesacn::config::kProjectDisplayName);
-  app.setApplicationVersion(mobilesacn::config::kProjectVersion);
-  app.setWindowIcon(QIcon(":/logo.svg"));
+int main(int argc, char* argv[])
+{
+    QApplication app(argc, argv);
+    app.setOrganizationName(mobilesacn::config::kProjectOrganizationName);
+    app.setOrganizationDomain(mobilesacn::config::kProjectOrganizationDomain);
+    app.setApplicationName(mobilesacn::config::kProjectName);
+    app.setApplicationDisplayName(mobilesacn::config::kProjectDisplayName);
+    app.setApplicationVersion(mobilesacn::config::kProjectVersion);
+    app.setWindowIcon(QIcon(":/logo.svg"));
 
-  // Clear all settings if program is launched while holding [Shift].
-  if (app.queryKeyboardModifiers() == Qt::ShiftModifier) {
-    if (ReallyClearSettings(app)) {
-      Settings::Clear();
+    // Clear all settings if program is launched while holding [Shift].
+    if (app.queryKeyboardModifiers() == Qt::ShiftModifier) {
+        if (ReallyClearSettings(app)) {
+            Settings::Clear();
+        }
     }
-  }
 
-  setup_logging();
-  setup_sentry();
+    setup_logging();
+    setup_sentry();
 
-  // Init EtcPal.
-  etcpal_init(kEtcPalFeatures);
+    // Init EtcPal.
+    etcpal_init(kEtcPalFeatures);
 
-  MainWindow main_window;
-  main_window.show();
+    MainWindow main_window;
+    main_window.show();
 
-  init_updater();
+    init_updater();
 
-  const auto ret = QApplication::exec();
+    const auto ret = QApplication::exec();
 
-  // Deinit etcpal.
-  etcpal_deinit(kEtcPalFeatures);
+    // Deinit etcpal.
+    etcpal_deinit(kEtcPalFeatures);
 
-  cleanup_updater();
+    cleanup_updater();
 
 #ifdef SENTRY_DSN
   sentry_close();
 #endif
 
-  return ret;
+    return ret;
 }
