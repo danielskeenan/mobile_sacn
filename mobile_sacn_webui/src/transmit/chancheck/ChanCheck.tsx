@@ -13,6 +13,10 @@ import {faCaretLeft, faCaretRight} from "@fortawesome/free-solid-svg-icons";
 import clampState from "../../common/clampState.ts";
 import useWebsocket from "../../common/useWebsocket.ts";
 import {ReadyState} from "react-use-websocket";
+import {ChanCheck} from "../../messages/chan-check.ts";
+import {Builder as fbsBuilder} from "flatbuffers";
+import {ChanCheckVal} from "../../messages/chan-check-val.ts";
+import {Transmit} from "../../messages/transmit.ts";
 
 export function Component() {
     // State
@@ -24,13 +28,24 @@ export function Component() {
     const [level, setLevel] = useState(LEVEL_MAX.toString());
 
     // Websocket
-    const {readyState} = useWebsocket("ChanCheck");
+    const {readyState, sendMessage} = useWebsocket("ChanCheck");
 
     // RPC Setters
     const sendTransmit = useCallback((val: typeof transmit) => {
-        // TODO
+        let builder = new fbsBuilder();
+        Transmit.startTransmit(builder);
+        Transmit.addTransmit(builder, val);
+        let msgTransmit = Transmit.endTransmit(builder);
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.transmit);
+        ChanCheck.addVal(builder, msgTransmit);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data.buffer);
+
         setTransmit(val);
-    }, [setTransmit]);
+    }, [setTransmit, sendMessage]);
     const sendPriority = useCallback((val: typeof priority) => {
         // TODO
         setPriority(val);

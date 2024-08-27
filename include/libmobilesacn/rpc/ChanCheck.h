@@ -8,7 +8,9 @@
 
 #ifndef CHANCHECKHANDLER_H
 #define CHANCHECKHANDLER_H
+
 #include "RpcHandler.h"
+#include <QObject>
 
 namespace mobilesacn::rpc {
 
@@ -23,6 +25,12 @@ public:
     using RpcHandler::RpcHandler;
     static constexpr auto kProtocol = "ChanCheck";
     [[nodiscard]] const char* getProtocol() override { return kProtocol; }
+
+protected Q_SLOTS:
+    void handleBinaryMessage(const QByteArray& data) override;
+
+private:
+    bool transmitting_ = false;
 };
 
 } // mobilesacn::rpc

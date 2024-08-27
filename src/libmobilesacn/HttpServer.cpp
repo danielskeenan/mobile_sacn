@@ -59,7 +59,7 @@ bool detail::HttpServerImpl::handleRequest(const QHttpServerRequest& request,
         if (urlPath == "ws_url") {
             responder.write(
                 // wsServer_->serverUrl().toString(QUrl::FullyEncoded).toUtf8(),
-                QString("ws://%1:%2").arg(request.url().host(QUrl::FullyEncoded)).arg(httpPort_).
+                QString("ws://%1:%2/ws").arg(request.url().host(QUrl::FullyEncoded)).arg(httpPort_).
                 toUtf8(),
                 {
                     { "Content-Type", "text/plain" },

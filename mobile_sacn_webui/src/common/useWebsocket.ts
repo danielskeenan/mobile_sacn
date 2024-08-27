@@ -10,7 +10,6 @@ const serverOrigin = (() => {
 
 export default function useWebsocket(protocol: string, options: Partial<ReactUseWebSocketOptions> = {}): ReturnType<typeof reactUseWebSocket> {
     const websocketOptions: ReactUseWebSocketOptions = {
-        protocols: protocol,
         // Attempt to reconnect every 5 seconds.
         reconnectInterval: 5000,
         // Reload the entire document if failed to reconnect after 20 times.
@@ -22,14 +21,18 @@ export default function useWebsocket(protocol: string, options: Partial<ReactUse
         retryOnError: true,
         ...options,
     };
-    return reactUseWebSocket(getWebsocketUrl, websocketOptions);
+    return reactUseWebSocket(useWebsocketUrl(protocol), websocketOptions);
 }
 
-async function getWebsocketUrl() {
-    // Any errors thrown from this process are handled by useWebsocket.
-    const response = await fetch(`${serverOrigin}/ws_url`, {headers: {"Content-Type": "text/plain"}});
-    if (!response.ok) {
-        throw new Error(`Code ${response.status} (${response.statusText}) while getting Websocket URL.`);
-    }
-    return response.text();
+function useWebsocketUrl(protocol: string) {
+    return useCallback(async () => {
+        // Any errors thrown from this process are handled by useWebsocket.
+        const response = await fetch(`${serverOrigin}/ws_url`, {headers: {"Content-Type": "text/plain"}});
+        if (!response.ok) {
+            throw new Error(`Code ${response.status} (${response.statusText}) while getting Websocket URL.`);
+        }
+        const wsUrl = await response.text();
+
+        return `${wsUrl}/${protocol}`;
+    }, [protocol]);
 }

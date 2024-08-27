@@ -26,7 +26,7 @@ cmake_path(NATIVE_PATH MESSAGE_TS_BUILD_DIR NORMALIZE MESSAGE_TS_BUILD_DIR)
 
 # Link with this target to use messages.
 add_library(mobile_sacn_messages INTERFACE)
-target_include_directories(mobile_sacn_messages INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(mobile_sacn_messages INTERFACE "${MESSAGE_CPP_HEADER_DIR}/..")
 target_link_libraries(mobile_sacn_messages INTERFACE flatbuffers::flatbuffers)
 
 # C++
