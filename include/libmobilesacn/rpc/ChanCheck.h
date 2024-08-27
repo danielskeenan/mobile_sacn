@@ -26,8 +26,8 @@ public:
     static constexpr auto kProtocol = "ChanCheck";
     [[nodiscard]] const char* getProtocol() override { return kProtocol; }
 
-protected Q_SLOTS:
-    void handleBinaryMessage(const QByteArray& data) override;
+public Q_SLOTS:
+    void handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data) override;
 
 private:
     bool transmitting_ = false;

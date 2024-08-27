@@ -5,6 +5,8 @@ add_library(libmobilesacn STATIC
     rpc/RpcHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Application.h
     Application.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/CrowLogHandler.h
+    CrowLogHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/EtcPalLogHandler.h
     EtcPalLogHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Exception.h
@@ -24,14 +26,17 @@ FetchContent_MakeAvailable(sACN)
 #if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 #    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
 #endif ()
+find_package(Crow REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(ZLIB REQUIRED)
 target_link_libraries(libmobilesacn PRIVATE
+    Crow::Crow
     fmt::fmt
     Qt::Core
-    Qt::HttpServer
-    Qt::WebSockets
+    ZLIB::ZLIB
     mobile_sacn_messages
     sACN
     )
 target_link_libraries(libmobilesacn PUBLIC spdlog::spdlog EtcPal)
+target_compile_definitions(libmobilesacn PUBLIC CROW_ENFORCE_WS_SPEC CROW_ENABLE_COMPRESSION)

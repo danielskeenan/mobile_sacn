@@ -17,6 +17,11 @@ import {ChanCheck} from "../../messages/chan-check.ts";
 import {Builder as fbsBuilder} from "flatbuffers";
 import {ChanCheckVal} from "../../messages/chan-check-val.ts";
 import {Transmit} from "../../messages/transmit.ts";
+import {Priority} from "../../messages/priority.ts";
+import {PerAddressPriority} from "../../messages/per-address-priority.ts";
+import {Universe} from "../../messages/universe.ts";
+import {Address} from "../../messages/address.ts";
+import {Level} from "../../messages/level.ts";
 
 export function Component() {
     // State
@@ -33,37 +38,80 @@ export function Component() {
     // RPC Setters
     const sendTransmit = useCallback((val: typeof transmit) => {
         let builder = new fbsBuilder();
-        Transmit.startTransmit(builder);
-        Transmit.addTransmit(builder, val);
-        let msgTransmit = Transmit.endTransmit(builder);
+        let msgTransmit = Transmit.createTransmit(builder, val);
         ChanCheck.startChanCheck(builder);
         ChanCheck.addValType(builder, ChanCheckVal.transmit);
         ChanCheck.addVal(builder, msgTransmit);
         let msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
-        sendMessage(data.buffer);
+        sendMessage(data);
 
         setTransmit(val);
     }, [setTransmit, sendMessage]);
     const sendPriority = useCallback((val: typeof priority) => {
-        // TODO
+        let builder = new fbsBuilder();
+        let msgPriority = Priority.createPriority(builder, Number(val));
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.priority);
+        ChanCheck.addVal(builder, msgPriority);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+
         setPriority(val);
     }, [setPriority]);
     const sendPerAddressPriority = useCallback((val: typeof perAddressPriority) => {
-        // TODO
+        let builder = new fbsBuilder();
+        let msgPap = PerAddressPriority.createPerAddressPriority(builder, val);
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.perAddressPriority);
+        ChanCheck.addVal(builder, msgPap);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+
         setPerAddressPriority(val);
     }, [setPerAddressPriority]);
     const sendUniverse = useCallback((val: typeof universe) => {
-        // TODO
+        let builder = new fbsBuilder();
+        let msgUniverse = Universe.createUniverse(builder, Number(val));
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.universe);
+        ChanCheck.addVal(builder, msgUniverse);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+
         setUniverse(val);
     }, [setUniverse]);
     const sendAddress = useCallback((val: typeof address) => {
-        // TODO
+        let builder = new fbsBuilder();
+        let msgAddress = Address.createAddress(builder, Number(val));
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.address);
+        ChanCheck.addVal(builder, msgAddress);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+
         setAddress(val);
     }, [setAddress]);
     const sendLevel = useCallback((val: typeof level) => {
-        // TODO
+        let builder = new fbsBuilder();
+        let msgLevel = Level.createLevel(builder, Number(val));
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.level);
+        ChanCheck.addVal(builder, msgLevel);
+        let msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+
         setLevel(val);
     }, [setLevel]);
 

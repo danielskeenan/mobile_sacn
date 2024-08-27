@@ -45,6 +45,7 @@ if (BUILD_EXEC)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
+    add_compile_definitions(QT_NO_KEYWORDS)
 
     include_directories(${PROJECT_SOURCE_DIR}/include)
 

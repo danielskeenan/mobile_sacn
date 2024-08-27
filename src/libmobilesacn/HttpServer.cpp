@@ -12,197 +12,137 @@
 #include <QDir>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
-#include <QMimeDatabase>
+
+#include "libmobilesacn/rpc/ChanCheck.h"
 
 namespace mobilesacn {
 
-template <typename T>
-uint16_t startWithPort(const QString& address, uint16_t startPort, T* server)
+struct WsUserData
 {
-    // Starting with the default port, increment the port by 1 until is can be bound.
-    auto tryPort = startPort;
-    for (;;) {
-        const auto port = server->listen(QHostAddress(address), tryPort);
-        if (port == 0) {
-            ++tryPort;
-        } else {
-            break;
-        }
-    }
-    return tryPort;
-}
+    std::string clientIp;
+    std::string protocol;
+    rpc::RpcHandler* handler;
+};
 
-detail::HttpServerImpl::HttpServerImpl(const QString& address, QObject* parent)
-    : QAbstractHttpServer(parent)
+template <class HandlerT, typename CrowT>
+void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule)
+    requires(std::derived_from<HandlerT, rpc::RpcHandler>)
 {
-    // HTTP Server
-    httpPort_ = startWithPort(address, kHttpPortStart, this);
-    connect(this, &HttpServerImpl::newWebSocketConnection, this,
-            &HttpServerImpl::onNewWsConnection);
-    spdlog::debug("HTTP server listening on {}:{}", address.toStdString(), httpPort_);
-}
-
-bool detail::HttpServerImpl::handleRequest(const QHttpServerRequest& request,
-                                           QHttpServerResponder& responder)
-{
-    if (request.method() == QHttpServerRequest::Method::Get) {
-        spdlog::debug("GET: {}", request.url().toString().toStdString());
-        const auto urlPath = normalizeUrlPath(request.url());
-
-        // Websocket path
-        if (urlPath.startsWith("ws/")) {
-            // Request needs to be marked as handled in order for QAbstractHttpServer to notice that
-            // it's a websocket upgrade request.
-            return true;
-        }
-        // Ask for Websocket URL.
-        if (urlPath == "ws_url") {
-            responder.write(
-                // wsServer_->serverUrl().toString(QUrl::FullyEncoded).toUtf8(),
-                QString("ws://%1:%2/ws").arg(request.url().host(QUrl::FullyEncoded)).arg(httpPort_).
-                toUtf8(),
-                {
-                    { "Content-Type", "text/plain" },
-                    { "Access-Control-Allow-Origin", "*" }
+    const auto route = rule.rule();
+    rule
+            .onopen([route](crow::websocket::connection& ws) {
+                spdlog::debug("Creating handler for route {}", route);
+                // Handler is deleted when socket is closed.
+                auto handler = new HandlerT(ws, nullptr);
+                auto* userData = new WsUserData{
+                    .clientIp = ws.get_remote_ip(),
+                    .protocol = handler->getProtocol(),
+                    .handler = handler,
+                };
+                ws.userdata(userData);
+                spdlog::info("Started {} handler for client {}", userData->protocol,
+                             userData->clientIp);
+            })
+            .onmessage([](crow::websocket::connection& ws, const std::string& message,
+                          bool isBinary) {
+                auto userData = static_cast<WsUserData*>(ws.userdata());
+                if (isBinary) {
+                    spdlog::debug("Received binary message from {}: {} bytes", ws.get_remote_ip(),
+                                  message.size());
+                    userData->handler->handleBinaryMessage({
+                        reinterpret_cast<const uint8_t*>(message.data()),
+                        message.size()
+                    });
+                } else {
+                    spdlog::debug("Received text message from {}: {} bytes", ws.get_remote_ip(),
+                                  message.size());
+                    userData->handler->handleTextMessage(message);
                 }
-            );
-            return true;
-        }
-
-        // Static content
-        const auto filePath = QFileInfo(getWebRoot().filePath(urlPath));
-        // Only serve files inside the webroot. Otherwise, pretend they don't exist.
-        if (!filePathIsInWebRoot(filePath.filePath())) {
-            return false;
-        }
-
-        // Request for real file.
-        if (!filePath.suffix().isEmpty()) {
-            if (filePath.isFile()) {
-                return serveStaticFile(filePath.filePath(), responder);
-            }
-            return false;
-        }
-        // Directory index (also serves root path).
-        if (filePath.isDir()) {
-            const auto indexPath = QFileInfo(QDir(filePath.filePath()).filePath("index.html"));
-            if (indexPath.isFile()) {
-                return serveStaticFile(indexPath.filePath(), responder);
-            }
-            return false;
-        }
-
-        // Otherwise, serve index.html so client-side routing can do its thing.
-        const auto indexPath = getWebRoot().filePath("index.html");
-        return serveStaticFile(indexPath, responder);
-    }
-
-    responder.write(QHttpServerResponder::StatusCode::MethodNotAllowed);
-    return true;
-}
-
-void detail::HttpServerImpl::missingHandler(const QHttpServerRequest& request,
-                                            QHttpServerResponder&& responder)
-{
-    responder.write(QHttpServerResponder::StatusCode::NotFound);
-}
-
-QDir detail::HttpServerImpl::getWebRoot()
-{
-    static const auto webroot = QDir(QString("%1/../%2")
-        .arg(qApp->applicationDirPath(), config::kWebPath));
-    return webroot;
-}
-
-QString detail::HttpServerImpl::normalizeUrlPath(const QUrl& url)
-{
-    // Remove leading "/" from URL path, otherwise filesystem functions will try to treat it
-    // as absolute.
-    auto path = url.path().mid(1);
-    while (path.endsWith("/")) {
-        path.chop(1);
-    }
-    return path;
-}
-
-bool detail::HttpServerImpl::
-serveStaticFile(const QString& path, QHttpServerResponder& responder)
-{
-    spdlog::debug("Serving static file: {}", path.toStdString());
-    const auto mimeType = QMimeDatabase().mimeTypeForFile(path);
-    auto staticFile = new QFile(path, this);
-    if (!staticFile->open(QIODevice::ReadOnly)) {
-        responder.write(QHttpServerResponder::StatusCode::InternalServerError);
-        staticFile->deleteLater();
-        return true;
-    }
-    // Per doc, responder takes ownership of file, then delete it when done.
-    responder.write(
-        staticFile,
-        {
-            { "Content-Type", mimeType.name().toUtf8() },
-        }
-    );
-    return true;
-}
-
-bool detail::HttpServerImpl::filePathIsInWebRoot(const QString& path)
-{
-    static const auto webroot = getWebRoot().canonicalPath();
-    const auto canonical = QFileInfo(path).canonicalFilePath();
-    const auto mismatch = std::mismatch(
-        webroot.cbegin(), webroot.cend(),
-        canonical.cbegin(), canonical.cend()
-    );
-    return mismatch.first == webroot.cend();
-}
-
-void detail::HttpServerImpl::onNewWsConnection()
-{
-    auto ws = nextPendingWebSocketConnection();
-    if (!ws) {
-        return;
-    }
-    const auto clientAddress = ws->peerAddress().toString().toStdString();
-    // Skip "/ws/" in URL path.
-    const auto protocol = ws->requestUrl().path().mid(4);
-    spdlog::debug("Requested handler for protocol {}", protocol.toStdString());
-    auto handler = rpc::RpcHandler::getHandlerForWebsocket(std::move(ws), this);
-    if (handler == nullptr) {
-        return;
-    }
-
-    handlers_.insert(handler);
-    // Remove handler pointer from set when it's destroyed.
-    connect(handler, &rpc::RpcHandler::destroyed, [this, handler, clientAddress, protocol]() {
-        // handler is a dead pointer at this point! Don't ask it for anything!
-        handlers_.remove(handler);
-        spdlog::info("Closed {} handler for client {}", protocol.toStdString(), clientAddress);
-    });
-    spdlog::info("Started {} handler for client {}", protocol.toStdString(), clientAddress);
+            })
+            .onerror([](crow::websocket::connection& ws, const std::string& message) {
+                auto userData = static_cast<WsUserData*>(ws.userdata());
+                spdlog::warn("{} socket error: {}", userData->protocol, message);
+            })
+            .onclose([](crow::websocket::connection& ws, const std::string& reason) {
+                auto userData = static_cast<WsUserData*>(ws.userdata());
+                spdlog::info("Closing {} handler for client {}", userData->protocol,
+                             userData->clientIp);
+                userData->handler->deleteLater();
+                delete userData;
+            });
 }
 
 HttpServer::HttpServer(Options options, QObject* parent)
     : QObject(parent),
-      options_(std::move(options)) {}
+      options_(std::move(options))
+{
+    // Set working directory. This is needed for static file serving to work correctly.
+    std::filesystem::current_path(getWebRoot());
+    // Setup HTTP server.
+    crow::logger::setHandler(&crowLogHandler_);
+    server_.bindaddr(options_.backend_address)
+            .port(kHttpPort)
+            .multithreaded()
+            .use_compression(crow::compression::algorithm::GZIP);
+    auto& cors = server_.get_middleware<crow::CORSHandler>();
+    cors.global()
+            .methods(crow::HTTPMethod::Get)
+            .origin("*");
+
+    // Websocket url.
+    CROW_ROUTE(server_, "/ws_url").methods(crow::HTTPMethod::Get)
+    ([this](crow::response& res) {
+        const auto url = fmt::format("ws://{}:{}/ws", server_.bindaddr(), server_.port());
+        res.set_header("Content-Type", "text/plain");
+        res.end(url);
+    });
+
+    // Websocket handlers.
+    setupWebsocketRoute<rpc::ChanCheck>(CROW_WEBSOCKET_ROUTE(server_, "/ws/ChanCheck"));
+
+    // Static content.
+    CROW_ROUTE(server_, "/").methods(crow::HTTPMethod::Get)
+    ([](crow::response& res) {
+        res.set_static_file_info_unsafe("index.html");
+        res.end();
+    });
+    CROW_ROUTE(server_, "/<path>").methods(crow::HTTPMethod::Get)
+    ([this](crow::response& res, const std::string& path) {
+        // Relative to current working directory (this is why cwd in constructor).
+        res.set_static_file_info(path);
+        if (res.code == 404) {
+            // Serve index.html so client-side routing can work.
+            res.set_static_file_info_unsafe("index.html");
+        }
+        res.end();
+    });
+}
 
 void HttpServer::run()
 {
-    server_ = new detail::HttpServerImpl(QString::fromStdString(options_.backend_address), this);
+    serverHandle_ = server_.run_async();
+    server_.wait_for_server_start();
     spdlog::info("Server listening on {}", getUrl());
 }
 
 void HttpServer::stop()
 {
-    server_->deleteLater();
-    server_ = nullptr;
+    server_.stop();
     spdlog::info("Server stopped");
 }
 
-std::string HttpServer::getUrl() const
+std::string HttpServer::getUrl()
 {
-    Q_ASSERT(server_ != nullptr);
-    return fmt::format("http://{}:{}", options_.backend_address, server_->getHttpPort());
+    return fmt::format("http://{}:{}", server_.bindaddr(), server_.port());
+}
+
+const std::filesystem::path& HttpServer::getWebRoot()
+{
+    // static const auto webroot = QDir(QString("%1/../%2")
+    // .arg(qApp->applicationDirPath(), config::kWebPath));
+    static const auto webroot = std::filesystem::canonical(
+        std::filesystem::path(qApp->applicationDirPath().toStdString()) / ".." / config::kWebPath);
+    return webroot;
 }
 
 } // mobilesacn

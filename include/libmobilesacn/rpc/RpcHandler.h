@@ -9,7 +9,9 @@
 #ifndef RPCHANDLER_H
 #define RPCHANDLER_H
 
-#include <QWebSocket>
+#include <QObject>
+#include <span>
+#include <crow/websocket.h>
 
 namespace mobilesacn::rpc {
 /**
@@ -20,32 +22,25 @@ class RpcHandler : public QObject
     Q_OBJECT
 
 public:
-    [[nodiscard]] static const QStringList& getSupportedProtocols();
-    [[nodiscard]] static RpcHandler* getHandlerForWebsocket(
-        std::unique_ptr<QWebSocket> ws, QObject* parent);
+    using Factory = std::function<RpcHandler*(crow::websocket::connection& ws, QObject* parent)>;
+    using TextMessage = std::string_view;
+    using BinaryMessage = std::span<const uint8_t>;
+
+    explicit RpcHandler(crow::websocket::connection& ws, QObject* parent = nullptr);
 
     /**
-     *
-     * @param socket This handler takes ownership of the passed socket.
-     */
-    explicit RpcHandler(std::unique_ptr<QWebSocket> socket, QObject* parent = nullptr);
-
-    /**
-     * Supported Websocket subprotocol.
+     * Supported protocol name.
      */
     [[nodiscard]] virtual const char* getProtocol() = 0;
 
-protected:
-    std::unique_ptr<QWebSocket> ws_;
-
-protected Q_SLOTS:
+public Q_SLOTS:
     virtual void handleConnected() {}
-    virtual void handleTextMessage(const QString& data) {}
-    virtual void handleBinaryMessage(const QByteArray& data) {}
+    virtual void handleTextMessage(mobilesacn::rpc::RpcHandler::TextMessage data) {}
+    virtual void handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data) {}
     virtual void handleClose() {}
 
-private Q_SLOTS:
-    void onDisconnected();
+protected:
+    crow::websocket::connection& ws_;
 };
 } // mobilesacn::rpc
 

@@ -12,7 +12,7 @@
 
 namespace mobilesacn::rpc {
 
-void ChanCheck::handleBinaryMessage(const QByteArray& data)
+void ChanCheck::handleBinaryMessage(BinaryMessage data)
 {
     auto msg = message::GetChanCheck(data.data());
     if (msg->val_type() == message::ChanCheckVal::transmit) {
