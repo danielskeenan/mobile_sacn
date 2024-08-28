@@ -3,6 +3,10 @@ add_library(libmobilesacn STATIC
     rpc/ChanCheck.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/RpcHandler.h
     rpc/RpcHandler.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitHandler.h
+    rpc/TransmitHandler.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitLevels.h
+    rpc/TransmitLevels.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Application.h
     Application.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/CrowLogHandler.h

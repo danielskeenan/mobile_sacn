@@ -10,54 +10,41 @@
 #define CHANCHECK_H
 
 #include "RpcHandler.h"
-#include <QObject>
-#include <mobilesacn_messages/Universe.h>
 #include <sacn/cpp/source.h>
+
+#include "TransmitHandler.h"
 
 namespace mobilesacn::rpc {
 
 /**
  * Handler for Channel Check.
  */
-class ChanCheck : public RpcHandler
+class ChanCheck final : public TransmitHandler
 {
     Q_OBJECT
 
 public:
-    explicit ChanCheck(crow::websocket::connection& ws, QObject* parent = 0);
-    ~ChanCheck() override;
+    using TransmitHandler::TransmitHandler;
     static constexpr auto kProtocol = "ChanCheck";
-    [[nodiscard]] const char* getProtocol() override { return kProtocol; }
+    [[nodiscard]] const char* getProtocol() const override { return kProtocol; }
+    [[nodiscard]] QString getDisplayName() const override { return tr("Chan Check"); }
 
 public Q_SLOTS:
+    void handleConnected() override;
     void handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data) override;
 
+protected:
+    void onChangePriority(uint8_t priority) override;
+    void startTransmitting() override;
+
 private:
-    bool perAddressPriority_ = false;
     uint16_t address_ = 1;
     uint8_t level_ = 0;
-    std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf_;
-    std::array<uint8_t, DMX_ADDRESS_COUNT> papBuf_;
 
-    sacn::Source::Settings sacnSettings_;
-    sacn::Source::UniverseSettings univSettings_;
-    sacn::Source sacn_;
-
-    [[nodiscard]] bool currentlyTransmitting() const
-    {
-        return sacn_.handle().IsValid();
-    }
-
-    void onChangeTransmit(bool transmit);
-    void onChangePriority(uint8_t priority);
-    void onChangePap(bool usePap);
-    void onChangeUniverse(uint16_t useUniverse);
     void onChangeAddress(uint16_t useAddress);
     void onChangeLevel(uint8_t useLevel);
-
     void updateLevelBuf();
     void updatePapBuf();
-    void sendLevelsAndPap();
 };
 
 } // mobilesacn::rpc

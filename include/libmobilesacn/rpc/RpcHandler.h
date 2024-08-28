@@ -41,7 +41,13 @@ public:
     /**
      * Supported protocol name.
      */
-    [[nodiscard]] virtual const char* getProtocol() = 0;
+    [[nodiscard]] virtual const char* getProtocol() const = 0;
+
+    /**
+     *
+     * @return User-facing display name.
+     */
+    [[nodiscard]] virtual QString getDisplayName() const = 0;
 
 public Q_SLOTS:
     virtual void handleConnected() {}

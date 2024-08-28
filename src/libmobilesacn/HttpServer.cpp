@@ -10,10 +10,11 @@
 #include <mobilesacn_config.h>
 #include <QCoreApplication>
 #include <QDir>
+#include <set>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
-
 #include "libmobilesacn/rpc/ChanCheck.h"
+#include "libmobilesacn/rpc/TransmitLevels.h"
 
 namespace mobilesacn {
 
@@ -39,6 +40,7 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 userData->protocol = handler->getProtocol();
                 userData->handler = std::move(handler);
                 wsUserDataList.insert(userData);
+                userData->handler->handleConnected();
                 spdlog::info("Started {} handler for client {}", userData->protocol,
                              userData->clientIp);
             })
@@ -102,7 +104,10 @@ HttpServer::HttpServer(Options options, QObject* parent)
     });
 
     // Websocket handlers.
-    setupWebsocketRoute<rpc::ChanCheck>(CROW_WEBSOCKET_ROUTE(server_, "/ws/ChanCheck"), this);
+    setupWebsocketRoute<rpc::ChanCheck>(
+        CROW_WEBSOCKET_ROUTE(server_, "/ws/ChanCheck"), this);
+    setupWebsocketRoute<rpc::TransmitLevels>(
+        CROW_WEBSOCKET_ROUTE(server_, "/ws/TransmitLevels"), this);
 
     // Static content.
     CROW_ROUTE(server_, "/").methods(crow::HTTPMethod::Get)
