@@ -25,6 +25,7 @@ class ChanCheck : public RpcHandler
 
 public:
     explicit ChanCheck(crow::websocket::connection& ws, QObject* parent = 0);
+    ~ChanCheck() override;
     static constexpr auto kProtocol = "ChanCheck";
     [[nodiscard]] const char* getProtocol() override { return kProtocol; }
 

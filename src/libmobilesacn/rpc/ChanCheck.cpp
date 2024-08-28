@@ -28,6 +28,13 @@ ChanCheck::ChanCheck(crow::websocket::connection& ws, QObject* parent)
     updatePapBuf();
 }
 
+ChanCheck::~ChanCheck()
+{
+    if (currentlyTransmitting()) {
+        sacn_.Shutdown();
+    }
+}
+
 void ChanCheck::handleBinaryMessage(BinaryMessage data)
 {
     auto msg = message::GetChanCheck(data.data());

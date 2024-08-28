@@ -17,6 +17,8 @@
 
 namespace mobilesacn {
 
+static std::set<rpc::RpcHandler::WsUserData*> wsUserDataList;
+
 template <class HandlerT, typename CrowT>
 void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
     requires(std::derived_from<HandlerT, rpc::RpcHandler>)
@@ -25,16 +27,18 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
     rule
             .onopen([route, parent](crow::websocket::connection& ws) {
                 spdlog::debug("Creating handler for route {}", route);
+                // Deleted when socket is closed.
                 auto* userData = new rpc::RpcHandler::WsUserData{
                     .sacnNetInt = parent->getOptions().sacn_interface,
                     .clientIp = ws.get_remote_ip(),
-                    .protocol = HandlerT::kProtocol,
+                    .protocol = "",
                     .handler = nullptr,
                 };
                 ws.userdata(userData);
-                // Handler is deleted when socket is closed.
-                auto handler = new HandlerT(ws, nullptr);
-                userData->handler = handler;
+                auto handler = std::unique_ptr<rpc::RpcHandler>(new HandlerT(ws, nullptr));
+                userData->protocol = handler->getProtocol();
+                userData->handler = std::move(handler);
+                wsUserDataList.insert(userData);
                 spdlog::info("Started {} handler for client {}", userData->protocol,
                              userData->clientIp);
             })
@@ -62,7 +66,7 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 auto userData = static_cast<rpc::RpcHandler::WsUserData*>(ws.userdata());
                 spdlog::info("Closing {} handler for client {}", userData->protocol,
                              userData->clientIp);
-                userData->handler->deleteLater();
+                wsUserDataList.erase(userData);
                 delete userData;
             });
 }
@@ -123,6 +127,10 @@ void HttpServer::run()
 void HttpServer::stop()
 {
     server_.stop();
+    for (const auto wsUserData : wsUserDataList) {
+        delete wsUserData;
+    }
+    wsUserDataList.clear();
     spdlog::info("Server stopped");
 }
 

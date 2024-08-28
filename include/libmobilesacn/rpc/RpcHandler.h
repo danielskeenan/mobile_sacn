@@ -33,7 +33,7 @@ public:
         etcpal::NetintInfo sacnNetInt;
         std::string clientIp;
         std::string protocol;
-        RpcHandler* handler;
+        std::unique_ptr<RpcHandler> handler;
     };
 
     explicit RpcHandler(crow::websocket::connection& ws, QObject* parent = nullptr);
