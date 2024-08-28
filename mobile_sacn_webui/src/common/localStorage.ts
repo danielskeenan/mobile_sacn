@@ -17,7 +17,16 @@ export function localStorageGet<T, D extends T = T>(key: LocalStorageItem, defau
         return defaultValue;
     }
 
-    return JSON.parse(value);
+    try {
+        return JSON.parse(value);
+    } catch (e) {
+        if (e instanceof SyntaxError) {
+            // Bad LocalStorage value.
+            localStorageSet(key, defaultValue);
+            return defaultValue;
+        }
+        throw e;
+    }
 }
 
 /**
