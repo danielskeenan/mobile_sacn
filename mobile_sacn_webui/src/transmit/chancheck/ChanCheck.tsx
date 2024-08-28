@@ -1,5 +1,5 @@
 import "./ChanCheck.scss";
-import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useState} from "react";
+import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useState} from "react";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
 import {TransmitChanCheckTitle} from "../TransmitTitle.tsx";
 import {Connecting} from "../../common/components/Loading.tsx";
@@ -46,9 +46,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setTransmit(val);
-    }, [setTransmit, sendMessage]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendTransmit(transmit);
+    }, [transmit, sendTransmit]);
     const sendPriority = useCallback((val: typeof priority) => {
         let builder = new fbsBuilder();
         let msgPriority = Priority.createPriority(builder, Number(val));
@@ -59,9 +60,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setPriority(val);
-    }, [setPriority]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendPriority(priority);
+    }, [priority, sendPriority]);
     const sendPerAddressPriority = useCallback((val: typeof perAddressPriority) => {
         let builder = new fbsBuilder();
         let msgPap = PerAddressPriority.createPerAddressPriority(builder, val);
@@ -72,9 +74,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setPerAddressPriority(val);
-    }, [setPerAddressPriority]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendPerAddressPriority(perAddressPriority);
+    }, [perAddressPriority, sendPerAddressPriority]);
     const sendUniverse = useCallback((val: typeof universe) => {
         let builder = new fbsBuilder();
         let msgUniverse = Universe.createUniverse(builder, Number(val));
@@ -85,9 +88,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setUniverse(val);
-    }, [setUniverse]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendUniverse(universe);
+    }, [universe, sendUniverse]);
     const sendAddress = useCallback((val: typeof address) => {
         let builder = new fbsBuilder();
         let msgAddress = Address.createAddress(builder, Number(val));
@@ -98,9 +102,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setAddress(val);
-    }, [setAddress]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendAddress(address);
+    }, [address, sendAddress]);
     const sendLevel = useCallback((val: typeof level) => {
         let builder = new fbsBuilder();
         let msgLevel = Level.createLevel(builder, Number(val));
@@ -111,9 +116,10 @@ export function Component() {
         builder.finish(msgChanCheck);
         const data = builder.asUint8Array();
         sendMessage(data);
-
-        setLevel(val);
-    }, [setLevel]);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendLevel(level);
+    }, [level, sendLevel]);
 
     return (
         <>
@@ -128,9 +134,9 @@ export function Component() {
                     <TransmitConfig
                         transmit={transmit}
                         priority={priority}
-                        onChangePriority={sendPriority}
+                        onChangePriority={setPriority}
                         universe={universe}
-                        onChangeUniverse={sendUniverse}
+                        onChangeUniverse={setUniverse}
                     >
                         <Form.Group>
                             <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
@@ -138,30 +144,30 @@ export function Component() {
                                 inline
                                 disabled={transmit}
                                 type="switch"
-                                onChange={() => sendPerAddressPriority(!perAddressPriority)}
+                                onChange={() => setPerAddressPriority(!perAddressPriority)}
                             />
                         </Form.Group>
                     </TransmitConfig>
 
                     <ConnectButton
                         started={transmit}
-                        onStart={() => sendTransmit(true)}
-                        onStop={() => sendTransmit(false)}
+                        onStart={() => setTransmit(true)}
+                        onStop={() => setTransmit(false)}
                     />
 
                     <Form.Group className="mt-3">
                         <Form.Label>Level</Form.Label>
-                        <LevelFader level={level} onLevelChange={sendLevel}/>
+                        <LevelFader level={level} onLevelChange={setLevel}/>
                     </Form.Group>
 
                     <h2 className="mt-3">Address</h2>
-                    <BigDisplay value={address} setValue={sendAddress} min={DMX_MIN} max={DMX_MAX}
+                    <BigDisplay value={address} setValue={setAddress} min={DMX_MIN} max={DMX_MAX}
                                 className={transmit ? "active" : undefined}/>
                     <NextLast
                         nextEnabled={Number(address) < DMX_MAX}
                         lastEnabled={Number(address) > DMX_MIN}
-                        onNext={() => sendAddress((Number(address) + 1).toString())}
-                        onLast={() => sendAddress((Number(address) - 1).toString())}
+                        onNext={() => setAddress((Number(address) + 1).toString())}
+                        onLast={() => setAddress((Number(address) - 1).toString())}
                     />
                 </>
             )}

@@ -12,6 +12,8 @@
 #include <QObject>
 #include <span>
 #include <crow/websocket.h>
+#include <etcpal/cpp/inet.h>
+#include <sacn/common.h>
 
 namespace mobilesacn::rpc {
 /**
@@ -25,6 +27,14 @@ public:
     using Factory = std::function<RpcHandler*(crow::websocket::connection& ws, QObject* parent)>;
     using TextMessage = std::string_view;
     using BinaryMessage = std::span<const uint8_t>;
+
+    struct WsUserData
+    {
+        etcpal::NetintInfo sacnNetInt;
+        std::string clientIp;
+        std::string protocol;
+        RpcHandler* handler;
+    };
 
     explicit RpcHandler(crow::websocket::connection& ws, QObject* parent = nullptr);
 
@@ -41,6 +51,19 @@ public Q_SLOTS:
 
 protected:
     crow::websocket::connection& ws_;
+
+    [[nodiscard]] const WsUserData* getWsUserData() const
+    {
+        return static_cast<WsUserData*>(ws_.userdata());
+    }
+
+    [[nodiscard]] std::vector<SacnMcastInterface>& getSacnMcastInterfaces()
+    {
+        return sacnMcastInterfaces_;
+    }
+
+private:
+    std::vector<SacnMcastInterface> sacnMcastInterfaces_;
 };
 } // mobilesacn::rpc
 

@@ -12,8 +12,8 @@ add_library(libmobilesacn STATIC
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Exception.h
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/HttpServer.h
     HttpServer.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/sacn.h
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnMerger.h
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnCidGenerator.h
+    SacnCidGenerator.cpp
 )
 
 include(FetchContent)

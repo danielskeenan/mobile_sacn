@@ -14,6 +14,7 @@
 #include <QObject>
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
+#include <etcpal/cpp/netint.h>
 
 #include "CrowLogHandler.h"
 
@@ -31,7 +32,7 @@ public:
     struct Options
     {
         std::string backend_address;
-        std::string sacn_address;
+        etcpal::NetintInfo sacn_interface;
     };
 
     using CrowServer = crow::Crow<crow::CORSHandler>;
@@ -49,6 +50,11 @@ public:
     void run();
     void stop();
     [[nodiscard]] std::string getUrl();
+
+    [[nodiscard]] const Options& getOptions() const
+    {
+        return options_;
+    }
 
 private:
     static const uint16_t kHttpPort = 5050;

@@ -8,11 +8,12 @@
 
 #include "libmobilesacn/Application.h"
 
+#include <etcpal/cpp/netint.h>
 #include <spdlog/spdlog.h>
 #include <sacn/cpp/common.h>
-#include <etcpal/cpp/netint.h>
 #include "mobilesacn_config.h"
 #include "libmobilesacn/HttpServer.h"
+#include "libmobilesacn/SacnCidGenerator.h"
 
 namespace mobilesacn {
 
@@ -44,11 +45,19 @@ Application::~Application()
 
 void Application::run(const Options& options)
 {
+    // Tell the CID generator about the sACN interface's MAC Address.
+    auto sacnNetInterface = etcpal::netint::GetInterfaceWithIp(
+        etcpal::IpAddr::FromString(options.sacn_address));
+    if (!sacnNetInterface) {
+        spdlog::critical("Could not get network interface for sACN.");
+        return;
+    }
+    SacnCidGenerator::get().setMacAddress(sacnNetInterface->mac());
     // Setup web server.
     httpServer_ = new HttpServer(
         HttpServer::Options{
             .backend_address = options.backend_address,
-            .sacn_address = options.sacn_address,
+            .sacn_interface = *sacnNetInterface,
         },
         this
     );
