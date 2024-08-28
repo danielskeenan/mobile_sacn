@@ -53,6 +53,11 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                         message.size()
                     });
                 } else {
+                    // Handle pings.
+                    if (message == "ping") {
+                        ws.send_text("pong");
+                        return;
+                    }
                     spdlog::debug("Received text message from {}: {} bytes", ws.get_remote_ip(),
                                   message.size());
                     userData->handler->handleTextMessage(message);

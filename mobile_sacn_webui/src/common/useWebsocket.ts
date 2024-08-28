@@ -19,6 +19,11 @@ export default function useWebsocket(protocol: string, options: Partial<ReactUse
             return !closeEvent.wasClean;
         }, []),
         retryOnError: true,
+        // We're on a local network, so use aggressive heartbeats.
+        heartbeat: {
+            timeout: 5000,
+            interval: 1000,
+        },
         ...options,
     };
     return reactUseWebSocket(useWebsocketUrl(protocol), websocketOptions);

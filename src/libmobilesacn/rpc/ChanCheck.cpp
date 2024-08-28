@@ -6,7 +6,7 @@
  * @copyright GNU GPLv3
  */
 
-#include <qcoreapplication.h>
+#include <QApplication>
 #include <libmobilesacn/rpc/ChanCheck.h>
 #include <mobilesacn_messages/ChanCheck.h>
 #include <libmobilesacn/SacnCidGenerator.h>
@@ -19,7 +19,9 @@ ChanCheck::ChanCheck(crow::websocket::connection& ws, QObject* parent)
     // Setup sACN.
     sacnSettings_.cid = SacnCidGenerator::get().cidForProtocolAndClient(
         kProtocol, ws.get_remote_ip());
-    sacnSettings_.name = tr("%1 (Chan Check)").arg(qApp->applicationName()).toStdString();
+    sacnSettings_.name = tr("%1 (%2 Chan Check)")
+            .arg(qApp->applicationDisplayName(), QString::fromStdString(ws.get_remote_ip()))
+            .toStdString();
     // Channel check only works on one universe at a time.
     sacnSettings_.universe_count_max = 1;
     univSettings_.universe = 1;

@@ -34,6 +34,8 @@ target_link_libraries(libmobilesacn PRIVATE
     Crow::Crow
     fmt::fmt
     Qt::Core
+    # So we can get QApplication helpers not available in QCoreApplication.
+    Qt::Widgets
     ZLIB::ZLIB
     mobile_sacn_messages
     sACN
