@@ -18,9 +18,9 @@ void CrowLogHandler::log(std::string message, crow::LogLevel crowLogLevel)
     const spdlog::level::level_enum level = [crowLogLevel]() {
         switch (crowLogLevel) {
         case crow::LogLevel::Debug:
-            return spdlog::level::level_enum::debug;
         case crow::LogLevel::Info:
-            return spdlog::level::level_enum::info;
+            // Crow uses Info more often than it should...
+            return spdlog::level::level_enum::debug;
         case crow::LogLevel::Warning:
             return spdlog::level::level_enum::warn;
         case crow::LogLevel::Error:
