@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     const std::filesystem::path inDir(argv[1]);
     const std::filesystem::path outDir(argv[2]);
-    // https://regex101.com/r/mvtNRL/1
+    // https://regex101.com/r/zhn2JH/2
     const std::regex filepathRegex(R"((['"])[./]*mobilesacn/message/(.+)\.(?:js|ts)\1)");
     for (const auto& entry : std::filesystem::recursive_directory_iterator(inDir)) {
         if (!entry.is_regular_file() || entry.path().extension() != ".ts") {

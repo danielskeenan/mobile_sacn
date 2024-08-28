@@ -5,7 +5,7 @@ import {Form} from "react-bootstrap";
 
 interface LevelBarProps {
     label?: string;
-    level: string;
+    level: string|number;
     color?: string;
 }
 

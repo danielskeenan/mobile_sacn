@@ -1,0 +1,5 @@
+namespace mobilesacn.message;
+
+struct LevelBuffer {
+    levels:[uint8:512];
+}

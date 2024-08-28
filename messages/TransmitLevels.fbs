@@ -2,22 +2,20 @@ include "Universe.fbs";
 include "Priority.fbs";
 include "PerAddressPriority.fbs";
 include "Transmit.fbs";
-include "Level.fbs";
-include "Address.fbs";
+include "LevelBuffer.fbs";
 
 namespace mobilesacn.message;
 
-union ChanCheckVal {
+union TransmitLevelsVal {
     universe:Universe,
     priority:Priority,
     perAddressPriority:PerAddressPriority,
     transmit:Transmit,
-    level:Level,
-    address:Address
+    levels:LevelBuffer,
 }
 
-table ChanCheck {
-    val:ChanCheckVal (required);
+table TransmitLevels {
+    val:TransmitLevelsVal (required);
 }
 
-root_type ChanCheck;
+root_type TransmitLevels;

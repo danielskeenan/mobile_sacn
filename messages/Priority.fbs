@@ -1,5 +1,5 @@
 namespace mobilesacn.message;
 
-table Priority {
-    priority:uint8 = 100;
+struct Priority {
+    priority:uint8;
 }

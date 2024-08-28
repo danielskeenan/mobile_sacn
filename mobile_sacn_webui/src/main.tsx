@@ -22,12 +22,16 @@ const router = createBrowserRouter([
                 path: Links.TRANSMIT_CHANCHECK,
                 lazy: () => import('./transmit/chancheck/ChanCheck.tsx'),
             },
+            {
+                path: Links.TRANSMIT_LEVELS,
+                lazy: () => import('./transmit/levels/Levels.tsx'),
+            },
         ],
     },
 ]);
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-      <RouterProvider router={router} fallbackElement={<Loading/>}/>
-  </StrictMode>,
-)
+    <StrictMode>
+        <RouterProvider router={router} fallbackElement={<Loading/>}/>
+    </StrictMode>,
+);

@@ -1,10 +1,10 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBolt, faCheck, faKeyboard} from "@fortawesome/free-solid-svg-icons";
 
-export function TransmitControlTitle() {
+export function TransmitLevelsTitle() {
     return (
         <span>
-            <FontAwesomeIcon icon={faKeyboard}/> Control
+            <FontAwesomeIcon icon={faKeyboard}/> Levels
         </span>
     );
 }

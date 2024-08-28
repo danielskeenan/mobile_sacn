@@ -2,7 +2,7 @@ import "./App.scss";
 import {Container, Nav, Navbar as BsNavbar} from "react-bootstrap";
 import {APP_NAME} from "./common/constants.ts";
 import logo from "./assets/mobile_sacn.svg";
-import {TransmitChanCheckTitle, TransmitControlTitle} from "./transmit/TransmitTitle.tsx";
+import {TransmitChanCheckTitle, TransmitLevelsTitle} from "./transmit/TransmitTitle.tsx";
 import {ReceiveLevelsTitle} from "./recieve/RecieveTitle.tsx";
 import {SettingsTitle} from "./front/FrontTitle.tsx";
 import {Link, Outlet} from "react-router-dom";
@@ -60,13 +60,13 @@ export function Navbar() {
             <BsNavbar.Toggle aria-controls="msacn-navbar-content"/>
             <BsNavbar.Collapse id="msacn-navbar-content">
                 <Nav className="me-auto">
-                    <Nav.Link>
-                        <TransmitControlTitle/>
+                    <Nav.Link as={Link} to={Links.TRANSMIT_LEVELS}>
+                        <TransmitLevelsTitle/>
                     </Nav.Link>
                     <Nav.Link as={Link} to={Links.TRANSMIT_CHANCHECK}>
                         <TransmitChanCheckTitle/>
                     </Nav.Link>
-                    <Nav.Link>
+                    <Nav.Link as={Link} to={Links.RECEIVE_LEVELS}>
                         <ReceiveLevelsTitle/>
                     </Nav.Link>
                     <Nav.Link as={Link} to={Links.FRONT_SETTINGS}>

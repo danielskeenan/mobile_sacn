@@ -10,7 +10,7 @@ export const FrontRoutes = {
 };
 
 export const TransmitRoutes = {
-    CONTROL: "control",
+    LEVELS: "levels",
     CHANCHECK: "chan_check",
     FX: "fx",
 };
@@ -22,7 +22,7 @@ export const ReceiveRoutes = {
 export const Links = {
     FRONT_FRONT: `${ControllerRouteBases.FRONT}`,
     FRONT_SETTINGS: `/${FrontRoutes.SETTINGS}`,
-    TRANSMIT_CONTROL: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.CONTROL}`,
+    TRANSMIT_LEVELS: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.LEVELS}`,
     TRANSMIT_CHANCHECK: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.CHANCHECK}`,
     TRANSMIT_FX: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.FX}`,
     RECEIVE_LEVELS: `${ControllerRouteBases.RECEIVE}/${ReceiveRoutes.LEVELS}`,

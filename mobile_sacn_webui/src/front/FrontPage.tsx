@@ -3,7 +3,7 @@ import setPageTitle from "../common/setPageTitle.ts";
 import {APP_NAME} from "../common/constants.ts";
 import {generatePath, Link} from "react-router-dom";
 import {Links} from "../routes.ts";
-import {TransmitChanCheckTitle, TransmitControlTitle} from "../transmit/TransmitTitle.tsx";
+import {TransmitChanCheckTitle, TransmitLevelsTitle} from "../transmit/TransmitTitle.tsx";
 import {ReceiveLevelsTitle} from "../recieve/RecieveTitle.tsx";
 
 export function Component() {
@@ -16,8 +16,8 @@ export function Component() {
 
                 <ul className="list-inline">
                     <li className="list-inline-item">
-                        <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_CONTROL)}>
-                            <TransmitControlTitle/>
+                        <Link className="btn btn-primary btn-lg" to={generatePath(Links.TRANSMIT_LEVELS)}>
+                            <TransmitLevelsTitle/>
                         </Link>
                     </li>
                     <li className="list-inline-item">

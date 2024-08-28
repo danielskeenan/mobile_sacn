@@ -1,5 +1,5 @@
 namespace mobilesacn.message;
 
-table Universe {
-    universe:uint16 = 1;
+struct Universe {
+    universe:uint16;
 }

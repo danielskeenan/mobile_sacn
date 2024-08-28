@@ -4,9 +4,11 @@ set(MESSAGE_SOURCES
     Address.fbs
     ChanCheck.fbs
     Level.fbs
+    LevelBuffer.fbs
     PerAddressPriority.fbs
     Priority.fbs
     Transmit.fbs
+    TransmitLevels.fbs
     Universe.fbs
 )
 
@@ -44,7 +46,6 @@ foreach (FBS ${MESSAGE_SOURCES})
 endforeach ()
 
 # Typescript
-add_executable(flatc_ts_fixer flatc_ts_fixer.cpp)
 # Can't use the same (cleaner...) approach as with CPP because the output file names are not known at configure-time.
 add_custom_target(mobile_sacn_messages_ts
     COMMAND flatbuffers::flatc --ts -o "${MESSAGE_TS_BUILD_DIR}/" ${MESSAGE_SOURCES}
@@ -56,6 +57,7 @@ add_custom_target(mobile_sacn_messages_ts
 add_dependencies(mobile_sacn_messages mobile_sacn_messages_ts)
 # Needed because flatc creates a namespaced directory structure we don't want.
 # Correct import paths and move to webui src directory.
+add_executable(flatc_ts_fixer flatc_ts_fixer.cpp)
 add_custom_command(TARGET mobile_sacn_messages_ts POST_BUILD
     COMMAND flatc_ts_fixer "${MESSAGE_TS_BUILD_DIR}/mobilesacn/message" "${MESSAGE_TS_DIR}"
     COMMENT "Fixing imports in generated Flatbuffers Typescript files..."
