@@ -1,10 +1,11 @@
-import {useCallback, useEffect, useState} from "react";
+import "./Levels.scss";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {DMX_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
 import {TransmitLevelsTitle} from "../TransmitTitle.tsx";
 import {ReadyState} from "react-use-websocket";
 import {Connecting} from "../../common/components/Loading.tsx";
 import TransmitConfig from "../TransmitConfig.tsx";
-import {Card, Form, ListGroup, Tab, Tabs} from "react-bootstrap";
+import {Button, Card, Form, ListGroup, Tab, Tabs} from "react-bootstrap";
 import ConnectButton from "../../common/components/ConnectButton.tsx";
 import {LevelFader} from "../../common/components/LevelBar.tsx";
 import {constant, times} from "lodash";
@@ -19,6 +20,23 @@ import {Universe} from "../../messages/universe.ts";
 import {TransmitLevels} from "../../messages/transmit-levels.ts";
 import {TransmitLevelsVal} from "../../messages/transmit-levels-val.ts";
 import {LevelBuffer} from "../../messages/level-buffer.ts";
+import {
+    allowedTokens,
+    cmdLineIsComplete,
+    CmdLineToken,
+    CmdLineTokenAt,
+    CmdLineTokenEnter,
+    CmdLineTokenHexDigit,
+    CmdLineTokenMinus,
+    CmdLineTokenNumber,
+    CmdLineTokenPlus,
+    CmdLineTokenThru,
+    CmdLineTokenType,
+    updateLevelsFromCmdLine,
+} from "./cmdline.ts";
+import clsx from "clsx";
+import AppContext from "../../common/Context.ts";
+import {LevelDisplayMode} from "../../common/levelDisplay.ts";
 
 enum ControlMode {
     FADERS = "faders",
@@ -150,11 +168,18 @@ export function Component() {
                     >
                         <Tab eventKey={ControlMode.FADERS} title={<LevelFadersTitle/>}>
                             <LevelFaders
+                                active={transmit}
                                 levels={levels}
                                 onLevelsChange={setLevels}
                             />
                         </Tab>
-                        <Tab eventKey={ControlMode.KEYPAD} title={<LevelKeypadTitle/>}></Tab>
+                        <Tab eventKey={ControlMode.KEYPAD} title={<LevelKeypadTitle/>}>
+                            <LevelKeypad
+                                active={transmit}
+                                levels={levels}
+                                onLevelsChange={setLevels}
+                            />
+                        </Tab>
                     </Tabs>
                 </>
             )}
@@ -163,6 +188,7 @@ export function Component() {
 }
 
 interface LevelsProps {
+    active: boolean;
     levels: number[];
     onLevelsChange: (levels: number[]) => void;
 }
@@ -207,5 +233,201 @@ function LevelKeypadTitle() {
             <FontAwesomeIcon icon={faKeyboard}/>&nbsp;
             Keypad
         </>
+    );
+}
+
+function LevelKeypad(props: LevelsProps) {
+    const {levels, onLevelsChange} = props;
+    const [cmdline, setCmdline] = useState<CmdLineToken[]>([]);
+
+    const onEnter = () => {
+        const newLevels = levels.slice();
+        updateLevelsFromCmdLine(cmdline, newLevels);
+        onLevelsChange(newLevels);
+    };
+
+    return (
+        <>
+            <Card className={clsx("msacn-keypad", {"active": props.active})}>
+                <KeypadDisplay cmdline={cmdline}/>
+                <Keypad cmdline={cmdline} onCmdlineChange={setCmdline} onEnter={onEnter}/>
+            </Card>
+        </>
+    );
+}
+
+
+function KeypadDisplay(props: { cmdline: CmdLineToken[] }) {
+    const {cmdline} = props;
+
+    return (
+        <div className="msacn-cmdline mb-3">
+            {cmdline.length === 0 && (
+                // Inserting a space here means an empty command line has the same height as a one-line command line.
+                <span aria-hidden>&nbsp;</span>
+            )}
+            {cmdline.map((token, ix) => (
+                <span key={ix} className="msacn-cmdline-token">
+                    {token.toString()}
+                </span>
+            ))}
+        </div>
+    );
+}
+
+interface KeypadProps {
+    cmdline: CmdLineToken[];
+    onCmdlineChange: (cmdline: CmdLineToken[]) => void;
+    onEnter: () => void;
+}
+
+function Keypad(props: KeypadProps) {
+    const {cmdline, onCmdlineChange, onEnter} = props;
+    const {levelDisplayMode} = useContext(AppContext);
+
+    // Button callbacks.
+    const updateCmdLine = (token: CmdLineToken) => {
+        const lastToken = cmdline.at(-1);
+        const newCmdline = lastToken instanceof CmdLineTokenEnter ? [] : [...cmdline];
+        if (cmdline.length > 0 && token instanceof CmdLineTokenNumber && lastToken instanceof CmdLineTokenNumber) {
+            // Append this digit to the previous one.
+            (newCmdline.at(-1) as CmdLineTokenNumber).value += token.value;
+        } else {
+            newCmdline.push(token);
+        }
+        onCmdlineChange(newCmdline);
+    };
+    const backspace = () => {
+        if (cmdline.length === 0) {
+            return;
+        }
+
+        const newCmdLine = [...cmdline];
+        const lastToken = newCmdLine.at(-1);
+        if (lastToken instanceof CmdLineTokenNumber && lastToken.value.length > 1) {
+            // Remove the last digit from the command line.
+            lastToken.value = lastToken.value.slice(0, -1);
+        } else {
+            newCmdLine.pop();
+        }
+        onCmdlineChange(newCmdLine);
+    };
+    const enter = () => {
+        updateCmdLine(new CmdLineTokenEnter());
+        onEnter();
+    };
+    const nextTokenAllowed = allowedTokens(cmdline);
+
+    return (
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.PLUS)}
+                            onClick={() => updateCmdLine(new CmdLineTokenPlus())}>+</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.THRU)}
+                            onClick={() => updateCmdLine(new CmdLineTokenThru())}>Thru</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.MINUS)}
+                            onClick={() => updateCmdLine(new CmdLineTokenMinus())}>&minus;</Button>
+                </td>
+            </tr>
+            {levelDisplayMode == LevelDisplayMode.HEX && (
+                <>
+                    <tr>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("D"))}>D</Button>
+                        </td>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("E"))}>E</Button>
+                        </td>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("F"))}>F</Button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("A"))}>A</Button>
+                        </td>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("B"))}>B</Button>
+                        </td>
+                        <td>
+                            <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.HEX_DIGIT)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenHexDigit("C"))}>C</Button>
+                        </td>
+                    </tr>
+                </>
+            )}
+            <tr>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("7"))}>7</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("8"))}>8</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("9"))}>9</Button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("4"))}>4</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("5"))}>5</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("6"))}>6</Button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("1"))}>1</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("2"))}>2</Button>
+                </td>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("3"))}>3</Button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Button variant="light" disabled={cmdline.length === 0} onClick={backspace}>Clear</Button>
+                </td>
+                <td colSpan={2}>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.NUMBER)}
+                            onClick={() => updateCmdLine(new CmdLineTokenNumber("0"))}>0</Button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Button variant="light" disabled={!nextTokenAllowed.includes(CmdLineTokenType.AT)}
+                            onClick={() => updateCmdLine(new CmdLineTokenAt())}>At</Button>
+                </td>
+                <td colSpan={2}>
+                    <Button variant="light" disabled={!cmdLineIsComplete(cmdline)} onClick={enter}>Enter</Button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     );
 }
