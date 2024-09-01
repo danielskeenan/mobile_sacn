@@ -1,10 +1,10 @@
 import "./Levels.scss";
-import {useCallback, useEffect, useId, useMemo, useState} from "react";
-import {clone, constant, sortedUniq, times} from "lodash";
+import {useCallback, useEffect, useId, useLayoutEffect, useMemo, useState} from "react";
+import {clone, constant, range, some, sortedUniq, times} from "lodash";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants.ts";
 import {ReadyState} from "react-use-websocket";
 import {Connecting} from "../../common/components/Loading.tsx";
-import {Accordion, Button, FloatingLabel, Form, Modal, Stack, Table} from "react-bootstrap";
+import {Accordion, Button, FloatingLabel, Form, Modal, Stack, Tab, Table, Tabs} from "react-bootstrap";
 import {ReceiveLevelsTitle} from "../ReceiveTitle.tsx";
 import {createPortal} from "react-dom";
 import useWebsocket from "../../common/useWebsocket.ts";
@@ -21,6 +21,10 @@ import {Universe} from "../../messages/universe.ts";
 import {ReceiveLevelsReqVal} from "../../messages/receive-levels-req-val.ts";
 import {ReceiveLevelsReq} from "../../messages/receive-levels-req.ts";
 import Color from "colorjs.io";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
+import LevelDisplay, {PriorityDisplay} from "../../common/components/LevelDisplay.tsx";
+import {LevelBar} from "../../common/components/LevelBar.tsx";
 
 enum ViewMode {
     GRID = "grid",
@@ -31,8 +35,22 @@ interface Source {
     cid: string;
     color: Color;
     name: string;
+    ipAddr: string;
+    hasPap: boolean;
+    priority: number;
     universes: Uint16Array;
 }
+
+// Used for addresses that have no owner.
+const DEFAULT_SOURCE: Source = {
+    cid: "00000000-0000-0000-0000-000000000000",
+    color: new Color("transparent"),
+    name: "No Source",
+    ipAddr: "",
+    hasPap: false,
+    priority: 0,
+    universes: new Uint16Array(),
+};
 
 function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
     for (const source of sources) {
@@ -47,7 +65,7 @@ export function Component() {
     const [universe, setUniverse] = useState(0);
     const [levels, setLevels] = useState(Array.from(times(DMX_MAX, constant(0))));
     const [priorities, setPriorities] = useState(Array.from(times(DMX_MAX, constant(0))));
-    const [owners, setOwners] = useState<(string | null)[]>(Array.from(times(DMX_MAX, constant(null))));
+    const [owners, setOwners] = useState<string[]>(Array.from(times(DMX_MAX, constant(""))));
     const [sourceMap, setSourceMap] = useState(new Map<string, Source>());
     const sources = useMemo(() => {
         return Array.from(sourceMap.values());
@@ -58,7 +76,7 @@ export function Component() {
         return sortedUniq(universes);
     }, [sourceMap]);
     const [viewMode, setViewMode] = useState(ViewMode.GRID);
-    const [showPriorities, setShowPriorities] = useState(false);
+    const [showPriorities, setShowPriorities] = useState(true);
     const [showUnivDialog, setShowUnivDialog] = useState(false);
     const openUnivDialog = useCallback(() => setShowUnivDialog(true), [setShowUnivDialog]);
     const closeUnivDialog = useCallback(() => setShowUnivDialog(false), [setShowUnivDialog]);
@@ -77,6 +95,9 @@ export function Component() {
         const newSource: Source = {
             cid: cid,
             name: msg.name() as string,
+            ipAddr: msg.ipAddr() ?? oldSource?.ipAddr ?? DEFAULT_SOURCE.ipAddr,
+            hasPap: msg.hasPap() ?? oldSource?.hasPap ?? DEFAULT_SOURCE.hasPap,
+            priority: msg.priority() ?? oldSource?.priority ?? DEFAULT_SOURCE.priority,
             universes: universes,
             color: colorForCID(cid),
         };
@@ -162,7 +183,8 @@ export function Component() {
                             <Form.Label visuallyHidden={true}>Universe</Form.Label>
                             <Stack as="fieldset" direction="horizontal" gap={1}>
                                 {availableUniverses.map(univ => (
-                                    <Button variant={univ == universe ? "secondary" : "outline-secondary"} key={univ} active={univ == universe}
+                                    <Button variant={univ == universe ? "secondary" : "outline-secondary"} key={univ}
+                                            active={univ == universe}
                                             onClick={() => setUniverse(univ)}>
                                         Univ {univ}
                                     </Button>
@@ -178,6 +200,31 @@ export function Component() {
                         <>
                             <h2>Universe {universe}</h2>
                             <SourceList sources={sources.filter(source => source.universes.includes(universe))}/>
+
+                            <Tabs
+                                className="mt-3"
+                                activeKey={viewMode}
+                                onSelect={newViewMode => setViewMode(newViewMode as ViewMode)}
+                            >
+                                <Tab eventKey={ViewMode.GRID} title={<ViewGridTitle/>}>
+                                    <ViewGrid
+                                        sourceMap={sourceMap}
+                                        levels={levels}
+                                        priorities={priorities}
+                                        owners={owners}
+                                        showPriorities={showPriorities}
+                                    />
+                                </Tab>
+                                <Tab eventKey={ViewMode.BARS} title={<ViewBarsTitle/>}>
+                                    <ViewBars
+                                        sourceMap={sourceMap}
+                                        levels={levels}
+                                        priorities={priorities}
+                                        owners={owners}
+                                        showPriorities={showPriorities}
+                                    />
+                                </Tab>
+                            </Tabs>
                         </>
                     )}
 
@@ -238,36 +285,186 @@ interface SourceListProps {
 }
 
 function SourceList(props: SourceListProps) {
+    const {sources} = props;
     const accordianId = useId();
+    const showPapNote = useMemo(() => {
+        return some(sources, (source) => source.hasPap);
+    }, [sources]);
 
     return (
         <Accordion className="mt-3">
             <Accordion.Item eventKey={accordianId}>
                 <Accordion.Header>Sources</Accordion.Header>
                 <Accordion.Body>
-                    {props.sources.length == 0 && (
+                    {sources.length == 0 && (
                         <>No sources sending this universe.</>
                     )}
-                    {props.sources.length > 0 && (
-                        <Table className="msacn-sourcelist">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Universes</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {props.sources.map(source => (
-                                <tr key={source.cid} style={{backgroundColor: source.color.display()}}>
-                                    <td>{source.name}</td>
-                                    <td>{source.universes.join(", ")}</td>
+                    {sources.length > 0 && (
+                        <>
+                            <Table className="msacn-sourcelist">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>IP Addr</th>
+                                    <th>Priority</th>
                                 </tr>
-                            ))}
-                            </tbody>
-                        </Table>
+                                </thead>
+                                <tbody>
+                                {sources.map(source => (
+                                    <tr key={source.cid} style={{backgroundColor: source.color.display()}}>
+                                        <td>{source.name}</td>
+                                        <td>{source.ipAddr}</td>
+                                        <td>{source.hasPap && "*"}{source.priority}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </Table>
+                            {showPapNote && (
+                                <p>*Source has per-address-priority.</p>
+                            )}
+                        </>
                     )}
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
+    );
+}
+
+function ViewGridTitle() {
+    return (
+        <>
+            <FontAwesomeIcon icon={faTableCells}/>
+            Grid
+        </>
+    );
+}
+
+interface LevelsViewProps {
+    sourceMap: Map<string, Source>;
+    levels: number[];
+    priorities: number[];
+    owners: string[];
+    showPriorities: boolean;
+}
+
+const DEFAULT_VIEW_GRID_COLS = 4;
+
+function ViewGrid(props: LevelsViewProps) {
+    const {sourceMap, levels, priorities, owners} = props;
+    const [recalcCols, setRecalcCols] = useState(true);
+    const [cols, setCols] = useState(DEFAULT_VIEW_GRID_COLS);
+    const [preferredCellHeight, setPreferredCellHeight] = useState(0);
+    // Used as the windows resize callback.
+    const forceRecalcCols = useCallback(() => {
+        setCols(DEFAULT_VIEW_GRID_COLS);
+        setRecalcCols(true);
+        setPreferredCellHeight(0);
+    }, [setCols, setRecalcCols, setPreferredCellHeight]);
+
+    const header = useMemo(() => (
+        <tr>
+            <th></th>
+            {range(0, cols).map(ix => (
+                <th key={`col-th-${ix}`} scope="col">{ix + 1}</th>
+            ))}
+        </tr>
+    ), [cols]);
+
+    // Keep adding columns until the height of one cell increases. Now we know how wide the table can be!
+    // TODO: Find a more efficient way to do this. It blocks rendering for a noticeable amount of time.
+    useLayoutEffect(() => {
+        if (!recalcCols) {
+            return;
+        }
+        const table = document.getElementsByClassName("msacn-viewgrid").item(0);
+        const tbody = table?.getElementsByTagName("tbody").item(0);
+        const firstRow = tbody?.getElementsByTagName("tr").item(0);
+        const firstTd = firstRow?.getElementsByTagName("td").item(0);
+        if (!firstTd) {
+            return;
+        }
+        const tdHeight = firstTd.clientHeight;
+        if (preferredCellHeight > 0 && tdHeight > preferredCellHeight) {
+            setCols(cols - 1);
+            // Found ideal col count.
+            setRecalcCols(false);
+        } else {
+            setPreferredCellHeight(tdHeight);
+            setCols(cols + 1);
+        }
+    }, [recalcCols, cols]);
+    useEffect(() => {
+        window.addEventListener("resize", forceRecalcCols);
+        return () => {
+            window.removeEventListener("resize", forceRecalcCols);
+        };
+    }, []);
+
+    // Setup level rows.
+    const rows = [];
+    for (let rowIx = 0, levelIx = 0; levelIx < levels.length; ++rowIx) {
+        // Row header (first address in this row).
+        const row = [
+            <th key={`row-th-${rowIx}`} scope="row">{levelIx + 1}</th>,
+        ];
+
+        // Add cells for each address.
+        for (let colIx = 0; colIx < cols; ++colIx, ++levelIx) {
+            const level = levels[levelIx];
+            const ownerCid = owners[levelIx];
+            const owner = sourceMap.get(ownerCid) ?? DEFAULT_SOURCE;
+            const priority = priorities[levelIx];
+
+            row.push(
+                <td key={`level-${levelIx}`}
+                    style={{backgroundColor: owner.color.display(), overflowWrap: recalcCols ? "anywhere" : "unset"}}>
+                    <Stack direction="vertical" gap={0}>
+                        <LevelDisplay level={level}/>
+                        {props.showPriorities && (
+                            <PriorityDisplay level={priority}/>
+                        )}
+                    </Stack>
+                </td>,
+            );
+        }
+        rows.push(<tr key={`row-${rowIx}`}>{row}</tr>);
+    }
+
+    return (
+        <Table bordered className="msacn-viewgrid">
+            <thead>
+            {header}
+            </thead>
+            <tbody>
+            {rows}
+            </tbody>
+        </Table>
+    );
+}
+
+function ViewBarsTitle() {
+    return (
+        <>
+            <FontAwesomeIcon icon={faList}/>
+            Bars
+        </>
+    );
+}
+
+function ViewBars(props: LevelsViewProps) {
+    const {sourceMap, levels, priorities, owners} = props;
+
+    return (
+        <>
+            {levels.map((level, ix) => (
+                <LevelBar
+                    key={`level-${ix}`}
+                    label={`${ix + 1}`.padStart(3, "0")}
+                    level={level}
+                    priority={props.showPriorities ? priorities[ix] : undefined}
+                    color={sourceMap.get(owners[ix])?.color ?? DEFAULT_SOURCE.color}
+                />
+            ))}
+        </>
     );
 }

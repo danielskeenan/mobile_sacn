@@ -279,9 +279,13 @@ void ReceiveLevels::updateSources(const SacnRecvMergedData& mergedData)
             flatbuffers::FlatBufferBuilder builder;
             const auto msgCid = builder.CreateString(cid.ToString());
             const auto msgName = builder.CreateString(newSource->name);
+            const auto msgIpAddr = builder.CreateString(newSource->addr.ip().ToString());
             auto sourceUpdatedBuilder = message::SourceUpdatedBuilder(builder);
             sourceUpdatedBuilder.add_cid(msgCid);
             sourceUpdatedBuilder.add_name(msgName);
+            sourceUpdatedBuilder.add_ipAddr(msgIpAddr);
+            sourceUpdatedBuilder.add_hasPap(newSource->per_address_priorities_active);
+            sourceUpdatedBuilder.add_priority(newSource->universe_priority);
             const auto msgSourceUpdated = sourceUpdatedBuilder.Finish();
             const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
                 builder, message::ReceiveLevelsRespVal::sourceUpdated, msgSourceUpdated.Union());
@@ -321,6 +325,7 @@ std::vector<std::string> ReceiveLevels::getOwnerCids(const SacnRecvMergedData& m
     ownerCids.reserve(mergedData.slot_range.address_count);
     for (std::size_t addr = 0; addr < mergedData.slot_range.address_count; ++addr) {
         const auto ownerHandle = mergedData.owners[addr];
+        // This will push an empty string for an address with no owner.
         ownerCids.push_back(handleCids[ownerHandle]);
     }
 

@@ -39,7 +39,7 @@ foreach (FBS ${MESSAGE_SOURCES})
     set(MESSAGE_CPP_HEADER "${MESSAGE_CPP_HEADER_DIR}/${FBS_NAME}.h")
     add_custom_command(
         OUTPUT "${MESSAGE_CPP_HEADER}"
-        COMMAND flatbuffers::flatc --cpp -o "${MESSAGE_CPP_HEADER_DIR}/" --scoped-enums --filename-suffix "" --cpp-field-case-style lower "${FBS}"
+        COMMAND flatbuffers::flatc --cpp -o "${MESSAGE_CPP_HEADER_DIR}/" --scoped-enums --force-defaults --filename-suffix "" --cpp-field-case-style lower "${FBS}"
         MAIN_DEPENDENCY "${FBS}"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         VERBATIM
@@ -50,7 +50,7 @@ endforeach ()
 # Typescript
 # Can't use the same (cleaner...) approach as with CPP because the output file names are not known at configure-time.
 add_custom_target(mobile_sacn_messages_ts
-    COMMAND flatbuffers::flatc --ts -o "${MESSAGE_TS_BUILD_DIR}/" ${MESSAGE_SOURCES}
+    COMMAND flatbuffers::flatc --ts -o "${MESSAGE_TS_BUILD_DIR}/" --force-defaults ${MESSAGE_SOURCES}
     COMMAND_EXPAND_LISTS
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     SOURCES ${MESSAGE_SOURCES}

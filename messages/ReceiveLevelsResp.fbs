@@ -11,6 +11,9 @@ table LevelsChanged {
 table SourceUpdated {
     cid:string (required);
     name:string (required);
+    ip_addr: string;
+    has_pap: bool = null;
+    priority: uint8 = null;
     universes:[uint16];
 }
 

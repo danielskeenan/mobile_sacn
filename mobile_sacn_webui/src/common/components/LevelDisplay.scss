@@ -5,3 +5,8 @@
   @extend .ms-1;
   font-family: monospace;
 }
+
+.msacn-priority {
+  @extend .msacn-level;
+  font-style: italic;
+}

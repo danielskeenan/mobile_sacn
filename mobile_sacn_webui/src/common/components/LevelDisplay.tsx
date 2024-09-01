@@ -19,3 +19,9 @@ export default function LevelDisplay(props: LevelDisplayProps) {
         <span className="msacn-level">{levelDisplayString(level, displayMode)}</span>
     );
 }
+
+export function PriorityDisplay(props: Omit<LevelDisplayProps, "displayMode">) {
+    return (
+        <span className="msacn-priority">{levelDisplayString(props.level, LevelDisplayMode.DECIMAL)}</span>
+    );
+}
