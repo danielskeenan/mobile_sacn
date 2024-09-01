@@ -13,21 +13,20 @@
 #include <sacn/cpp/source.h>
 
 namespace mobilesacn::rpc {
-
 /**
  * Base class for handlers that transmit sACN.
  */
-class TransmitHandler : public RpcHandler
-{
+class TransmitHandler : public RpcHandler {
     Q_OBJECT
 
-public:
+  public:
     using RpcHandler::RpcHandler;
     ~TransmitHandler() override;
 
+  public Q_SLOTS:
     void handleConnected() override;
 
-protected:
+  protected:
     bool perAddressPriority_ = false;
     std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf_;
     std::array<uint8_t, DMX_ADDRESS_COUNT> papBuf_;
@@ -36,9 +35,8 @@ protected:
     sacn::Source::UniverseSettings univSettings_;
     sacn::Source sacn_;
 
-    [[nodiscard]] bool currentlyTransmitting() const
-    {
-        return sacn_.handle().IsValid();
+    [[nodiscard]] bool currentlyTransmitting() const {
+      return sacn_.handle().IsValid();
     }
 
     [[nodiscard]] virtual std::string getSourceName() const;
@@ -51,7 +49,6 @@ protected:
     virtual void stopTransmitting();
     void sendLevelsAndPap();
 };
-
 } // mobilesacn::rpc
 
 #endif //TRANSMITHANDLER_H

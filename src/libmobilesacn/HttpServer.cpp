@@ -14,11 +14,12 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include "libmobilesacn/rpc/ChanCheck.h"
+#include "libmobilesacn/rpc/ReceiveLevels.h"
 #include "libmobilesacn/rpc/TransmitLevels.h"
 
 namespace mobilesacn {
 
-static std::set<rpc::RpcHandler::WsUserData*> wsUserDataList;
+static std::set<rpc::WsUserData*> wsUserDataList;
 
 template <class HandlerT, typename CrowT>
 void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
@@ -29,8 +30,18 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
             .onopen([route, parent](crow::websocket::connection& ws) {
                 spdlog::debug("Creating handler for route {}", route);
                 // Deleted when socket is closed.
-                auto* userData = new rpc::RpcHandler::WsUserData{
-                    .sacnNetInt = parent->getOptions().sacn_interface,
+                const auto sacnInterface = parent->getOptions().sacn_interface;
+                auto* userData = new rpc::WsUserData{
+                    .sacnNetInt = sacnInterface,
+                    .sacnMcastInterfaces = { SacnMcastInterface{
+                        .iface = {
+                            .ip_type = sacnInterface.addr().raw_type(),
+                            .index = sacnInterface.index().value(),
+                        },
+                        .status = etcpal::netint::IsUp(sacnInterface.index())
+                        ? kEtcPalErrOk
+                        : kEtcPalErrNotConn
+                    } },
                     .clientIp = ws.get_remote_ip(),
                     .protocol = "",
                     .handler = nullptr,
@@ -46,7 +57,7 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
             })
             .onmessage([](crow::websocket::connection& ws, const std::string& message,
                           bool isBinary) {
-                auto userData = static_cast<rpc::RpcHandler::WsUserData*>(ws.userdata());
+                auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 if (isBinary) {
                     spdlog::debug("Received binary message from {}: {} bytes", ws.get_remote_ip(),
                                   message.size());
@@ -66,13 +77,20 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 }
             })
             .onerror([](crow::websocket::connection& ws, const std::string& message) {
-                auto userData = static_cast<rpc::RpcHandler::WsUserData*>(ws.userdata());
+                auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 spdlog::warn("{} socket error: {}", userData->protocol, message);
             })
             .onclose([](crow::websocket::connection& ws, const std::string& reason) {
-                auto userData = static_cast<rpc::RpcHandler::WsUserData*>(ws.userdata());
+                auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 spdlog::info("Closing {} handler for client {}", userData->protocol,
                              userData->clientIp);
+                if (userData->handler) {
+                    userData->handler->handleClose();
+                } else {
+                    spdlog::critical(
+                        "Couldn't call {} close handler because it has been destroyed.",
+                        userData->protocol);
+                }
                 wsUserDataList.erase(userData);
                 delete userData;
             });
@@ -108,6 +126,8 @@ HttpServer::HttpServer(Options options, QObject* parent)
         CROW_WEBSOCKET_ROUTE(server_, "/ws/ChanCheck"), this);
     setupWebsocketRoute<rpc::TransmitLevels>(
         CROW_WEBSOCKET_ROUTE(server_, "/ws/TransmitLevels"), this);
+    setupWebsocketRoute<rpc::ReceiveLevels>(
+        CROW_WEBSOCKET_ROUTE(server_, "/ws/ReceiveLevels"), this);
 
     // Static content.
     CROW_ROUTE(server_, "/").methods(crow::HTTPMethod::Get)

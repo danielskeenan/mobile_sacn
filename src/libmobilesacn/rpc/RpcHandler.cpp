@@ -15,17 +15,12 @@ namespace mobilesacn::rpc {
 
 RpcHandler::RpcHandler(crow::websocket::connection& ws, QObject* parent)
     : QObject(parent),
-      ws_(ws)
+      ws_(ws) {}
+
+void RpcHandler::sendBinary(const uint8_t* data, const std::size_t size)
 {
-    // Needed for all sACN transmitters.
-    const auto sacnNetInt = getWsUserData()->sacnNetInt;
-    sacnMcastInterfaces_.push_back(SacnMcastInterface{
-        .iface = {
-            .ip_type = sacnNetInt.addr().raw_type(),
-            .index = sacnNetInt.index().value(),
-        },
-        .status = etcpal::netint::IsUp(sacnNetInt.index()) ? kEtcPalErrOk : kEtcPalErrNotConn
-    });
+    auto lock = std::scoped_lock(wsMutex_);
+    ws_.send_binary(std::string(reinterpret_cast<const char*>(data), size));
 }
 
 } // mobilesacn::rpc

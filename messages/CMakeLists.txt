@@ -7,6 +7,8 @@ set(MESSAGE_SOURCES
     LevelBuffer.fbs
     PerAddressPriority.fbs
     Priority.fbs
+    ReceiveLevelsReq.fbs
+    ReceiveLevelsResp.fbs
     Transmit.fbs
     TransmitLevels.fbs
     Universe.fbs

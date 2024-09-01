@@ -4,7 +4,7 @@ import {APP_NAME} from "../common/constants.ts";
 import {generatePath, Link} from "react-router-dom";
 import {Links} from "../routes.ts";
 import {TransmitChanCheckTitle, TransmitLevelsTitle} from "../transmit/TransmitTitle.tsx";
-import {ReceiveLevelsTitle} from "../recieve/RecieveTitle.tsx";
+import {ReceiveLevelsTitle} from "../receive/ReceiveTitle.tsx";
 
 export function Component() {
     setPageTitle();

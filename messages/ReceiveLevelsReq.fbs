@@ -1,0 +1,13 @@
+include "Universe.fbs";
+
+namespace mobilesacn.message;
+
+union ReceiveLevelsReqVal {
+    universe:Universe,
+}
+
+table ReceiveLevelsReq {
+    val:ReceiveLevelsReqVal (required);
+}
+
+root_type ReceiveLevelsReq;

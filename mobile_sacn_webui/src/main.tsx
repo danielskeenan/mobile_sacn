@@ -26,6 +26,10 @@ const router = createBrowserRouter([
                 path: Links.TRANSMIT_LEVELS,
                 lazy: () => import('./transmit/levels/Levels.tsx'),
             },
+            {
+                path: Links.RECEIVE_LEVELS,
+                lazy: () => import('./receive/levels/Levels.tsx'),
+            },
         ],
     },
 ]);

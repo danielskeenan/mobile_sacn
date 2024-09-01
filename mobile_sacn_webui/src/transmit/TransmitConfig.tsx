@@ -27,7 +27,7 @@ export default function TransmitConfig(props: TransmitConfigProps) {
             <Accordion.Item eventKey="transmit_config">
                 <Accordion.Header>Config</Accordion.Header>
                 <Accordion.Body>
-                    <Form className="msacn-transmitconfig-form">
+                    <Form className="msacn-transmitconfig-form" onSubmit={e => e.preventDefault()}>
                         {/* Universe */}
                         <Form.Group>
                             <Form.Label>Universe</Form.Label>

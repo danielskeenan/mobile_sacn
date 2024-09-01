@@ -12,8 +12,11 @@ file(GLOB_RECURSE WEBUI_SOURCES LIST_DIRECTORIES false CONFIGURE_DEPENDS
     public/*
     src/*
     index.html
-    *.json
-    *.ts
+    package-lock.json
+    tsconfig.json
+    tsconfig.app.json
+    tsconfig.node.json
+    vite.config.ts
 )
 find_program(npm_PROG npm DOC "Path to NPM (https://www.npmjs.com)" REQUIRED)
 message(STATUS "Installing Web UI dependencies...")

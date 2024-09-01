@@ -1,6 +1,7 @@
 export enum LocalStorageItem {
     // Development override, stores path to the backend. No way to set this from UI.
     SERVER = "server",
+    ENABLE_HEARTBEAT = "enable_heartbeat",
     DARK_MODE = "dark_mode",
     LEVEL_DISPLAY_MODE = "level_display_mode",
 }

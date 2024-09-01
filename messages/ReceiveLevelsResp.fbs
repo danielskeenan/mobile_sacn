@@ -1,0 +1,31 @@
+include "LevelBuffer.fbs";
+
+namespace mobilesacn.message;
+
+table LevelsChanged {
+    levels:LevelBuffer (required);
+    priorities:LevelBuffer (required);
+    owners:[string] (required);
+}
+
+table SourceUpdated {
+    cid:string (required);
+    name:string (required);
+    universes:[uint16];
+}
+
+table SourceExpired {
+    cid:string (required);
+}
+
+union ReceiveLevelsRespVal {
+    levelsChanged:LevelsChanged,
+    sourceUpdated:SourceUpdated,
+    sourceExpired:SourceExpired,
+}
+
+table ReceiveLevelsResp {
+    val:ReceiveLevelsRespVal (required);
+}
+
+root_type ReceiveLevelsResp;

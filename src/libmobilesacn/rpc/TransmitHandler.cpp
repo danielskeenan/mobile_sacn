@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <libmobilesacn/rpc/TransmitHandler.h>
 #include <libmobilesacn/SacnCidGenerator.h>
+#include <spdlog/spdlog.h>
 
 namespace mobilesacn::rpc {
 
@@ -89,7 +90,12 @@ void TransmitHandler::onChangeUniverse(uint16_t useUniverse)
 
 void TransmitHandler::startTransmitting()
 {
-    sacn_.Startup(sacnSettings_);
+    const auto res = sacn_.Startup(sacnSettings_);
+    if (!res.IsOk()) {
+        spdlog::critical("Error starting sACN Transmitter: {}", res.ToString());
+        sacn_.Shutdown();
+        return;
+    }
     // The order these operations happen in is important!
     onChangeUniverse(univSettings_.universe);
     onChangePriority(univSettings_.priority);

@@ -20,10 +20,10 @@ export default function useWebsocket(protocol: string, options: Partial<ReactUse
         }, []),
         retryOnError: true,
         // We're on a local network, so use aggressive heartbeats.
-        heartbeat: {
-            timeout: 5000,
-            interval: 1000,
-        },
+        heartbeat: localStorageGet(LocalStorageItem.ENABLE_HEARTBEAT, {
+            timeout: 30000,
+            interval: 5000,
+        }),
         ...options,
     };
     return reactUseWebSocket(useWebsocketUrl(protocol), websocketOptions);

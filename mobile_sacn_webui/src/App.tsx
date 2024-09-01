@@ -3,7 +3,6 @@ import {Container, Nav, Navbar as BsNavbar} from "react-bootstrap";
 import {APP_NAME} from "./common/constants.ts";
 import logo from "./assets/mobile_sacn.svg";
 import {TransmitChanCheckTitle, TransmitLevelsTitle} from "./transmit/TransmitTitle.tsx";
-import {ReceiveLevelsTitle} from "./recieve/RecieveTitle.tsx";
 import {SettingsTitle} from "./front/FrontTitle.tsx";
 import {Link, Outlet} from "react-router-dom";
 import {Links} from "./routes.ts";
@@ -11,6 +10,7 @@ import AppContext, {AppContextProps} from "./common/Context.ts";
 import {useEffect, useState} from "react";
 import {localStorageGet, LocalStorageItem, localStorageSet} from "./common/localStorage.ts";
 import {LevelDisplayMode} from "./common/levelDisplay.ts";
+import {ReceiveLevelsTitle} from "./receive/ReceiveTitle.tsx";
 
 
 export default function App() {

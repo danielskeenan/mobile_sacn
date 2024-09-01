@@ -16,10 +16,32 @@
 #include <sacn/common.h>
 
 namespace mobilesacn::rpc {
+
+class RpcHandler;
+
+struct WsUserData
+{
+    etcpal::NetintInfo sacnNetInt;
+    std::vector<SacnMcastInterface> sacnMcastInterfaces;
+    std::string clientIp;
+    std::string protocol;
+    std::unique_ptr<RpcHandler> handler;
+};
+
+/**
+ * Interface for classes that can send binary data.
+ */
+class WsBinarySender
+{
+public:
+    virtual void sendBinary(const uint8_t* data, std::size_t size) = 0;
+    [[nodiscard]] virtual WsUserData* getWsUserData() const = 0;
+};
+
 /**
  * Base class for RPC Handlers.
  */
-class RpcHandler : public QObject
+class RpcHandler : public QObject, public WsBinarySender
 {
     Q_OBJECT
 
@@ -27,14 +49,6 @@ public:
     using Factory = std::function<RpcHandler*(crow::websocket::connection& ws, QObject* parent)>;
     using TextMessage = std::string_view;
     using BinaryMessage = std::span<const uint8_t>;
-
-    struct WsUserData
-    {
-        etcpal::NetintInfo sacnNetInt;
-        std::string clientIp;
-        std::string protocol;
-        std::unique_ptr<RpcHandler> handler;
-    };
 
     explicit RpcHandler(crow::websocket::connection& ws, QObject* parent = nullptr);
 
@@ -49,6 +63,13 @@ public:
      */
     [[nodiscard]] virtual QString getDisplayName() const = 0;
 
+    void sendBinary(const uint8_t* data, std::size_t size) override;
+
+    [[nodiscard]] WsUserData* getWsUserData() const override
+    {
+        return static_cast<WsUserData*>(ws_.userdata());
+    }
+
 public Q_SLOTS:
     virtual void handleConnected() {}
     virtual void handleTextMessage(mobilesacn::rpc::RpcHandler::TextMessage data) {}
@@ -56,20 +77,13 @@ public Q_SLOTS:
     virtual void handleClose() {}
 
 protected:
+    std::mutex wsMutex_;
     crow::websocket::connection& ws_;
 
-    [[nodiscard]] const WsUserData* getWsUserData() const
+    [[nodiscard]] std::vector<SacnMcastInterface>& getSacnMcastInterfaces() const
     {
-        return static_cast<WsUserData*>(ws_.userdata());
+        return getWsUserData()->sacnMcastInterfaces;
     }
-
-    [[nodiscard]] std::vector<SacnMcastInterface>& getSacnMcastInterfaces()
-    {
-        return sacnMcastInterfaces_;
-    }
-
-private:
-    std::vector<SacnMcastInterface> sacnMcastInterfaces_;
 };
 } // mobilesacn::rpc
 

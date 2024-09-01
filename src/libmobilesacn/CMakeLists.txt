@@ -1,6 +1,8 @@
 add_library(libmobilesacn STATIC
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/ChanCheck.h
     rpc/ChanCheck.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/ReceiveLevels.h
+    rpc/ReceiveLevels.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/RpcHandler.h
     rpc/RpcHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitHandler.h
@@ -45,4 +47,7 @@ target_link_libraries(libmobilesacn PRIVATE
     sACN
     )
 target_link_libraries(libmobilesacn PUBLIC spdlog::spdlog EtcPal)
+if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
+endif ()
 target_compile_definitions(libmobilesacn PUBLIC CROW_ENFORCE_WS_SPEC CROW_ENABLE_COMPRESSION)

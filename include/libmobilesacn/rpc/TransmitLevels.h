@@ -13,27 +13,25 @@
 #include "TransmitHandler.h"
 
 namespace mobilesacn::rpc {
-
 /**
  * Handler for Transmit Levels.
  */
-class TransmitLevels final : public TransmitHandler
-{
+class TransmitLevels final : public TransmitHandler {
     Q_OBJECT
 
-public:
+  public:
     using TransmitHandler::TransmitHandler;
     static constexpr auto kProtocol = "TransmitLevels";
 
-    [[nodiscard]] const char* getProtocol() const override { return kProtocol; }
+    [[nodiscard]] const char *getProtocol() const override { return kProtocol; }
     [[nodiscard]] QString getDisplayName() const override { return tr("Transmit"); }
 
+  public Q_SLOTS:
     void handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data) override;
 
-private:
-    void onChangeLevels(const uint8_t* levelsData);
+  private:
+    void onChangeLevels(const uint8_t *levelsData);
 };
-
 } // mobilesacn::rpc
 
 #endif //TRANSMITLEVELS_H
