@@ -25,6 +25,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
 import LevelDisplay, {PriorityDisplay} from "../../common/components/LevelDisplay.tsx";
 import {LevelBar} from "../../common/components/LevelBar.tsx";
+import bigIntAbs from "../../common/bigIntAbs.ts";
 
 enum ViewMode {
     GRID = "grid",
@@ -62,6 +63,7 @@ function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
 
 export function Component() {
     // State
+    const [serverTimeOffset, setServerTimeOffset] = useState(0n);
     const [universe, setUniverse] = useState(0);
     const [levels, setLevels] = useState(Array.from(times(DMX_MAX, constant(0))));
     const [priorities, setPriorities] = useState(Array.from(times(DMX_MAX, constant(0))));
@@ -122,10 +124,18 @@ export function Component() {
         const newOwners = Array.from({length: msg.ownersLength()}, (v, i) => msg.owners(i)) as string[];
         setOwners(newOwners);
     }, [setLevels, setPriorities, setOwners]);
+    const onSystemTime = useCallback((timestamp: bigint) => {
+        setServerTimeOffset(timestamp - BigInt(Date.now()));
+    }, [setServerTimeOffset]);
     const onMessage = useCallback((e: WebSocketEventMap["message"]) => {
         const data = new Uint8Array(e.data as ArrayBuffer);
         const buf = new ByteBuffer(data);
         const msg = ReceiveLevelsResp.getRootAsReceiveLevelsResp(buf);
+        const nowInMilliseconds = BigInt(Date.now()) + serverTimeOffset;
+        if (bigIntAbs(nowInMilliseconds - msg.timestamp()) > 500) {
+            // Message is more than 1 second old, discard and use saved re-rendering time to catchup.
+            return;
+        }
 
         if (msg.valType() == ReceiveLevelsRespVal.sourceUpdated) {
             const msgSourceUpdated = msg.val(new SourceUpdated()) as SourceUpdated;
@@ -136,8 +146,10 @@ export function Component() {
         } else if (msg.valType() == ReceiveLevelsRespVal.levelsChanged) {
             const msgLevelsChanged = msg.val(new LevelsChanged()) as LevelsChanged;
             onLevelsChanged(msgLevelsChanged);
+        } else if (msg.valType() == ReceiveLevelsRespVal.systemTime) {
+            onSystemTime(msg.timestamp());
         }
-    }, [onSourceUpdated, onSourceExpired, onLevelsChanged]);
+    }, [serverTimeOffset, onSourceUpdated, onSourceExpired, onLevelsChanged, onSystemTime]);
     const onOpen = useCallback((e: WebSocketEventMap["open"]) => {
         const ws = e.currentTarget;
         if (ws instanceof WebSocket) {
@@ -333,7 +345,7 @@ function SourceList(props: SourceListProps) {
 function ViewGridTitle() {
     return (
         <>
-            <FontAwesomeIcon icon={faTableCells}/>
+            <FontAwesomeIcon icon={faTableCells}/>&nbsp;
             Grid
         </>
     );
@@ -445,7 +457,7 @@ function ViewGrid(props: LevelsViewProps) {
 function ViewBarsTitle() {
     return (
         <>
-            <FontAwesomeIcon icon={faList}/>
+            <FontAwesomeIcon icon={faList}/>&nbsp;
             Bars
         </>
     );

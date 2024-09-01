@@ -20,6 +20,12 @@ long EtcPalMcastNetintIdComparator(EtcPalMcastNetintId a, EtcPalMcastNetintId b)
     return a.index - b.index;
 }
 
+uint64_t getNowInMilliseconds()
+{
+    const auto now = std::chrono::system_clock::now().time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+}
+
 SourceDetectorWrapper::~SourceDetectorWrapper()
 {
     sacn::SourceDetector::Shutdown();
@@ -134,7 +140,11 @@ void SourceDetectorWrapper::sendSourceUpdated(
     sourceUpdatedBuilder.add_universes(msgUniverses);
     const auto msgSourceUpdated = sourceUpdatedBuilder.Finish();
     const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder, message::ReceiveLevelsRespVal::sourceUpdated, msgSourceUpdated.Union());
+        builder,
+        getNowInMilliseconds(),
+        message::ReceiveLevelsRespVal::sourceUpdated,
+        msgSourceUpdated.Union()
+    );
     builder.Finish(msgReceiveLevelsResp);
     sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
 }
@@ -148,7 +158,11 @@ void SourceDetectorWrapper::sendSourceExpired(
     sourceExpiredBuilder.add_cid(msgCid);
     const auto msgSourceExpired = sourceExpiredBuilder.Finish();
     const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder, message::ReceiveLevelsRespVal::sourceExpired, msgSourceExpired.Union());
+        builder,
+        getNowInMilliseconds(),
+        message::ReceiveLevelsRespVal::sourceExpired,
+        msgSourceExpired.Union()
+    );
     builder.Finish(msgReceiveLevelsResp);
     sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
 }
@@ -177,6 +191,19 @@ void ReceiveLevels::handleConnected()
     sacnSettings_.ip_supported = getWsUserData()->sacnNetInt.addr().IsV4()
             ? sacn_ip_support_t::kSacnIpV4Only
             : sacn_ip_support_t::kSacnIpV6Only;
+
+    // Send the current timestamp so the client can calibrate its offset relative to the server.
+    flatbuffers::FlatBufferBuilder builder;
+    const auto now = getNowInMilliseconds();
+    auto msgSystemTime = message::CreateSystemTime(builder);
+    auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
+        builder,
+        now,
+        message::ReceiveLevelsRespVal::systemTime,
+        msgSystemTime.Union()
+    );
+    builder.Finish(msgReceiveLevelsResp);
+    sendBinary(builder.GetBufferPointer(), builder.GetSize());
 }
 
 void ReceiveLevels::handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data)
@@ -225,7 +252,11 @@ void ReceiveLevels::HandleMergedData(sacn::MergeReceiver::Handle handle,
 
     // Send the message.
     const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder, message::ReceiveLevelsRespVal::levelsChanged, msgLevelsChanged.Union());
+        builder,
+        getNowInMilliseconds(),
+        message::ReceiveLevelsRespVal::levelsChanged,
+        msgLevelsChanged.Union()
+    );
     builder.Finish(msgReceiveLevelsResp);
     sendBinary(builder.GetBufferPointer(), builder.GetSize());
 }
@@ -288,7 +319,11 @@ void ReceiveLevels::updateSources(const SacnRecvMergedData& mergedData)
             sourceUpdatedBuilder.add_priority(newSource->universe_priority);
             const auto msgSourceUpdated = sourceUpdatedBuilder.Finish();
             const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-                builder, message::ReceiveLevelsRespVal::sourceUpdated, msgSourceUpdated.Union());
+                builder,
+                getNowInMilliseconds(),
+                message::ReceiveLevelsRespVal::sourceUpdated,
+                msgSourceUpdated.Union()
+            );
             builder.Finish(msgReceiveLevelsResp);
             sendBinary(builder.GetBufferPointer(), builder.GetSize());
             oldSource = *newSource;
@@ -304,7 +339,11 @@ void ReceiveLevels::updateSources(const SacnRecvMergedData& mergedData)
         sourceExpiredBuilder.add_cid(msgCid);
         const auto msgSourceExpired = sourceExpiredBuilder.Finish();
         const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-            builder, message::ReceiveLevelsRespVal::sourceExpired, msgSourceExpired.Union());
+            builder,
+            getNowInMilliseconds(),
+            message::ReceiveLevelsRespVal::sourceExpired,
+            msgSourceExpired.Union()
+        );
         builder.Finish(msgReceiveLevelsResp);
         sendBinary(builder.GetBufferPointer(), builder.GetSize());
         sources_.erase(cid);

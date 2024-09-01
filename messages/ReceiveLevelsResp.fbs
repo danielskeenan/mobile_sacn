@@ -21,13 +21,20 @@ table SourceExpired {
     cid:string (required);
 }
 
+// Used to calibrate the time offset between server and client.
+table SystemTime {
+}
+
 union ReceiveLevelsRespVal {
     levelsChanged:LevelsChanged,
     sourceUpdated:SourceUpdated,
     sourceExpired:SourceExpired,
+    systemTime:SystemTime,
 }
 
 table ReceiveLevelsResp {
+    // Used so receivers can catch up by ignoring old messages.
+    timestamp: uint64;
     val:ReceiveLevelsRespVal (required);
 }
 
