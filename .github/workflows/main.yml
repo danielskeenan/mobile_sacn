@@ -130,7 +130,7 @@ jobs:
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
-          name: packages
+          name: packages_${{ matrix.os }}
           path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
 
@@ -150,7 +150,19 @@ jobs:
         uses: actions/download-artifact@v4
         id: download
         with:
-          name: packages
+          name: packages_macos-13
+          path: packages
+      - name: Get built packages
+        uses: actions/download-artifact@v4
+        id: download
+        with:
+          name: packages_ubuntu-24.04
+          path: packages
+      - name: Get built packages
+        uses: actions/download-artifact@v4
+        id: download
+        with:
+          name: packages_windows-2022
           path: packages
       - name: Load signing key
         run: echo "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
