@@ -7,12 +7,27 @@
  */
 
 #include "NetIntModel.h"
+#include "spdlog/spdlog.h"
 
 namespace mobilesacn {
 
+NetIntModel::NetIntModel(QObject *parent) : QAbstractTableModel(parent)
+{
+    const auto netints = etcpal::netint::GetInterfaces();
+    if (!netints) {
+        spdlog::critical("Could not load network interfaces.");
+        return;
+    }
+
+    netints_ = netints.value();
+    std::erase_if(netints_, [](const etcpal::NetintInfo& netint) {
+        return !etcpal::netint::IsUp(netint);
+    });
+}
+
 int NetIntModel::rowCount(const QModelIndex& parent) const
 {
-    return etcpal::netint::GetInterfaces()->size();
+    return netints_.size();
 }
 
 int NetIntModel::columnCount(const QModelIndex& parent) const
@@ -48,7 +63,7 @@ QVariant NetIntModel::headerData(int section, Qt::Orientation orientation, int r
 QVariant NetIntModel::data(const QModelIndex& index, int role) const
 {
     const auto column = static_cast<Column>(index.column());
-    const auto& iface = getNetIntInfo(index.row());
+    const auto& iface = netints_.at(index.row());
 
     if (role == Qt::DisplayRole) {
         if (column == Column::Index) {
@@ -89,16 +104,11 @@ Qt::ItemFlags NetIntModel::flags(const QModelIndex& index) const
     return defaultFlags;
 }
 
-etcpal::NetintInfo& NetIntModel::getNetIntInfo(int row) const
-{
-    return etcpal::netint::GetInterfaces().value().at(row);
-}
-
 int NetIntModel::getDefaultRow() const
 {
     const auto row_count = rowCount(QModelIndex());
     for (int row = 0; row < row_count; ++row) {
-        if (getNetIntInfo(row).is_default()) {
+        if (netints_.at(row).is_default()) {
             return row;
         }
     }
@@ -109,7 +119,7 @@ int NetIntModel::getRowForInterfaceName(const std::string& name) const
 {
     const auto row_count = rowCount(QModelIndex());
     for (int row = 0; row < row_count; ++row) {
-        if (getNetIntInfo(row).friendly_name() == name) {
+        if (netints_.at(row).friendly_name() == name) {
             return row;
         }
     }

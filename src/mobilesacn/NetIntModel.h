@@ -30,17 +30,21 @@ class NetIntModel : public QAbstractTableModel {
     };
     static const auto kColumnCount = static_cast<std::underlying_type_t<Column>>(Column::IsDefault) + 1;
 
-    explicit NetIntModel(QObject *parent = nullptr) : QAbstractTableModel(parent) {
-    }
+    explicit NetIntModel(QObject *parent = nullptr);
 
     [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
     [[nodiscard]] int columnCount(const QModelIndex &parent) const override;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
     [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
-    [[nodiscard]] etcpal::NetintInfo &getNetIntInfo(int row) const;
+    [[nodiscard]] const etcpal::NetintInfo &getNetIntInfo(int row) const {
+        return netints_.at(row);
+    }
     [[nodiscard]] int getDefaultRow() const;
     [[nodiscard]] int getRowForInterfaceName(const std::string &name) const;
+
+private:
+    std::vector<etcpal::NetintInfo> netints_;
 };
 
 /**
@@ -57,7 +61,7 @@ class NetIntListModel : public QAbstractListModel {
     [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
 
-    [[nodiscard]] inline etcpal::NetintInfo &GetNetIntInfo(int row) const {
+    [[nodiscard]] inline const etcpal::NetintInfo &GetNetIntInfo(int row) const {
       return table_model_->getNetIntInfo(row);
     }
 

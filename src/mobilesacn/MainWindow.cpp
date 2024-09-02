@@ -59,8 +59,12 @@ void MainWindow::initUi()
     if (lastWebUiIfaceName.isEmpty()) {
         const auto defautIfaceRow = widgets_.webuiIfaceSelectModel->GetDefaultRow();
         widgets_.webuiIfaceSelect->setCurrentIndex(defautIfaceRow);
-        Settings::SetLastWebUiInterfaceName(QString::fromStdString(
-            widgets_.webuiIfaceSelectModel->GetNetIntInfo(defautIfaceRow).friendly_name()));
+        const auto defaultIfaceName =
+                widgets_.webuiIfaceSelectModel
+                        ->data(widgets_.webuiIfaceSelectModel->index(defautIfaceRow, 0, {}),
+                               Qt::DisplayRole)
+                        .toString();
+        Settings::SetLastWebUiInterfaceName(defaultIfaceName);
     } else {
         widgets_.webuiIfaceSelect->setCurrentIndex(
             widgets_.webuiIfaceSelectModel->GetRowForInterfaceName(
@@ -78,10 +82,14 @@ void MainWindow::initUi()
     widgets_.sacnIfaceSelect->setModel(widgets_.sacnIfaceSelectModel);
     const QString& lastSacnInterfaceName = Settings::GetLastSacnInterfaceName();
     if (lastSacnInterfaceName.isEmpty()) {
-        const auto default_iface_row = widgets_.sacnIfaceSelectModel->GetDefaultRow();
-        widgets_.sacnIfaceSelect->setCurrentIndex(default_iface_row);
-        Settings::SetLastSacnInterfaceName(QString::fromStdString(
-            widgets_.sacnIfaceSelectModel->GetNetIntInfo(default_iface_row).friendly_name()));
+        const auto defautIfaceRow = widgets_.sacnIfaceSelectModel->GetDefaultRow();
+        widgets_.sacnIfaceSelect->setCurrentIndex(defautIfaceRow);
+        const auto defaultIfaceName =
+                widgets_.webuiIfaceSelectModel
+                        ->data(widgets_.webuiIfaceSelectModel->index(defautIfaceRow, 0, {}),
+                               Qt::DisplayRole)
+                        .toString();
+        Settings::SetLastSacnInterfaceName(defaultIfaceName);
     } else {
         widgets_.sacnIfaceSelect->setCurrentIndex(
             widgets_.sacnIfaceSelectModel->GetRowForInterfaceName(
