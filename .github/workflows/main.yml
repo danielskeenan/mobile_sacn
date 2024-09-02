@@ -9,9 +9,6 @@ env:
   BUILD_TYPE: Release
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
-  CONAN_USER_HOME: ${{ github.workspace }}/.conan/
-  # The short paths feature breaks caching.
-  CONAN_USER_HOME_SHORT: None
   QT_VERSION: 6.6.*
   # Increment when the cache must be invalidated.
   CACHE_IX: 0
@@ -26,6 +23,9 @@ jobs:
           - windows-2022
           - ubuntu-24.04
     runs-on: ${{matrix.os}}
+    env:
+      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-actions-cache
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
     steps:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
