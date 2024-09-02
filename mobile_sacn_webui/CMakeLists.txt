@@ -4,6 +4,7 @@ cmake_path(RELATIVE_PATH WEBUI_BUILD_DIR BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vite.config.ts.in" "${CMAKE_CURRENT_SOURCE_DIR}/vite.config.ts" @ONLY)
 
 # Ensure favicon is correct.
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/public")
 file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/public/mobile_sacn.svg" ONLY_IF_DIFFERENT)
 file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/mobile_sacn.svg" ONLY_IF_DIFFERENT)
 
