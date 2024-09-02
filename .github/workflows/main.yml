@@ -52,9 +52,11 @@ jobs:
         # Telling cmake to make the directory adapts the different syntax for each platform
         run: cmake -E make_directory "${BUILD_DIR}"
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+          cache: pip
+          cache-dependency-path: doc/requirements.txt
       - name: Install System Packages (macOS)
         if: ${{runner.os == 'macOS'}}
         run: brew install pandoc
