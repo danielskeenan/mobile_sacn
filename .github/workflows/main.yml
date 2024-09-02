@@ -68,7 +68,7 @@ jobs:
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install libcurl4-openssl-dev pandoc libgl1-mesa-dev qt6-base-dev libqt6svg6-dev
+          sudo apt-get -y install libcurl4-openssl-dev uuid-dev pandoc libgl1-mesa-dev qt6-base-dev libqt6svg6-dev
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
