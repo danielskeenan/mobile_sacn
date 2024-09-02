@@ -1,10 +1,10 @@
 import "./ChanCheck.scss";
-import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useState} from "react";
+import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState} from "react";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
 import {TransmitChanCheckTitle} from "../TransmitTitle.tsx";
 import {Connecting} from "../../common/components/Loading.tsx";
 import TransmitConfig from "../TransmitConfig.tsx";
-import {Button, Form} from "react-bootstrap";
+import {Button, Form, Stack} from "react-bootstrap";
 import ConnectButton from "../../common/components/ConnectButton.tsx";
 import {LevelFader} from "../../common/components/LevelBar.tsx";
 import clsx from "clsx";
@@ -23,6 +23,8 @@ import {Universe} from "../../messages/universe.ts";
 import {Address} from "../../messages/address.ts";
 import {Level} from "../../messages/level.ts";
 
+const BLINK_INTERVAL = 500;
+
 export function Component() {
     // State
     const [transmit, setTransmit] = useState(false);
@@ -31,6 +33,8 @@ export function Component() {
     const [universe, setUniverse] = useState(SACN_UNIV_DEFAULT.toString());
     const [address, setAddress] = useState(DMX_DEFAULT.toString());
     const [level, setLevel] = useState(LEVEL_MAX.toString());
+    const [blink, setBlink] = useState(false);
+    let blinkLevel = useRef("0");
 
     // Websocket
     const {readyState, sendMessage} = useWebsocket("ChanCheck");
@@ -120,6 +124,20 @@ export function Component() {
     useEffect(() => {
         sendLevel(level);
     }, [level, sendLevel]);
+    const toggleLevel = useCallback(() => {
+        sendLevel(blinkLevel.current);
+        blinkLevel.current = blinkLevel.current == "0" ? level : "0";
+    }, [blinkLevel, level]);
+    useEffect(() => {
+        if (blink) {
+            const intervalId = setInterval(toggleLevel, BLINK_INTERVAL);
+            return () => {
+                clearInterval(intervalId);
+                blinkLevel.current = "0";
+                sendLevel(level);
+            };
+        }
+    }, [blink, toggleLevel]);
 
     return (
         <>
@@ -155,10 +173,16 @@ export function Component() {
                         onStop={() => setTransmit(false)}
                     />
 
-                    <Form.Group className="mt-3">
-                        <Form.Label>Level</Form.Label>
-                        <LevelFader level={level} onLevelChange={setLevel}/>
-                    </Form.Group>
+                    <Stack className="mt-3" gap={3} direction="horizontal">
+                        <Form.Group>
+                            <Form.Label>Blink</Form.Label>
+                            <Form.Check checked={blink} onChange={() => setBlink(!blink)}/>
+                        </Form.Group>
+                        <Form.Group className="flex-grow-1">
+                            <Form.Label>Level</Form.Label>
+                            <LevelFader level={level} onLevelChange={setLevel}/>
+                        </Form.Group>
+                    </Stack>
 
                     <h2 className="mt-3">Address</h2>
                     <BigDisplay value={address} setValue={setAddress} min={DMX_MIN} max={DMX_MAX}
