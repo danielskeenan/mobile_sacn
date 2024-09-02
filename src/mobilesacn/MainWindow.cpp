@@ -140,8 +140,8 @@ void MainWindow::stopApp()
 
 void MainWindow::help()
 {
-    const auto helpPath = QString("file:///%1/../%2/index.html")
-            .arg(qApp->applicationDirPath(), config::kHelpPath);
+    const auto helpPath = QString("file:///%1/../%2/doc/index.html")
+            .arg(qApp->applicationDirPath(), config::kWebPath);
     QDesktopServices::openUrl(QUrl(helpPath, QUrl::TolerantMode));
 }
 

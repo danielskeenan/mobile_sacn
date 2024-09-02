@@ -137,12 +137,22 @@ HttpServer::HttpServer(Options options, QObject* parent)
     });
     CROW_ROUTE(server_, "/<path>").methods(crow::HTTPMethod::Get)
     ([this](crow::response& res, const std::string& path) {
-        // Relative to current working directory (this is why cwd in constructor).
-        res.set_static_file_info(path);
-        if (res.code == 404) {
-            // Serve index.html so client-side routing can work.
-            res.set_static_file_info_unsafe("index.html");
+        // Crow requires things it serves to be relative to current working directory
+        // (this is why cwd in constructor).
+        auto cleanPath = path;
+        crow::utility::sanitize_filename(cleanPath);
+        // Directory index.
+        const auto absPath = std::filesystem::current_path() / cleanPath;
+        if (std::filesystem::is_directory(absPath)) {
+            res.redirect(fmt::format("/{}/index.html", path));
+        } else {
+            res.set_static_file_info_unsafe(cleanPath);
+            if (res.code == 404) {
+                // Serve index.html so client-side routing can work.
+                res.set_static_file_info_unsafe("index.html");
+            }
         }
+
         res.end();
     });
 }
