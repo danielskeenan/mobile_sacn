@@ -24,14 +24,38 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
 endif ()
 
+# Updater
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_package(WinSparkle REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE WinSparkle::WinSparkle)
+    target_sources(${PROJECT_NAME} PRIVATE updater/updater_win.cpp)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # TODO: Mac updater
+    target_sources(${PROJECT_NAME} PRIVATE updater/updater_none.cpp)
+else ()
+    target_sources(${PROJECT_NAME} PRIVATE updater/updater_none.cpp)
+endif ()
+
+
 # Installation
 install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
 install(FILES "$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>"
     TYPE BIN
 )
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # This is a very ugly kludge because TARGET_RUNTIME_DLLS does not pick up ZLib.
+    find_package(ZLIB REQUIRED)
+    get_target_property(ZLIB_INC_DIR ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS ${ZLIB_INC_DIR})
+    install(
+        FILES "${ZLIB_INC_DIR}/../$<$<CONFIG:Debug>:debug/>bin/zlib$<$<CONFIG:Debug>:d>1.dll"
+        TYPE BIN
+    )
+endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     find_package(Qt6 COMPONENTS DBus REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::DBus)
@@ -52,5 +76,3 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     )
     install(SCRIPT ${DEPLOY_SCRIPT})
 endif ()
-
-add_subdirectory(updater)

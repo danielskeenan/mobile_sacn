@@ -19,7 +19,12 @@ file(GLOB_RECURSE WEBUI_SOURCES LIST_DIRECTORIES false CONFIGURE_DEPENDS
     tsconfig.node.json
     vite.config.ts
 )
-find_program(npm_PROG npm DOC "Path to NPM (https://www.npmjs.com)" REQUIRED)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(_NPM_NAME npm.cmd)
+else ()
+    set(_NPM_NAME npm)
+endif ()
+find_program(npm_PROG ${_NPM_NAME} DOC "Path to NPM (https://www.npmjs.com)" REQUIRED)
 message(STATUS "Installing Web UI dependencies...")
 execute_process(
     COMMAND "${npm_PROG}" install
