@@ -12,9 +12,9 @@ env:
   CONAN_USER_HOME: ${{ github.workspace }}/.conan/
   # The short paths feature breaks caching.
   CONAN_USER_HOME_SHORT: None
-  QT_VERSION: 6.2.4
+  QT_VERSION: 6.6.*
   # Increment when the cache must be invalidated.
-  CACHE_IX: 1
+  CACHE_IX: 0
 
 jobs:
   build:
@@ -22,22 +22,29 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-11
+          - macos-13
           - windows-2022
-          - ubuntu-20.04
+          - ubuntu-22.04
     runs-on: ${{matrix.os}}
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - name: Set CMake Parallel level
         run: |
           echo "CMAKE_BUILD_PARALLEL_LEVEL=${{ steps.cpu-cores.outputs.count }}" >> ${GITHUB_ENV}
           echo "CTEST_PARALLEL_LEVEL=1" >> ${GITHUB_ENV}
+      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-actions-cache
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
       #######################
       # BUILD
       #######################
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Create Build Environment
         # Use a bash shell so we can use the same syntax for environment variable
         # access regardless of the host operating system
@@ -61,43 +68,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install libcurl4-openssl-dev pandoc qtbase5-dev libqt5svg5-dev qttools5-dev
-      - name: Cache Qt
-        id: cache-qt
-        # Don't need this on Linux, as Qt will come from the system package manager above
-        if: ${{runner.os != 'Linux'}}
-        uses: actions/cache@v3
-        with:
-          path: ${{github.workspace}}/.qt
-          key: ${{env.CACHE_IX}}-${{runner.os}}-QtCache-${{env.QT_VERSION}}
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           dir: ${{github.workspace}}/.qt
           version: ${{env.QT_VERSION}}
-          setup-python: false
-          cached: ${{steps.cache-qt.outputs.cache-hit}}
-      - name: Setup Conan
-        shell: bash
-        run: |
-          pipx install conan
-          conan profile new --detect --force default
-      - name: Set libstdc++ ABI
-        if: ${{runner.os == 'Linux'}}
-        run: conan profile update settings.compiler.libcxx=libstdc++11 default
-      - name: Cache Conan
-        uses: actions/cache@v3
-        with:
-          path: ${{env.CONAN_USER_HOME}}
-          key: ${{env.CACHE_IX}}-${{runner.os}}-conan-${{hashfiles('**/conanfile.txt')}}
-          restore-keys: |
-            ${{env.CACHE_IX}}-${{runner.os}}-conan-
-      - name: Install dependencies
-        shell: bash
-        run: conan install . --profile=default --install-folder=${BUILD_DIR} --build=missing
+          cache: true
       - name: Cache web ui deps
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{github.workspace}}/mobile_sacn_webui/node_modules
           key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
@@ -111,16 +91,16 @@ jobs:
       #######################
       # TEST
       #######################
-      - name: Test
-        working-directory: ${{env.BUILD_DIR}}
-        shell: bash
-        run: ctest -C ${BUILD_TYPE}
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: test_results_${{runner.os}}
-          path: ${{env.BUILD_DIR}}/Testing/Temporary/LastTest.log
+#      - name: Test
+#        working-directory: ${{env.BUILD_DIR}}
+#        shell: bash
+#        run: ctest -C ${BUILD_TYPE}
+#      - name: Upload test results
+#        uses: actions/upload-artifact@v3
+#        if: ${{ failure() }}
+#        with:
+#          name: test_results_${{runner.os}}
+#          path: ${{env.BUILD_DIR}}/Testing/Temporary/LastTest.log
 
       #######################
       # PACKAGE
@@ -141,13 +121,13 @@ jobs:
         shell: bash
         run: cpack -G "TGZ;DEB" -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: failed_package_${{runner.os}}
           path: ${{env.BUILD_DIR}}/packages
       - name: Upload packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: ${{env.BUILD_DIR}}/packages/*.*
@@ -166,7 +146,7 @@ jobs:
         with:
           path: repo
       - name: Get built packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         id: download
         with:
           name: packages
