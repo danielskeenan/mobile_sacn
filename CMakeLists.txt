@@ -61,6 +61,7 @@ if (BUILD_EXEC)
 
     # Decide which Qt version to use.
     find_package(Qt6 COMPONENTS
+        Core
         Widgets
         Svg
         SvgWidgets

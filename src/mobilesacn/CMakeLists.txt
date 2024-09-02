@@ -33,8 +33,8 @@ install(FILES "$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>"
     TYPE BIN
 )
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    find_package(Qt${Qt_VERSION} COMPONENTS DBus REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE Qt${Qt_VERSION}::DBus)
+    find_package(Qt6 COMPONENTS DBus REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::DBus)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
