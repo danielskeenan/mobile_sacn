@@ -229,7 +229,7 @@ void ReceiveLevels::HandleMergedData(sacn::MergeReceiver::Handle handle,
 
     std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf{};
     const auto bufOffset = merged_data.slot_range.start_address - 1;
-    const auto bufCount = merged_data.slot_range.address_count;
+    const auto bufCount = std::min(merged_data.slot_range.address_count, DMX_ADDRESS_COUNT);
 
     // Levels
     std::memcpy(levelBuf.data() + bufOffset, merged_data.levels, bufCount);

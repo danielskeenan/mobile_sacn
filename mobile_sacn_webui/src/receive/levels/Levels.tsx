@@ -131,11 +131,6 @@ export function Component() {
         const data = new Uint8Array(e.data as ArrayBuffer);
         const buf = new ByteBuffer(data);
         const msg = ReceiveLevelsResp.getRootAsReceiveLevelsResp(buf);
-        const nowInMilliseconds = BigInt(Date.now()) + serverTimeOffset;
-        if (bigIntAbs(nowInMilliseconds - msg.timestamp()) > 500) {
-            // Message is more than 1 second old, discard and use saved re-rendering time to catchup.
-            return;
-        }
 
         if (msg.valType() == ReceiveLevelsRespVal.sourceUpdated) {
             const msgSourceUpdated = msg.val(new SourceUpdated()) as SourceUpdated;
@@ -144,6 +139,12 @@ export function Component() {
             const msgSourceExpired = msg.val(new SourceExpired()) as SourceExpired;
             onSourceExpired(msgSourceExpired);
         } else if (msg.valType() == ReceiveLevelsRespVal.levelsChanged) {
+            const nowInMilliseconds = BigInt(Date.now()) + serverTimeOffset;
+            if (bigIntAbs(nowInMilliseconds - msg.timestamp()) > 500) {
+                // Message is more than 1 second old, discard and use saved re-rendering time to catchup.
+                console.debug("Dropped message because it is more than 500ms old.");
+                return;
+            }
             const msgLevelsChanged = msg.val(new LevelsChanged()) as LevelsChanged;
             onLevelsChanged(msgLevelsChanged);
         } else if (msg.valType() == ReceiveLevelsRespVal.systemTime) {
