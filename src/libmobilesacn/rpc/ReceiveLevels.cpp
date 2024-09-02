@@ -261,6 +261,28 @@ void ReceiveLevels::HandleMergedData(sacn::MergeReceiver::Handle handle,
     sendBinary(builder.GetBufferPointer(), builder.GetSize());
 }
 
+void ReceiveLevels::HandleSourcesLost(sacn::MergeReceiver::Handle handle, uint16_t universe,
+                                      const std::vector<SacnLostSource>& lostSources)
+{
+    for (const auto& source : lostSources) {
+        const auto cid = etcpal::Uuid(source.cid);
+        flatbuffers::FlatBufferBuilder builder;
+        const auto msgCid = builder.CreateString(cid.ToString());
+        auto sourceExpiredBuilder = message::SourceExpiredBuilder(builder);
+        sourceExpiredBuilder.add_cid(msgCid);
+        const auto msgSourceExpired = sourceExpiredBuilder.Finish();
+        const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
+            builder,
+            getNowInMilliseconds(),
+            message::ReceiveLevelsRespVal::sourceExpired,
+            msgSourceExpired.Union()
+        );
+        builder.Finish(msgReceiveLevelsResp);
+        sendBinary(builder.GetBufferPointer(), builder.GetSize());
+        sources_.erase(cid);
+    }
+}
+
 void ReceiveLevels::onChangeUniverse(uint16_t universe)
 {
     receiver_.Shutdown();
@@ -290,15 +312,6 @@ bool operator==(const sacn::MergeReceiver::Source& a, const sacn::MergeReceiver:
 
 void ReceiveLevels::updateSources(const SacnRecvMergedData& mergedData)
 {
-    // Track seen CIDs so we know which ones have expired.
-    std::set<etcpal::Uuid> oldCids;
-    for (const auto& cid : sources_ | std::views::keys) {
-        if (cid.IsNull()) {
-            continue;
-        }
-        oldCids.insert(cid);
-    }
-
     // Update sources.
     for (std::size_t ix = 0; ix < mergedData.num_active_sources; ++ix) {
         const auto newSource = receiver_.GetSource(mergedData.active_sources[ix]);
@@ -328,25 +341,6 @@ void ReceiveLevels::updateSources(const SacnRecvMergedData& mergedData)
             sendBinary(builder.GetBufferPointer(), builder.GetSize());
             oldSource = *newSource;
         }
-        oldCids.erase(cid);
-    }
-
-    // Remove expired sources.
-    for (const auto& cid : oldCids) {
-        flatbuffers::FlatBufferBuilder builder;
-        const auto msgCid = builder.CreateString(cid.ToString());
-        auto sourceExpiredBuilder = message::SourceExpiredBuilder(builder);
-        sourceExpiredBuilder.add_cid(msgCid);
-        const auto msgSourceExpired = sourceExpiredBuilder.Finish();
-        const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-            builder,
-            getNowInMilliseconds(),
-            message::ReceiveLevelsRespVal::sourceExpired,
-            msgSourceExpired.Union()
-        );
-        builder.Finish(msgReceiveLevelsResp);
-        sendBinary(builder.GetBufferPointer(), builder.GetSize());
-        sources_.erase(cid);
     }
 }
 
