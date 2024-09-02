@@ -27,7 +27,10 @@ FetchContent_Declare(sACN
     GIT_REPOSITORY "https://github.com/ETCLabs/sACN.git"
     GIT_TAG "v3.1.0.2"
 )
-FetchContent_MakeAvailable(sACN)
+if (NOT sACN_POPULATED)
+    FetchContent_Populate(sACN)
+    add_subdirectory(${sACN_SOURCE_DIR} ${sACN_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif ()
 
 #if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 #    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
