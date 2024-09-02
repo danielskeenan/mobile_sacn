@@ -60,10 +60,7 @@ if (BUILD_EXEC)
     endif ()
 
     # Decide which Qt version to use.
-    set(Qt_COMPONENTS Widgets Svg Help)
     find_package(Qt6 COMPONENTS
-        HttpServer
-        WebSockets
         Widgets
         Svg
         SvgWidgets

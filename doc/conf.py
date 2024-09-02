@@ -3,15 +3,14 @@
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import sys
 import json
+import sys
 from datetime import date
 from pathlib import Path
 
 # -- Build info --------------------------------------------------------------
 with open('build_info.json') as f:
     build_info = json.load(f)
-
 
 # -- Project information -----------------------------------------------------
 
@@ -31,6 +30,7 @@ sys.path.append(str(Path('./_ext').absolute()))
 extensions = [
     'sphinx-ext-button',
     'sphinx-ext-sass',
+    'myst_parser',
 ]
 sass_files = [
     '_style/style.scss'
