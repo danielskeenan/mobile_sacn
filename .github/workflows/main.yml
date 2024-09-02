@@ -61,13 +61,14 @@ jobs:
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
+          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           choco install pandoc -y --ia=ALLUSERS=1
           refreshenv
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install libcurl4-openssl-dev pandoc qtbase5-dev libqt5svg5-dev qttools5-dev
+          sudo apt-get -y install libcurl4-openssl-dev pandoc qt6-base-dev libqt6svg6-dev
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
