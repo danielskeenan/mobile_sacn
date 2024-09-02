@@ -156,14 +156,19 @@ export function Component() {
                         universe={universe}
                         onChangeUniverse={setUniverse}
                     >
-                        <Form.Group>
-                            <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
-                            <Form.Check
-                                inline
-                                disabled={transmit}
-                                type="switch"
-                                onChange={() => setPerAddressPriority(!perAddressPriority)}
-                            />
+                        <Form.Group className="d-flex flex-column">
+                            <div>
+                                <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
+                                <Form.Check
+                                    inline
+                                    disabled={transmit}
+                                    onChange={() => setPerAddressPriority(!perAddressPriority)}
+                                />
+                            </div>
+                            <Form.Text>
+                                (Sets priority for the currently checked address to the chosen priority ({priority}).
+                                All other addresses are assigned priority 0 and will be ignored by sACN receivers.)
+                            </Form.Text>
                         </Form.Group>
                     </TransmitConfig>
 
