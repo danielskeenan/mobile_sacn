@@ -9,6 +9,8 @@
 #ifndef RECEIVELEVELS_H
 #define RECEIVELEVELS_H
 
+#include <set>
+
 #include "RpcHandler.h"
 #include <sacn/cpp/source_detector.h>
 #include <sacn/cpp/merge_receiver.h>
@@ -24,6 +26,9 @@ class SourceDetectorWrapper final : public SubscribableNotifyHandler,
 {
 public:
     static SourceDetectorWrapper& get();
+
+    SourceDetectorWrapper(const SourceDetectorWrapper&) = delete;
+    SourceDetectorWrapper& operator=(const SourceDetectorWrapper&) = delete;
     ~SourceDetectorWrapper() override;
 
     void HandleSourceUpdated(sacn::RemoteSourceHandle handle,
@@ -37,6 +42,7 @@ public:
 protected:
     bool startup(WsBinarySender* sender) override;
     void shutdown() override;
+    void onSenderAdded(WsBinarySender* sender) override;
 
 private:
     struct Source
@@ -56,9 +62,49 @@ private:
 };
 
 /**
+ * Wrap a MergeReceiver to handle multiple subscribers.
+ */
+class SacnReceiverWrapper final
+        : public SubscribableNotifyHandler, public sacn::MergeReceiver::NotifyHandler
+{
+public:
+    using Ptr = std::shared_ptr<SacnReceiverWrapper>;
+
+    static Ptr getForUniverse(uint16_t universe);
+    SacnReceiverWrapper(const SacnReceiverWrapper&) = delete;
+    SacnReceiverWrapper& operator=(const SacnReceiverWrapper&) = delete;
+    ~SacnReceiverWrapper() override;
+
+    void HandleMergedData(sacn::MergeReceiver::Handle handle,
+                          const SacnRecvMergedData& merged_data) override;
+    void HandleSourcesLost(sacn::MergeReceiver::Handle handle, uint16_t universe,
+                           const std::vector<SacnLostSource>& lostSources) override;
+
+protected:
+    bool startup(WsBinarySender* sender) override;
+    void shutdown() override;
+    void onSenderAdded(WsBinarySender* sender) override;
+
+private:
+    static inline std::mutex receiversMutex_;
+    static inline std::unordered_map<uint16_t, Ptr> receivers_;
+
+    sacn::MergeReceiver::Settings sacnSettings_;
+    sacn::MergeReceiver receiver_;
+    std::mutex sourcesMutex_;
+    std::unordered_map<etcpal::Uuid, sacn::MergeReceiver::Source> sources_;
+
+    explicit SacnReceiverWrapper() = default;
+
+    void updateSources(const SacnRecvMergedData& mergedData);
+    static void sendSourceUpdated(const sacn::MergeReceiver::Source& source, const SendersList& senders);
+    std::vector<std::string> getOwnerCids(const SacnRecvMergedData& mergedData);
+};
+
+/**
  * Handler for Receive Levels.
  */
-class ReceiveLevels final : public RpcHandler, public sacn::MergeReceiver::NotifyHandler
+class ReceiveLevels final : public RpcHandler
 {
     Q_OBJECT
 
@@ -74,19 +120,11 @@ public Q_SLOTS:
     void handleConnected() override;
     void handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessage data) override;
     void handleClose() override;
-    void HandleMergedData(sacn::MergeReceiver::Handle handle,
-                          const SacnRecvMergedData& merged_data) override;
-    void HandleSourcesLost(sacn::MergeReceiver::Handle handle, uint16_t universe,
-                           const std::vector<SacnLostSource>& lostSources) override;
 
 private:
-    sacn::MergeReceiver::Settings sacnSettings_;
-    sacn::MergeReceiver receiver_;
-    std::unordered_map<etcpal::Uuid, sacn::MergeReceiver::Source> sources_;
+    SacnReceiverWrapper::Ptr receiver_;
 
     void onChangeUniverse(uint16_t universe);
-    void updateSources(const SacnRecvMergedData& mergedData);
-    std::vector<std::string> getOwnerCids(const SacnRecvMergedData& mergedData);
 };
 } // mobilesacn::rpc
 

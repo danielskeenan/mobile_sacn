@@ -48,14 +48,29 @@ protected:
     virtual void shutdown() = 0;
 
     /**
+     * Called when a new sender is added.
+     */
+    virtual void onSenderAdded(WsBinarySender* sender) {}
+
+    /**
+     *Send a binary message to the given senders.
      *
-     * @param senders Send a binary message to the given senders.
      * @param data
      * @param size
      */
-    static void sendToSenders(const SendersList& senders,
-                              const uint8_t* data,
-                              std::size_t size);
+    void sendToSenders(const uint8_t* data, std::size_t size);
+
+    /**
+     * Overload that sends data to specific senders.
+     *
+     * @param senders
+     * @param data
+     * @param size
+     */
+    static void sendToSenders(const SendersList& senders, const uint8_t* data, std::size_t size);
+
+private:
+    std::atomic_bool running_ = false;
 };
 
 } // mobilesacn::rpc

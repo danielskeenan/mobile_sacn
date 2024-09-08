@@ -14,19 +14,25 @@ namespace mobilesacn::rpc {
 void SubscribableNotifyHandler::addSender(WsBinarySender* sender)
 {
     std::scoped_lock sendersLock(sendersMutex_);
-    const auto wsUserData = sender->getWsUserData();
-    if (senders_.empty()) {
-        startup(sender);
+    if (senders_.empty() && !running_) {
+        if (!startup(sender)) {
+            spdlog::critical("Failed to startup SubscribableNotifyHandler");
+            return;
+        } else {
+            running_ = true;
+        }
     }
-    senders_.emplace_back(sender);
+    senders_.push_back(sender);
+    onSenderAdded(sender);
 }
 
 void SubscribableNotifyHandler::removeSender(WsBinarySender* sender)
 {
     std::scoped_lock sendersLock(sendersMutex_);
     std::erase(senders_, sender);
-    if (senders_.empty()) {
+    if (senders_.empty() && running_) {
         shutdown();
+        running_ = false;
     }
 }
 
@@ -38,9 +44,10 @@ void SubscribableNotifyHandler::sendToSenders(const SendersList& senders, const 
     }
 }
 
-long EtcPalMcastNetintIdComparator(EtcPalMcastNetintId a, EtcPalMcastNetintId b)
+void SubscribableNotifyHandler::sendToSenders(const uint8_t* data, std::size_t size)
 {
-    return a.index - b.index;
+    std::lock_guard lock(sendersMutex_);
+    sendToSenders(senders_, data, size);
 }
 
 } // mobilesacn::rpc

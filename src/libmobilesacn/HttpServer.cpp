@@ -84,15 +84,20 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 spdlog::info("Closing {} handler for client {}", userData->protocol,
                              userData->clientIp);
+                // This handler gets called more than once sometimes for unknown reasons. Guard
+                // against double free crashes in that case.
                 if (userData->handler) {
                     userData->handler->handleClose();
                 } else {
-                    spdlog::critical(
+                    spdlog::debug(
                         "Couldn't call {} close handler because it has been destroyed.",
                         userData->protocol);
                 }
-                wsUserDataList.erase(userData);
-                delete userData;
+                if (wsUserDataList.erase(userData) > 0) {
+                    delete userData;
+                } else {
+                    spdlog::debug("Didn't delete userdata because it was not stored in the cache.");
+                }
             });
 }
 
