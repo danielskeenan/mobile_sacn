@@ -15,11 +15,6 @@
 
 namespace mobilesacn::rpc {
 
-long EtcPalMcastNetintIdComparator(EtcPalMcastNetintId a, EtcPalMcastNetintId b)
-{
-    return a.index - b.index;
-}
-
 uint64_t getNowInMilliseconds()
 {
     const auto now = std::chrono::system_clock::now().time_since_epoch();
@@ -37,71 +32,41 @@ SourceDetectorWrapper& SourceDetectorWrapper::get()
     return instance;
 }
 
-void SourceDetectorWrapper::resetNetworkingIfNeeded(std::vector<SacnMcastInterface>& netints)
+bool SourceDetectorWrapper::startup(WsBinarySender* sender)
 {
-    const auto newNetIntIds = [&netints]() {
-        std::vector<EtcPalMcastNetintId> result;
-        result.reserve(netints.size());
-        for (const auto& netint : netints) {
-            result.push_back(netint.iface);
-        }
-        std::ranges::sort(result, &EtcPalMcastNetintIdComparator);
-        return result;
-    }();
-    const auto oldNetIntIds = []() {
-        auto result = sacn::SourceDetector::GetNetworkInterfaces();
-        std::ranges::sort(result, &EtcPalMcastNetintIdComparator);
-        return result;
-    }();
-    if (newNetIntIds != oldNetIntIds) {
-        spdlog::debug("Resetting SourceDetector networking as netints have changed.");
-        sacn::SourceDetector::ResetNetworking(netints);
-    }
-}
-
-void SourceDetectorWrapper::addSender(WsBinarySender* sender)
-{
-    std::scoped_lock sendersLock(sendersMutex_);
+    spdlog::debug("Starting SourceDetector");
     const auto wsUserData = sender->getWsUserData();
-    if (senders_.empty()) {
-        spdlog::debug("Starting SourceDetector");
-        auto settings = sacn::SourceDetector::Settings();
-        // Creating the receiver will fail with the default settings if the chosen network interface
-        // doesn't have an IPv4 AND an IPv6 address.
-        settings.ip_supported = wsUserData->sacnNetInt.addr().IsV4()
-                ? sacn_ip_support_t::kSacnIpV4Only
-                : sacn_ip_support_t::kSacnIpV6Only;
-        auto res = sacn::SourceDetector::Startup(
-            settings,
-            *this,
-            wsUserData->sacnMcastInterfaces
-        );
-        if (res != kEtcPalErrOk) {
-            spdlog::error("Failed to start SourceDetector: {}", res.ToString());
-            return;
-        }
-    } else {
-        resetNetworkingIfNeeded(wsUserData->sacnMcastInterfaces);
+    auto settings = sacn::SourceDetector::Settings();
+    // Creating the receiver will fail with the default settings if the chosen network interface
+    // doesn't have an IPv4 AND an IPv6 address.
+    settings.ip_supported = wsUserData->sacnNetInt.addr().IsV4()
+            ? sacn_ip_support_t::kSacnIpV4Only
+            : sacn_ip_support_t::kSacnIpV6Only;
+    auto res = sacn::SourceDetector::Startup(
+        settings,
+        *this,
+        wsUserData->sacnMcastInterfaces
+    );
+    if (res != kEtcPalErrOk) {
+        spdlog::error("Failed to start SourceDetector: {}", res.ToString());
+        return false;
     }
-    senders_.emplace_back(sender);
 
     // Send the new sender information about current sources.
     std::scoped_lock sourcesLock(sourcesMutex_);
     for (const auto& source : sources_ | std::views::values) {
         sendSourceUpdated(source, { sender });
     }
+
+    return true;
 }
 
-void SourceDetectorWrapper::removeSender(WsBinarySender* sender)
+void SourceDetectorWrapper::shutdown()
 {
-    std::scoped_lock sendersLock(sendersMutex_);
-    std::erase(senders_, sender);
-    if (senders_.empty()) {
-        std::scoped_lock sourcesLock(sourcesMutex_);
-        spdlog::debug("Stopping SourceDetector");
-        sacn::SourceDetector::Shutdown();
-        sources_.clear();
-    }
+    std::scoped_lock sourcesLock(sourcesMutex_);
+    spdlog::debug("Stopping SourceDetector");
+    sacn::SourceDetector::Shutdown();
+    sources_.clear();
 }
 
 void SourceDetectorWrapper::HandleSourceUpdated(
@@ -128,7 +93,7 @@ void SourceDetectorWrapper::HandleSourceExpired(
 }
 
 void SourceDetectorWrapper::sendSourceUpdated(
-    const Source& source, const decltype(senders_)& senders)
+    const Source& source, const SendersList& senders)
 {
     flatbuffers::FlatBufferBuilder builder;
     const auto msgCid = builder.CreateString(source.cid);
@@ -150,7 +115,7 @@ void SourceDetectorWrapper::sendSourceUpdated(
 }
 
 void SourceDetectorWrapper::sendSourceExpired(
-    const std::string& cid, const decltype(senders_)& senders)
+    const std::string& cid, const SendersList& senders)
 {
     flatbuffers::FlatBufferBuilder builder;
     const auto msgCid = builder.CreateString(cid);
@@ -165,14 +130,6 @@ void SourceDetectorWrapper::sendSourceExpired(
     );
     builder.Finish(msgReceiveLevelsResp);
     sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
-}
-
-void SourceDetectorWrapper::sendToSenders(
-    const decltype(senders_)& senders, const uint8_t* data, const std::size_t size)
-{
-    for (auto sender : senders) {
-        sender->sendBinary(data, size);
-    }
 }
 
 ReceiveLevels::~ReceiveLevels()

@@ -12,16 +12,19 @@
 #include "RpcHandler.h"
 #include <sacn/cpp/source_detector.h>
 #include <sacn/cpp/merge_receiver.h>
+#include "SubscribableNotifyHandler.h"
 
 namespace mobilesacn::rpc {
-class SourceDetectorWrapper final : public sacn::SourceDetector::NotifyHandler
+
+/**
+ * Wrap the SourceDetector to handle multiple subscribers.
+ */
+class SourceDetectorWrapper final : public SubscribableNotifyHandler,
+                                    public sacn::SourceDetector::NotifyHandler
 {
 public:
     static SourceDetectorWrapper& get();
     ~SourceDetectorWrapper() override;
-
-    void addSender(WsBinarySender* sender);
-    void removeSender(WsBinarySender* sender);
 
     void HandleSourceUpdated(sacn::RemoteSourceHandle handle,
                              const etcpal::Uuid& cid,
@@ -31,6 +34,10 @@ public:
                              const etcpal::Uuid& cid,
                              const std::string& name) override;
 
+protected:
+    bool startup(WsBinarySender* sender) override;
+    void shutdown() override;
+
 private:
     struct Source
     {
@@ -39,20 +46,18 @@ private:
         std::vector<uint16_t> universes;
     };
 
-    std::mutex sendersMutex_;
-    std::vector<WsBinarySender*> senders_;
     std::mutex sourcesMutex_;
     std::unordered_map<etcpal::Uuid, Source> sources_;
 
-    static void sendSourceUpdated(const Source& source, const decltype(senders_)& senders);
-    static void sendSourceExpired(const std::string& cid, const decltype(senders_)& senders);
-    static void sendToSenders(const decltype(senders_)& senders,
-                              const uint8_t* data,
-                              std::size_t size);
     explicit SourceDetectorWrapper() = default;
-    static void resetNetworkingIfNeeded(std::vector<SacnMcastInterface>& netints);
+
+    static void sendSourceUpdated(const Source& source, const SendersList& senders);
+    static void sendSourceExpired(const std::string& cid, const SendersList& senders);
 };
 
+/**
+ * Handler for Receive Levels.
+ */
 class ReceiveLevels final : public RpcHandler, public sacn::MergeReceiver::NotifyHandler
 {
     Q_OBJECT
