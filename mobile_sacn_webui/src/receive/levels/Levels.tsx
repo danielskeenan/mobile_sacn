@@ -4,7 +4,7 @@ import {clone, constant, range, some, sortedUniq, times} from "lodash";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants.ts";
 import {ReadyState} from "react-use-websocket";
 import {Connecting} from "../../common/components/Loading.tsx";
-import {Accordion, Button, FloatingLabel, Form, Modal, Stack, Tab, Table, Tabs} from "react-bootstrap";
+import {Accordion, Badge, Button, FloatingLabel, Form, Modal, Stack, Tab, Table, Tabs} from "react-bootstrap";
 import {ReceiveLevelsTitle} from "../ReceiveTitle.tsx";
 import {createPortal} from "react-dom";
 import useWebsocket from "../../common/useWebsocket.ts";
@@ -313,7 +313,10 @@ function SourceList(props: SourceListProps) {
     return (
         <Accordion className="mt-3">
             <Accordion.Item eventKey={accordianId}>
-                <Accordion.Header>Sources</Accordion.Header>
+                <Accordion.Header>
+                    Sources&nbsp;
+                    <Badge bg="secondary">{sources.length}</Badge>
+                </Accordion.Header>
                 <Accordion.Body>
                     {sources.length == 0 && (
                         <>No sources sending this universe.</>
