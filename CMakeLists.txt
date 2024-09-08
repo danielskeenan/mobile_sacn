@@ -30,6 +30,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 else ()
     set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
 endif ()
+
+option(BUILD_EXEC "Build the executable program.  You probably want to do this." ON)
 add_subdirectory(mobile_sacn_webui)
 
 find_package(Python3 COMPONENTS Interpreter)
@@ -38,7 +40,6 @@ if (BUILD_DOC)
     add_subdirectory(doc)
 endif ()
 
-option(BUILD_EXEC "Build the executable program.  You probably want to do this." ON)
 if (BUILD_EXEC)
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_AUTOMOC ON)
