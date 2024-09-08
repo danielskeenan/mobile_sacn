@@ -30,6 +30,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 else ()
     set(PROJECT_WEBUI_PATH "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/web")
 endif ()
+add_subdirectory(mobile_sacn_webui)
 
 find_package(Python3 COMPONENTS Interpreter)
 option(BUILD_DOC "Build documentation (Requires Python)" ${Python3_FOUND})
@@ -69,7 +70,6 @@ if (BUILD_EXEC)
     )
     qt_standard_project_setup()
 
-    add_subdirectory(mobile_sacn_webui)
     add_subdirectory(messages)
     add_subdirectory(src)
 
