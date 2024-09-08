@@ -7,9 +7,11 @@ from sphinx.errors import SphinxError
 
 VERSION = '0.1'
 
+BOOTSTRAP_COLORS = ('primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark')
+
 
 def _color_choice(arg: str):
-    return directives.choice(arg, ('primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'))
+    return directives.choice(arg, (*BOOTSTRAP_COLORS, *[f'outline-{color}' for color in BOOTSTRAP_COLORS]))
 
 
 class Button(Directive):
@@ -36,7 +38,7 @@ class Button(Directive):
                 child.replace_self(inline)
 
         # Apply styles.
-        button_node['classes'].extend(('btn', 'color-{}'.format(self.options['color'])))
+        button_node['classes'].extend(('btn', f'btn-{self.options["color"]}'))
 
         return [button_node]
 

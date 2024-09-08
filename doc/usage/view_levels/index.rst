@@ -1,3 +1,8 @@
+.. |btn_univ| button::
+   :color: outline-secondary
+
+   Choose Universe...
+
 .. |btn_list| button::
    :color: secondary
 
@@ -32,29 +37,35 @@ If any sACN sources are active on the network, their levels are shown for the gi
 source is active, the levels from all sources is merged following the standard sACN merge rules.  Each source is
 assigned a different color; the color legend is shown by opening the "Sources" dropdown.
 
-.. note:: Per-address-priority is not currently supported in the View Levels screen.
+Universe Discovery
+^^^^^^^^^^^^^^^^^^
+
+Discovered sACN universes are shown as buttons. There is a small delay (usually around 10 seconds, but depends on the
+transmitters) from entering View Levels mode and universe discovery. Additionally, not all sACN transmitters make their
+transmitted universes discoverable. To select a universe that has not been discovered, press |btn_univ|.
 
 .. _viewlevels-modes:
 
 Modes
 -----
 
-Multiple display modes are available.
+Multiple display modes are available:
 
 .. _viewlevels-modes-list:
 
-List
+Bars
 ^^^^
 
-Press |btn_list| to show list mode.
+Press |btn_list| to show bars mode.
 
 .. figure:: screenshots/viewlevels_list.png
    :class: screenshot
 
-   List mode
+   Bars mode
 
 The given universe is shown as a list of bars, where each address has a bar showing its current level.  The color of the
-bar corresponds to the color of the winning source.
+bar corresponds to the color of the winning source. The address is shown on the left of the bar. The level and priority
+are shown on the right.
 
 
 .. _viewlevels-modes-grid:
@@ -69,6 +80,6 @@ Press |btn_grid| to show grid mode.
 
    Grid mode
 
-The given universe is shown as a grid with the first address in each row shown on the left.  The number of columns in
-each row is configurable.  Much like :ref:`List mode <viewlevels-modes-list>`, the color of the bar corresponds to the
-color of the winning source.
+The given universe is shown as a grid with the first address in each row shown on the left. Much like
+:ref:`Bars mode <viewlevels-modes-list>`, the color of the box corresponds to the color of the winning source. In each
+box, the level is shown above the priority.

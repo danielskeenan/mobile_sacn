@@ -93,44 +93,10 @@ Use Per-Address-Priority
    as it is a proprietary extension to the sACN standard. Receivers that do not understand per-address-priority will
    behave as if the priority setting is applied to the entire universe.
 
-.. index:: Effects
-
-.. _chancheck-effect:
-
-Effect
-------
-
-.. _chancheck-effect-none:
-
-None
-^^^^
-
-No effect will be applied to the output. The address will be set to the configured level and will return to zero when a
-different address is selected.
-
-.. index:: Blink
-
-.. _chancheck-effect-blink:
-
 Blink
-^^^^^
+   .. _chancheck-effect-blink:
 
-The address will flash at the selected rate.
-
-.. figure:: screenshots/blink.png
-   :class: screenshot
-
-   Blink configuration menu
-
-Duration
-   .. _chancheck-effect-blink-duration:
-
-   The amount of time to wait before turning on/off.
-
-Level
-   .. _chancheck-effect-blink-level:
-
-   The *on* level. The *off* level comes from the main level fader outside the effect configuration.
+   When checked, the selected address will flash between the chosen level and 0% every half-second.
 
 Tips
 ----
@@ -143,8 +109,7 @@ per-address-priority option and Blink effect:
 
 1. Set the priority to ``200``.
 2. Enable :ref:`per-address-priority <chancheck-config-pap>`.
-3. Set the level to ``20%`` (or some other low level).
-4. Enable the :ref:`chancheck-effect-blink` effect. Set the blink level to ``100%``
-5. Press |btn_start|.
+3. Enable the :ref:`Blink <chancheck-effect-blink>` effect.
+4. Press |btn_start|.
 
 The address currently being checked will blink, while all others will remain at their previous level.

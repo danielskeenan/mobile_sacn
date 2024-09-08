@@ -4,7 +4,7 @@ import {faBolt, faCheck, faKeyboard} from "@fortawesome/free-solid-svg-icons";
 export function TransmitLevelsTitle() {
     return (
         <span>
-            <FontAwesomeIcon icon={faKeyboard}/> Levels
+            <FontAwesomeIcon icon={faKeyboard}/> Send Levels
         </span>
     );
 }

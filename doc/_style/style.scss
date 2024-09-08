@@ -28,45 +28,12 @@ img {
     max-height: max-content;
   }
 }
-
-kbd:not(.compound) {
-  font-family: sans-serif;
-  color: #000000;
-  background-color: #dee2e6;
-  border: #dee2e6 1px solid;
-  border-radius: 4px;
-  padding: 0 0.25em;
-  margin: 0;
-}
-
 .btn {
-  display: inline-block;
-  font-family: sans-serif;
-  color: $body-color;
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 4px;
-  padding: 0.25em;
-  margin: 0;
-  height: 1.25em;
-
-  @each $color_name, $color in $colors {
-    &.color-#{$color_name} {
-      color: map-get($body-colors, $color_name);
-      background-color: $color;
-      border-color: $color;
-    }
-  }
-
   img {
-    height: 0.75em;
+    height: 1em;
 
     &.line-height {
       vertical-align: text-bottom;
     }
   }
-}
-
-.line-height {
-  height: 1em !important;
 }
