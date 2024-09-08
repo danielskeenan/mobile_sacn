@@ -4,9 +4,7 @@ on:
   push:
     paths:
       - doc/**
-  pull_request:
-    paths:
-      - doc/**
+      - .github/workflows/docs.yml
   workflow_dispatch: ~
 
 env:
@@ -37,7 +35,7 @@ jobs:
         run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_EXEC=Off -DBUILD_DOC=On
       - name: Build
         shell: bash
-        run: cmake --build "${BUILD_DIR}" --target doc
+        run: cmake --build "${BUILD_DIR}" --target mobile_sacn_doc
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: ${{ github.ref == 'refs/heads/main' }}
