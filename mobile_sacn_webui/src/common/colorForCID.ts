@@ -1,5 +1,6 @@
 import CRC32 from "crc-32";
 import Color from "colorjs.io";
+import {each, every} from "lodash";
 
 interface CidColor {
     light: Color;
@@ -47,6 +48,13 @@ function calcColorForCid(cid: string): CidColor {
         return {
             light: new Color("white"),
             dark: new Color("black"),
+        };
+    }
+    if (every(uuid, (byte => byte == 0))) {
+        // Null UUID.
+        return {
+            light: new Color("transparent"),
+            dark: new Color("transparent"),
         };
     }
     const id = CRC32.buf(uuid, 0) >>> 0;
