@@ -1,12 +1,12 @@
-import {localStorageGet, LocalStorageItem} from "./localStorage.ts";
 import CRC32 from "crc-32";
 import Color from "colorjs.io";
-import {ColorSpace} from "colorjs.io/fn";
 
-const cidColorCache = {
-    dark: new Map<string, Color>(),
-    light: new Map<string, Color>(),
-};
+interface CidColor {
+    light: Color;
+    dark: Color;
+}
+
+const cidColorCache = new Map<string, CidColor>();
 
 /**
  * Get a consistent color for a given CID.
@@ -15,14 +15,12 @@ const cidColorCache = {
  * @param cid
  */
 export default function colorForCID(cid: string) {
-    const darkMode = localStorageGet(LocalStorageItem.DARK_MODE, true);
-    const colorCache = darkMode ? cidColorCache.dark : cidColorCache.light;
-    const existing = colorCache.get(cid);
+    const existing = cidColorCache.get(cid);
     if (existing !== undefined) {
         return existing;
     }
     const color = calcColorForCid(cid);
-    colorCache.set(cid, color);
+    cidColorCache.set(cid, color);
     return color;
 }
 
@@ -41,12 +39,15 @@ function bytesFromCid(cid: string) {
     return new Uint8Array(bytes);
 }
 
-function calcColorForCid(cid: string) {
+function calcColorForCid(cid: string): CidColor {
     // Get a checksum for a given CID.
     const uuid = bytesFromCid(cid);
     if (uuid === null) {
         console.error(`Error parsing CID ${cid}`);
-        return new Color("white");
+        return {
+            light: new Color("white"),
+            dark: new Color("black"),
+        };
     }
     const id = CRC32.buf(uuid, 0) >>> 0;
 
@@ -55,13 +56,16 @@ function calcColorForCid(cid: string) {
     const hue = (goldenRatio * id) % 1.0;
     const sat = ((goldenRatio * id * 2) % 0.25) + 0.75;
 
-    // Choose lightness based on color mode.
-    const darkMode = localStorageGet(LocalStorageItem.DARK_MODE, true);
-    const lightness = darkMode ? 0.25 : 0.5;
-
-    return new Color("hsl", [
-        hue * 360,
-        sat * 100,
-        lightness * 100,
-    ]);
+    return {
+        light: new Color("hsl", [
+            hue * 360,
+            sat * 100,
+            50,
+        ]),
+        dark: new Color("hsl", [
+            hue * 360,
+            sat * 100,
+            25,
+        ]),
+    };
 }

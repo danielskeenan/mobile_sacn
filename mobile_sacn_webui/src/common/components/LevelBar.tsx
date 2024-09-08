@@ -8,15 +8,16 @@ import {useMemo} from "react";
 interface LevelControlProps {
     label?: string;
     level: string | number;
-    color?: string | Color;
 }
 
 interface LevelBarProps extends LevelControlProps {
     priority?: string | number;
+    color?: string | Color;
+    bgColor?: string | Color;
 }
 
 export function LevelBar(props: LevelBarProps) {
-    const {label, level, priority, color} = props;
+    const {label, level, priority, color, bgColor} = props;
     const percent = Number(level) / LEVEL_MAX * 100;
     const colorVal = useMemo(() => {
         if (color instanceof Color) {
@@ -24,6 +25,12 @@ export function LevelBar(props: LevelBarProps) {
         }
         return color;
     }, [color]);
+    const bgColorVal = useMemo(() => {
+        if (bgColor instanceof Color) {
+            return bgColor.display();
+        }
+        return bgColor;
+    }, [bgColor]);
 
     return (
         <div className="msacn-fader">
@@ -31,7 +38,7 @@ export function LevelBar(props: LevelBarProps) {
                 <span className="msacn-fader-label">{label}</span>
             )}
             <svg className="msacn-bar-container">
-                <rect className="msacn-bar-bg" x="0" y="0" width="100%"/>
+                <rect className="msacn-bar-bg" x="0" y="0" width="100%" style={{fill: bgColorVal}}/>
                 <rect className="msacn-bar-filled" x="0" y="0" width={`${percent}%`} style={{fill: colorVal}}/>
             </svg>
             <Stack direction="horizontal" gap={1}>

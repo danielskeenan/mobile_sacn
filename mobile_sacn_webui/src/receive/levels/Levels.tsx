@@ -1,5 +1,5 @@
 import "./Levels.scss";
-import {useCallback, useEffect, useId, useLayoutEffect, useMemo, useState} from "react";
+import {useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useState} from "react";
 import {clone, constant, range, some, sortedUniq, times} from "lodash";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants.ts";
 import {ReadyState} from "react-use-websocket";
@@ -26,6 +26,7 @@ import {faList, faTableCells} from "@fortawesome/free-solid-svg-icons";
 import LevelDisplay, {PriorityDisplay} from "../../common/components/LevelDisplay.tsx";
 import {LevelBar} from "../../common/components/LevelBar.tsx";
 import bigIntAbs from "../../common/bigIntAbs.ts";
+import AppContext from "../../common/Context.ts";
 
 enum ViewMode {
     GRID = "grid",
@@ -34,7 +35,8 @@ enum ViewMode {
 
 interface Source {
     cid: string;
-    color: Color;
+    lightColor: Color;
+    darkColor: Color;
     name: string;
     ipAddr: string;
     hasPap: boolean;
@@ -45,7 +47,8 @@ interface Source {
 // Used for addresses that have no owner.
 const DEFAULT_SOURCE: Source = {
     cid: "00000000-0000-0000-0000-000000000000",
-    color: new Color("transparent"),
+    lightColor: new Color("transparent"),
+    darkColor: new Color("transparent"),
     name: "No Source",
     ipAddr: "",
     hasPap: false,
@@ -94,6 +97,7 @@ export function Component() {
         } else {
             universes = msg.universesArray() ?? Uint16Array.from([universe]);
         }
+        const color = colorForCID(cid);
         const newSource: Source = {
             cid: cid,
             name: msg.name() as string,
@@ -101,7 +105,8 @@ export function Component() {
             hasPap: msg.hasPap() ?? oldSource?.hasPap ?? DEFAULT_SOURCE.hasPap,
             priority: msg.priority() ?? oldSource?.priority ?? DEFAULT_SOURCE.priority,
             universes: universes,
-            color: colorForCID(cid),
+            lightColor: color.light,
+            darkColor: color.dark,
         };
         newSourceMap.set(cid, newSource);
         setSourceMap(newSourceMap);
@@ -299,6 +304,7 @@ interface SourceListProps {
 
 function SourceList(props: SourceListProps) {
     const {sources} = props;
+    const {darkMode} = useContext(AppContext);
     const accordianId = useId();
     const showPapNote = useMemo(() => {
         return some(sources, (source) => source.hasPap);
@@ -324,7 +330,8 @@ function SourceList(props: SourceListProps) {
                                 </thead>
                                 <tbody>
                                 {sources.map(source => (
-                                    <tr key={source.cid} style={{backgroundColor: source.color.display()}}>
+                                    <tr key={source.cid}
+                                        style={{backgroundColor: darkMode ? source.darkColor.display() : source.lightColor.display()}}>
                                         <td>{source.name}</td>
                                         <td>{source.ipAddr}</td>
                                         <td>{source.hasPap && "*"}{source.priority}</td>
@@ -364,6 +371,7 @@ const DEFAULT_VIEW_GRID_COLS = 4;
 
 function ViewGrid(props: LevelsViewProps) {
     const {sourceMap, levels, priorities, owners} = props;
+    const {darkMode} = useContext(AppContext);
     const [recalcCols, setRecalcCols] = useState(true);
     const [cols, setCols] = useState(DEFAULT_VIEW_GRID_COLS);
     const [preferredCellHeight, setPreferredCellHeight] = useState(0);
@@ -430,7 +438,10 @@ function ViewGrid(props: LevelsViewProps) {
 
             row.push(
                 <td key={`level-${levelIx}`}
-                    style={{backgroundColor: owner.color.display(), overflowWrap: recalcCols ? "anywhere" : "unset"}}>
+                    style={{
+                        backgroundColor: darkMode ? owner.darkColor.display() : owner.lightColor.display(),
+                        overflowWrap: recalcCols ? "anywhere" : "unset",
+                    }}>
                     <Stack direction="vertical" gap={0}>
                         <LevelDisplay level={level}/>
                         {props.showPriorities && (
@@ -466,6 +477,12 @@ function ViewBarsTitle() {
 
 function ViewBars(props: LevelsViewProps) {
     const {sourceMap, levels, priorities, owners} = props;
+    const fgColors = useMemo(() => {
+        return owners.map(owner => sourceMap.get(owner)?.lightColor ?? DEFAULT_SOURCE.lightColor);
+    }, [sourceMap, owners]);
+    const bgColors = useMemo(() => {
+        return owners.map(owner => sourceMap.get(owner)?.darkColor ?? DEFAULT_SOURCE.darkColor);
+    }, [sourceMap, owners]);
 
     return (
         <>
@@ -475,7 +492,8 @@ function ViewBars(props: LevelsViewProps) {
                     label={`${ix + 1}`.padStart(3, "0")}
                     level={level}
                     priority={props.showPriorities ? priorities[ix] : undefined}
-                    color={sourceMap.get(owners[ix])?.color ?? DEFAULT_SOURCE.color}
+                    color={fgColors[ix]}
+                    bgColor={bgColors[ix]}
                 />
             ))}
         </>
