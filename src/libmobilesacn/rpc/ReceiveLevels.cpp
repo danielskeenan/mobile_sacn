@@ -373,7 +373,9 @@ void ReceiveLevels::handleBinaryMessage(mobilesacn::rpc::RpcHandler::BinaryMessa
 void ReceiveLevels::handleClose()
 {
     SourceDetectorWrapper::get().removeSender(this);
-    receiver_->removeSender(this);
+    if (receiver_) {
+        receiver_->removeSender(this);
+    }
 }
 
 void ReceiveLevels::onChangeUniverse(uint16_t universe)
