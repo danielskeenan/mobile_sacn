@@ -3,3 +3,15 @@
 table.msacn-sourcelist > tbody > tr > td {
   background: inherit;
 }
+
+.msacn-viewbars {
+  & > * {
+    // Visual separation is important when no sources are broadcasting adjacent addresses.
+    @extend .border-bottom;
+
+    &:first-child {
+      // Add the same gap between the bottom of the tab bar and the first row that Stack applies between elements.
+      @extend .mt-1;
+    }
+  }
+}

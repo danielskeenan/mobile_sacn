@@ -446,7 +446,8 @@ function ViewGrid(props: LevelsViewProps) {
                         overflowWrap: recalcCols ? "anywhere" : "unset",
                     }}>
                     <Stack direction="vertical" gap={0}>
-                        <LevelDisplay level={level}/>
+                        {priority > 0 && <LevelDisplay level={level}/>}
+                        {priority == 0 && <div>&nbsp;</div>}
                         {props.showPriorities && (
                             <PriorityDisplay level={priority}/>
                         )}
@@ -488,7 +489,7 @@ function ViewBars(props: LevelsViewProps) {
     }, [sourceMap, owners]);
 
     return (
-        <>
+        <Stack className="msacn-viewbars" direction="vertical" gap={1}>
             {levels.map((level, ix) => (
                 <LevelBar
                     key={`level-${ix}`}
@@ -499,6 +500,6 @@ function ViewBars(props: LevelsViewProps) {
                     bgColor={bgColors[ix]}
                 />
             ))}
-        </>
+        </Stack>
     );
 }
