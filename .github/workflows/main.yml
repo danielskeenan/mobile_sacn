@@ -196,11 +196,12 @@ jobs:
         with:
           path: repo
       - name: Get built packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         id: download
         with:
-          name: packages
           path: packages
+          pattern: packages_*
+          merge-multiple: true
       - name: Install System Packages
         run: |
           sudo apt-get update
