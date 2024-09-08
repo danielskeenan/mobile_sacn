@@ -149,22 +149,11 @@ jobs:
           path: repo
       - name: Get built packages
         uses: actions/download-artifact@v4
-        id: download_macOS
+        id: download
         with:
-          name: packages_macOS
           path: packages
-      - name: Get built packages
-        uses: actions/download-artifact@v4
-        id: download_Windows
-        with:
-          name: packages_Windows
-          path: packages
-      - name: Get built packages
-        uses: actions/download-artifact@v4
-        id: download_Linux
-        with:
-          name: packages_Linux
-          path: packages
+          pattern: packages_*
+          merge-multiple: true
       - name: Load signing key
         run: echo "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
       - name: Determine channel
