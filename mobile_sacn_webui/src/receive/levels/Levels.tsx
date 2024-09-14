@@ -56,6 +56,10 @@ const DEFAULT_SOURCE: Source = {
     universes: new Uint16Array(),
 };
 
+const emptyLevelBuffer = () => Array.from(times(DMX_MAX, constant(0)));
+const emptyOwnerBuffer = () => Array.from(times(DMX_MAX, constant("")));
+const emptySourceMap = () => new Map<string, Source>();
+
 function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
     for (const source of sources) {
         for (const univ of source.universes) {
@@ -68,10 +72,10 @@ export function Component() {
     // State
     const [serverTimeOffset, setServerTimeOffset] = useState(0n);
     const [universe, setUniverse] = useState(0);
-    const [levels, setLevels] = useState(Array.from(times(DMX_MAX, constant(0))));
-    const [priorities, setPriorities] = useState(Array.from(times(DMX_MAX, constant(0))));
-    const [owners, setOwners] = useState<string[]>(Array.from(times(DMX_MAX, constant(""))));
-    const [sourceMap, setSourceMap] = useState(new Map<string, Source>());
+    const [levels, setLevels] = useState(emptyLevelBuffer());
+    const [priorities, setPriorities] = useState(emptyLevelBuffer());
+    const [owners, setOwners] = useState(emptyOwnerBuffer());
+    const [sourceMap, setSourceMap] = useState(emptySourceMap());
     const sources = useMemo(() => {
         return Array.from(sourceMap.values());
     }, [sourceMap]);
@@ -165,7 +169,7 @@ export function Component() {
     }, []);
 
     // Websocket
-    const {readyState, sendMessage, getWebSocket} = useWebsocket("ReceiveLevels", {
+    const {readyState, sendMessage} = useWebsocket("ReceiveLevels", {
         onOpen: onOpen,
         onMessage: onMessage,
     });
@@ -184,7 +188,12 @@ export function Component() {
     }, [sendMessage]);
     useEffect(() => {
         sendUniverse(universe);
-    }, [universe, sendUniverse]);
+        // Also need to clear the buffers here to prep for new data.
+        setLevels(emptyLevelBuffer());
+        setPriorities(emptyLevelBuffer());
+        setOwners(emptyOwnerBuffer());
+        setSourceMap(emptySourceMap());
+    }, [universe, sendUniverse, setLevels, setPriorities, setOwners, setSourceMap]);
 
     return (
         <>
