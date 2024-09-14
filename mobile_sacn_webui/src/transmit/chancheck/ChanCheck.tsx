@@ -23,7 +23,7 @@ import {Universe} from "../../messages/universe.ts";
 import {Address} from "../../messages/address.ts";
 import {Level} from "../../messages/level.ts";
 
-const BLINK_INTERVAL = 500;
+const BLINK_INTERVAL = 1000;
 
 export function Component() {
     // State
@@ -34,7 +34,7 @@ export function Component() {
     const [address, setAddress] = useState(DMX_DEFAULT.toString());
     const [level, setLevel] = useState(LEVEL_MAX.toString());
     const [blink, setBlink] = useState(false);
-    let blinkLevel = useRef("0");
+    const blinkLevel = useRef("0");
 
     // Websocket
     const {readyState, sendMessage} = useWebsocket("ChanCheck");
