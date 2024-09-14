@@ -8,7 +8,6 @@ add_library(libmobilesacn STATIC
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableMergeReceiver.h
     rpc/SubscribableMergeReceiver.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableNotifyHandler.h
-    rpc/SubscribableNotifyHandler.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableSourceDetector.h
     rpc/SubscribableSourceDetector.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitHandler.h
@@ -26,6 +25,8 @@ add_library(libmobilesacn STATIC
     HttpServer.cpp
     ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnCidGenerator.h
     SacnCidGenerator.cpp
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnSettings.h
+    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/util.h
 )
 
 include(FetchContent)
@@ -39,6 +40,7 @@ FetchContent_MakeAvailable(sACN)
 #if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 #    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
 #endif ()
+find_package(Boost COMPONENTS signals2 REQUIRED)
 find_package(Crow REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
@@ -53,7 +55,11 @@ target_link_libraries(libmobilesacn PRIVATE
     mobile_sacn_messages
     sACN
     )
-target_link_libraries(libmobilesacn PUBLIC spdlog::spdlog EtcPal)
+target_link_libraries(libmobilesacn PUBLIC
+    Boost::signals2
+    spdlog::spdlog
+    EtcPal
+)
 if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
 endif ()

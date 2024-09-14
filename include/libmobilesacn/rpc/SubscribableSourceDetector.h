@@ -11,13 +11,28 @@
 
 #include <sacn/cpp/source_detector.h>
 #include "SubscribableNotifyHandler.h"
+#include <boost/signals2/signal.hpp>
 
 namespace mobilesacn::rpc {
+
+struct SourceDetectorSource
+{
+    std::string cid;
+    std::string name;
+    std::vector<uint16_t> universes;
+};
+
+class SourceDetectorSubscriber
+{
+public:
+    virtual void onSourceUpdated(const SourceDetectorSource& source) = 0;
+    virtual void onSourceExpired(const etcpal::Uuid& cid) = 0;
+};
 
 /**
  * Wrap the SourceDetector to handle multiple subscribers.
  */
-class SubscribableSourceDetector final : public SubscribableNotifyHandler,
+class SubscribableSourceDetector final : public SubscribableNotifyHandler<SourceDetectorSubscriber>,
                                          public sacn::SourceDetector::NotifyHandler
 {
 public:
@@ -36,25 +51,19 @@ public:
                              const std::string& name) override;
 
 protected:
-    bool startup(WsBinarySender* sender) override;
+    void connectSignals(SubscriberPtr& subscriber) override;
+
+    bool startup(SubscriberPtr sender) override;
     void shutdown() override;
-    void onSenderAdded(WsBinarySender* sender) override;
 
 private:
-    struct Source
-    {
-        std::string cid;
-        std::string name;
-        std::vector<uint16_t> universes;
-    };
-
     std::mutex sourcesMutex_;
-    std::unordered_map<etcpal::Uuid, Source> sources_;
+    std::unordered_map<etcpal::Uuid, SourceDetectorSource> sources_;
+
+    boost::signals2::signal<void(const SourceDetectorSource& source)> sigSourceUpdated_;
+    boost::signals2::signal<void(const etcpal::Uuid& cid)> sigSourceExpired_;
 
     explicit SubscribableSourceDetector() = default;
-
-    static void sendSourceUpdated(const Source& source, const SendersList& senders);
-    static void sendSourceExpired(const std::string& cid, const SendersList& senders);
 };
 
 } // mobilesacn::rpc

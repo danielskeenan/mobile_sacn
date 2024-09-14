@@ -8,9 +8,9 @@
 
 #include <libmobilesacn/rpc/SubscribableSourceDetector.h>
 #include <ranges>
-#include <libmobilesacn/util.h>
-#include <mobilesacn_messages/ReceiveLevelsResp.h>
 #include <spdlog/spdlog.h>
+
+#include "libmobilesacn/SacnSettings.h"
 
 namespace mobilesacn::rpc {
 
@@ -25,20 +25,21 @@ SubscribableSourceDetector& SubscribableSourceDetector::get()
     return instance;
 }
 
-bool SubscribableSourceDetector::startup(WsBinarySender* sender)
+bool SubscribableSourceDetector::startup(SubscriberPtr subscriber)
 {
     spdlog::debug("Starting SourceDetector");
-    const auto wsUserData = sender->getWsUserData();
+    const auto& sacnSettings = SacnSettings::get();
     auto settings = sacn::SourceDetector::Settings();
     // Creating the receiver will fail with the default settings if the chosen network interface
     // doesn't have an IPv4 AND an IPv6 address.
-    settings.ip_supported = wsUserData->sacnNetInt.addr().IsV4()
+    settings.ip_supported = sacnSettings->sacnNetInt.addr().IsV4()
             ? sacn_ip_support_t::kSacnIpV4Only
             : sacn_ip_support_t::kSacnIpV6Only;
+    auto mcastInterfaces = sacnSettings->sacnMcastInterfaces;
     auto res = sacn::SourceDetector::Startup(
         settings,
         *this,
-        wsUserData->sacnMcastInterfaces
+        mcastInterfaces
     );
     if (res != kEtcPalErrOk) {
         spdlog::error("Failed to start SourceDetector: {}", res.ToString());
@@ -56,76 +57,52 @@ void SubscribableSourceDetector::shutdown()
     sources_.clear();
 }
 
-void SubscribableSourceDetector::onSenderAdded(WsBinarySender* sender)
-{
-    // Send the new sender information about current sources.
-    std::scoped_lock sourcesLock(sourcesMutex_);
-    for (const auto& source : sources_ | std::views::values) {
-        sendSourceUpdated(source, { sender });
-    }
-}
-
 void SubscribableSourceDetector::HandleSourceUpdated(
     sacn::RemoteSourceHandle handle, const etcpal::Uuid& cid, const std::string& name,
     const std::vector<uint16_t>& sourcedUniverses)
 {
-    std::scoped_lock lock(sendersMutex_, sourcesMutex_);
     auto& source = sources_[cid];
     source.cid = cid.ToString();
     source.name = name;
     source.universes = sourcedUniverses;
     spdlog::debug("Source {} ({}) updated with univs {}", source.cid, source.name,
                   fmt::join(sourcedUniverses, ", "));
-    sendSourceUpdated(source, senders_);
+    sigSourceUpdated_(source);
 }
 
 void SubscribableSourceDetector::HandleSourceExpired(
     sacn::RemoteSourceHandle handle, const etcpal::Uuid& cid, const std::string& name)
 {
-    std::scoped_lock lock(sendersMutex_, sourcesMutex_);
     sources_.erase(cid);
     spdlog::debug("Source {} ({}) expired", cid.ToString(), name);
-    sendSourceExpired(cid.ToString(), senders_);
+    sigSourceExpired_(cid);
 }
 
-void SubscribableSourceDetector::sendSourceUpdated(
-    const Source& source, const SendersList& senders)
+void SubscribableSourceDetector::connectSignals(SubscriberPtr& subscriber)
 {
-    flatbuffers::FlatBufferBuilder builder;
-    const auto msgCid = builder.CreateString(source.cid);
-    const auto msgName = builder.CreateString(source.name);
-    const auto msgUniverses = builder.CreateVector(source.universes);
-    auto sourceUpdatedBuilder = message::SourceUpdatedBuilder(builder);
-    sourceUpdatedBuilder.add_cid(msgCid);
-    sourceUpdatedBuilder.add_name(msgName);
-    sourceUpdatedBuilder.add_universes(msgUniverses);
-    const auto msgSourceUpdated = sourceUpdatedBuilder.Finish();
-    const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder,
-        getNowInMilliseconds(),
-        message::ReceiveLevelsRespVal::sourceUpdated,
-        msgSourceUpdated.Union()
+    auto& conns = subscriberConnections_[subscriber];
+    conns.emplace_back(
+        sigSourceUpdated_.connect(
+            decltype(sigSourceUpdated_)::slot_type(
+                &SourceDetectorSubscriber::onSourceUpdated,
+                subscriber.get(),
+                boost::placeholders::_1
+            ).track_foreign(subscriber))
     );
-    builder.Finish(msgReceiveLevelsResp);
-    sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
-}
+    conns.emplace_back(
+        sigSourceExpired_.connect(
+            decltype(sigSourceExpired_)::slot_type(
+                &SourceDetectorSubscriber::onSourceExpired,
+                subscriber.get(),
+                boost::placeholders::_1)
+            .track_foreign(subscriber))
+    );
 
-void SubscribableSourceDetector::sendSourceExpired(
-    const std::string& cid, const SendersList& senders)
-{
-    flatbuffers::FlatBufferBuilder builder;
-    const auto msgCid = builder.CreateString(cid);
-    auto sourceExpiredBuilder = message::SourceExpiredBuilder(builder);
-    sourceExpiredBuilder.add_cid(msgCid);
-    const auto msgSourceExpired = sourceExpiredBuilder.Finish();
-    const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder,
-        getNowInMilliseconds(),
-        message::ReceiveLevelsRespVal::sourceExpired,
-        msgSourceExpired.Union()
-    );
-    builder.Finish(msgReceiveLevelsResp);
-    sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
+    // Send the new sender information about current sources.
+    std::scoped_lock sourcesLock(sourcesMutex_);
+    for (const auto& source : sources_ | std::views::values) {
+        subscriber->onSourceUpdated(source);
+    }
 }
 
 } // mobilesacn::rpc

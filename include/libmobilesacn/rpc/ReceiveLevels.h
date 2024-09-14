@@ -12,23 +12,32 @@
 #include "RpcHandler.h"
 #include <sacn/cpp/merge_receiver.h>
 #include "SubscribableMergeReceiver.h"
+#include "SubscribableSourceDetector.h"
 
 namespace mobilesacn::rpc {
 
 /**
  * Handler for Receive Levels.
  */
-class ReceiveLevels final : public RpcHandler
+class ReceiveLevels final : public RpcHandler, public SourceDetectorSubscriber,
+                            public MergeReceiverSubscriber,
+                            public std::enable_shared_from_this<ReceiveLevels>
 {
     Q_OBJECT
 
 public:
     using RpcHandler::RpcHandler;
-    ~ReceiveLevels() override;
+    ~ReceiveLevels() override = default;
 
     static constexpr auto kProtocol = "ReceiveLevels";
     [[nodiscard]] const char* getProtocol() const override { return kProtocol; }
     [[nodiscard]] QString getDisplayName() const override { return tr("Receive Levels"); }
+    void onSourceUpdated(const SourceDetectorSource& source) override;
+    void onSourceUpdated(const sacn::MergeReceiver::Source& source) override;
+    void onSourceExpired(const etcpal::Uuid& cid) override;
+    void onMergedData(const SacnRecvMergedData& merged_data,
+                      const std::vector<std::string>& ownerCids) override;
+    void onSourceLost(const etcpal::Uuid& cid) override;
 
 public Q_SLOTS:
     void handleConnected() override;
@@ -39,6 +48,7 @@ private:
     SubscribableMergeReceiver::Ptr receiver_;
 
     void onChangeUniverse(uint16_t universe);
+
 };
 } // mobilesacn::rpc
 

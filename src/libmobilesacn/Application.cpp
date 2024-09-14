@@ -14,6 +14,7 @@
 #include "mobilesacn_config.h"
 #include "libmobilesacn/HttpServer.h"
 #include "libmobilesacn/SacnCidGenerator.h"
+#include "libmobilesacn/SacnSettings.h"
 
 namespace mobilesacn {
 
@@ -53,6 +54,19 @@ void Application::run(const Options& options)
         return;
     }
     SacnCidGenerator::get().setMacAddress(sacnNetInterface->mac());
+
+    auto sacnSettings = SacnSettings::getMutable();
+    sacnSettings->sacnNetInt = *sacnNetInterface;
+    sacnSettings->sacnMcastInterfaces = { SacnMcastInterface{
+        .iface = {
+            .ip_type = sacnNetInterface->addr().raw_type(),
+            .index = sacnNetInterface->index().value(),
+        },
+        .status = etcpal::netint::IsUp(sacnNetInterface->index())
+        ? kEtcPalErrOk
+        : kEtcPalErrNotConn
+    } };
+
     // Setup web server.
     httpServer_ = new HttpServer(
         HttpServer::Options{

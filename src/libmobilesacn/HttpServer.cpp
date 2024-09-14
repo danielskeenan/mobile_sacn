@@ -32,22 +32,12 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 // Deleted when socket is closed.
                 const auto sacnInterface = parent->getOptions().sacn_interface;
                 auto* userData = new rpc::WsUserData{
-                    .sacnNetInt = sacnInterface,
-                    .sacnMcastInterfaces = { SacnMcastInterface{
-                        .iface = {
-                            .ip_type = sacnInterface.addr().raw_type(),
-                            .index = sacnInterface.index().value(),
-                        },
-                        .status = etcpal::netint::IsUp(sacnInterface.index())
-                        ? kEtcPalErrOk
-                        : kEtcPalErrNotConn
-                    } },
                     .clientIp = ws.get_remote_ip(),
                     .protocol = "",
                     .handler = nullptr,
                 };
                 ws.userdata(userData);
-                auto handler = std::unique_ptr<rpc::RpcHandler>(new HandlerT(ws, nullptr));
+                auto handler = std::shared_ptr<rpc::RpcHandler>(new HandlerT(ws));
                 userData->protocol = handler->getProtocol();
                 userData->handler = std::move(handler);
                 wsUserDataList.insert(userData);

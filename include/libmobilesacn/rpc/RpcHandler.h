@@ -21,11 +21,9 @@ class RpcHandler;
 
 struct WsUserData
 {
-    etcpal::NetintInfo sacnNetInt;
-    std::vector<SacnMcastInterface> sacnMcastInterfaces;
     std::string clientIp;
     std::string protocol;
-    std::unique_ptr<RpcHandler> handler;
+    std::shared_ptr<RpcHandler> handler;
 };
 
 /**
@@ -46,11 +44,10 @@ class RpcHandler : public QObject, public WsBinarySender
     Q_OBJECT
 
 public:
-    using Factory = std::function<RpcHandler*(crow::websocket::connection& ws, QObject* parent)>;
     using TextMessage = std::string_view;
     using BinaryMessage = std::span<const uint8_t>;
 
-    explicit RpcHandler(crow::websocket::connection& ws, QObject* parent = nullptr);
+    explicit RpcHandler(crow::websocket::connection& ws);
 
     /**
      * Supported protocol name.
@@ -79,11 +76,6 @@ public Q_SLOTS:
 protected:
     std::mutex wsMutex_;
     crow::websocket::connection& ws_;
-
-    [[nodiscard]] std::vector<SacnMcastInterface>& getSacnMcastInterfaces() const
-    {
-        return getWsUserData()->sacnMcastInterfaces;
-    }
 };
 } // mobilesacn::rpc
 

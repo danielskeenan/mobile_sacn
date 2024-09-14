@@ -13,8 +13,8 @@
 
 namespace mobilesacn::rpc {
 
-RpcHandler::RpcHandler(crow::websocket::connection& ws, QObject* parent)
-    : QObject(parent),
+RpcHandler::RpcHandler(crow::websocket::connection& ws)
+    : QObject(nullptr),
       ws_(ws) {}
 
 void RpcHandler::sendBinary(const uint8_t* data, const std::size_t size)

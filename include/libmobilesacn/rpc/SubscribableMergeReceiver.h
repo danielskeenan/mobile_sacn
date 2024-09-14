@@ -11,13 +11,23 @@
 
 #include <sacn/cpp/merge_receiver.h>
 #include "SubscribableNotifyHandler.h"
+#include <boost/signals2/signal.hpp>
 
 namespace mobilesacn::rpc {
+
+class MergeReceiverSubscriber
+{
+public:
+    virtual void onMergedData(const SacnRecvMergedData& merged_data,
+                              const std::vector<std::string>& ownerCids) = 0;
+    virtual void onSourceUpdated(const sacn::MergeReceiver::Source& source) = 0;
+    virtual void onSourceLost(const etcpal::Uuid& cid) = 0;
+};
 
 /**
  * Wrap a MergeReceiver to handle multiple subscribers.
  */
-class SubscribableMergeReceiver final : public SubscribableNotifyHandler,
+class SubscribableMergeReceiver final : public SubscribableNotifyHandler<MergeReceiverSubscriber>,
                                         public sacn::MergeReceiver::NotifyHandler
 {
 public:
@@ -34,9 +44,9 @@ public:
                            const std::vector<SacnLostSource>& lostSources) override;
 
 protected:
-    bool startup(WsBinarySender* sender) override;
+    bool startup(SubscriberPtr subscriber) override;
     void shutdown() override;
-    void onSenderAdded(WsBinarySender* sender) override;
+    void connectSignals(SubscriberPtr& subscriber) override;
 
 private:
     static inline std::mutex receiversMutex_;
@@ -46,12 +56,15 @@ private:
     sacn::MergeReceiver receiver_;
     std::mutex sourcesMutex_;
     std::unordered_map<etcpal::Uuid, sacn::MergeReceiver::Source> sources_;
+    boost::signals2::signal<void(const SacnRecvMergedData& merged_data,
+                                 const std::vector<std::string>& ownerCids)> sigMergedData_;
+    boost::signals2::signal<void(const sacn::MergeReceiver::Source& source)> sigSourceUpdated_;
+    boost::signals2::signal<void(const etcpal::Uuid& cid)> sigSourceLost_;
 
     explicit SubscribableMergeReceiver() = default;
 
+private:
     void updateSources(const SacnRecvMergedData& mergedData);
-    static void sendSourceUpdated(const sacn::MergeReceiver::Source& source,
-                                  const SendersList& senders);
     std::vector<std::string> getOwnerCids(const SacnRecvMergedData& mergedData);
 };
 

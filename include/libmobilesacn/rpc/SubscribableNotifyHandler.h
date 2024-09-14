@@ -11,6 +11,9 @@
 
 #include <mutex>
 #include <vector>
+#include <unordered_map>
+#include <boost/signals2/connection.hpp>
+#include <spdlog/spdlog.h>
 #include "RpcHandler.h"
 
 namespace mobilesacn::rpc {
@@ -18,59 +21,69 @@ namespace mobilesacn::rpc {
 /**
  * Base class for NotifyHandlers that need to send updates to more than one websocket.
  */
+template <class SubscriberT>
 class SubscribableNotifyHandler
 {
+protected:
+    using SubscriberPtr = std::shared_ptr<SubscriberT>;
+
+private:
+    std::mutex subscriberConnectionsMutex_;
+
 public:
     virtual ~SubscribableNotifyHandler() = default;
 
-    void addSender(WsBinarySender* sender);
-    void removeSender(WsBinarySender* sender);
+    void subscribe(SubscriberPtr subscriber)
+    {
+        std::scoped_lock subscriberConnectionsLock(subscriberConnectionsMutex_);
+        if (subscriberConnections_.empty() && !running_) {
+            if (!startup(subscriber)) {
+                spdlog::critical("Failed to startup SubscribableNotifyHandler");
+                return;
+            }
+            running_ = true;
+        }
+        connectSignals(subscriber);
+    }
+
+    void unsubscribe(SubscriberPtr subscriber)
+    {
+        std::scoped_lock subscriberConnectionsLock(subscriberConnectionsMutex_);
+        subscriberConnections_.erase(subscriber);
+        if (subscriberConnections_.empty() && running_) {
+            shutdown();
+            running_ = false;
+        }
+    }
 
 protected:
-    using SendersList = std::vector<WsBinarySender*>;
-
-    std::mutex sendersMutex_;
-    SendersList senders_;
-
-    explicit SubscribableNotifyHandler() = default;
+    std::atomic_bool running_ = false;
+    using SubscriberConnectionsMap = std::unordered_map<
+        SubscriberPtr, std::vector<boost::signals2::scoped_connection> >;
+    /** Map subscriber pointers to a list of their connections. */
+    SubscriberConnectionsMap subscriberConnections_;
 
     /**
-     * Called when no senders are subscribed and a new sender is added.
+     * Called when there are no subscribers and a new subscriber is added.
      *
-     * @param sender The initial sender.
-     * @return TRUE if the sender should be added, FALSE if not.
+     * @param subscriber The initial subscriber.
+     * @return TRUE if the subscriber should be added, FALSE if not.
      */
-    virtual bool startup(WsBinarySender* sender) = 0;
+    virtual bool startup(SubscriberPtr subscriber) = 0;
 
     /**
-     * Called when removing the last sender.
+     * Called when removing the last subscriber.
      */
     virtual void shutdown() = 0;
 
     /**
-     * Called when a new sender is added.
-     */
-    virtual void onSenderAdded(WsBinarySender* sender) {}
-
-    /**
-     *Send a binary message to the given senders.
+     * Setup all necessary signal connections.
      *
-     * @param data
-     * @param size
+     * This function MUST update subscriberConnections_ with the signal connections so they can be
+     * disconnected later.
+     * @param subscriber
      */
-    void sendToSenders(const uint8_t* data, std::size_t size);
-
-    /**
-     * Overload that sends data to specific senders.
-     *
-     * @param senders
-     * @param data
-     * @param size
-     */
-    static void sendToSenders(const SendersList& senders, const uint8_t* data, std::size_t size);
-
-private:
-    std::atomic_bool running_ = false;
+    virtual void connectSignals(SubscriberPtr& subscriber) = 0;
 };
 
 } // mobilesacn::rpc

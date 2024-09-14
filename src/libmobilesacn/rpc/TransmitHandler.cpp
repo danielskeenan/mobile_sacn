@@ -11,6 +11,8 @@
 #include <libmobilesacn/SacnCidGenerator.h>
 #include <spdlog/spdlog.h>
 
+#include "libmobilesacn/SacnSettings.h"
+
 namespace mobilesacn::rpc {
 
 TransmitHandler::~TransmitHandler()
@@ -83,7 +85,8 @@ void TransmitHandler::onChangeUniverse(uint16_t useUniverse)
         for (const auto universe : currentUniverses) {
             sacn_.RemoveUniverse(universe);
         }
-        sacn_.AddUniverse(univSettings_.universe, getSacnMcastInterfaces());
+        auto mcastInterfaces = SacnSettings::get()->sacnMcastInterfaces;
+        sacn_.AddUniverse(univSettings_.universe, mcastInterfaces);
     }
     sendLevelsAndPap();
 }

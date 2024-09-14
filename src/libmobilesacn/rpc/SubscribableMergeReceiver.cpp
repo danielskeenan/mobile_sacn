@@ -8,9 +8,9 @@
 
 #include <libmobilesacn/rpc/SubscribableMergeReceiver.h>
 #include <ranges>
-#include <libmobilesacn/util.h>
 #include <mobilesacn_messages/ReceiveLevelsResp.h>
 #include <spdlog/spdlog.h>
+#include "libmobilesacn/SacnSettings.h"
 
 namespace mobilesacn::rpc {
 
@@ -40,41 +40,8 @@ void SubscribableMergeReceiver::HandleMergedData(sacn::MergeReceiver::Handle han
                                                  const SacnRecvMergedData& merged_data)
 {
     updateSources(merged_data);
-
-    flatbuffers::FlatBufferBuilder builder;
-
-    std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf{};
-    const auto bufOffset = merged_data.slot_range.start_address - 1;
-    const auto bufCount = std::min(merged_data.slot_range.address_count, DMX_ADDRESS_COUNT);
-
-    // Levels
-    std::memcpy(levelBuf.data() + bufOffset, merged_data.levels, bufCount);
-    auto msgLevels = message::LevelBuffer(levelBuf);
-    levelBuf.fill(0);
-
-    // Priorities
-    std::memcpy(levelBuf.data() + bufOffset, merged_data.priorities, bufCount);
-    auto msgPriorities = message::LevelBuffer(levelBuf);
-
-    // Owners
-    auto msgOwners = builder.CreateVectorOfStrings(getOwnerCids(merged_data));
-
-    // Wrap the message.
-    auto levelsChangedBuilder = message::LevelsChangedBuilder(builder);
-    levelsChangedBuilder.add_levels(&msgLevels);
-    levelsChangedBuilder.add_priorities(&msgPriorities);
-    levelsChangedBuilder.add_owners(msgOwners);
-    auto msgLevelsChanged = levelsChangedBuilder.Finish();
-
-    // Send the message.
-    const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder,
-        getNowInMilliseconds(),
-        message::ReceiveLevelsRespVal::levelsChanged,
-        msgLevelsChanged.Union()
-    );
-    builder.Finish(msgReceiveLevelsResp);
-    sendToSenders(builder.GetBufferPointer(), builder.GetSize());
+    const auto ownerCids = getOwnerCids(merged_data);
+    sigMergedData_(merged_data, ownerCids);
 }
 
 void SubscribableMergeReceiver::HandleSourcesLost(sacn::MergeReceiver::Handle handle,
@@ -83,19 +50,7 @@ void SubscribableMergeReceiver::HandleSourcesLost(sacn::MergeReceiver::Handle ha
 {
     for (const auto& source : lostSources) {
         const auto cid = etcpal::Uuid(source.cid);
-        flatbuffers::FlatBufferBuilder builder;
-        const auto msgCid = builder.CreateString(cid.ToString());
-        auto sourceExpiredBuilder = message::SourceExpiredBuilder(builder);
-        sourceExpiredBuilder.add_cid(msgCid);
-        const auto msgSourceExpired = sourceExpiredBuilder.Finish();
-        const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-            builder,
-            getNowInMilliseconds(),
-            message::ReceiveLevelsRespVal::sourceExpired,
-            msgSourceExpired.Union()
-        );
-        builder.Finish(msgReceiveLevelsResp);
-        sendToSenders(builder.GetBufferPointer(), builder.GetSize());
+        sigSourceLost_(cid);
         sources_.erase(cid);
     }
 }
@@ -121,7 +76,6 @@ void SubscribableMergeReceiver::updateSources(const SacnRecvMergedData& mergedDa
     if (!sourcesLock) {
         return;
     }
-    std::unique_lock sendersLock(sendersMutex_, std::defer_lock_t{});
     // Update sources.
     for (std::size_t ix = 0; ix < mergedData.num_active_sources; ++ix) {
         const auto newSource = receiver_.GetSource(mergedData.active_sources[ix]);
@@ -129,37 +83,10 @@ void SubscribableMergeReceiver::updateSources(const SacnRecvMergedData& mergedDa
         const auto cid = newSource->cid;
         auto& oldSource = sources_[cid];
         if (oldSource != *newSource) {
-            if (sendersLock || (!sendersLock && sendersLock.try_lock())) {
-                // Send an update.
-                sendSourceUpdated(*newSource, senders_);
-            }
+            sigSourceUpdated_(*newSource);
             oldSource = *newSource;
         }
     }
-}
-
-void SubscribableMergeReceiver::sendSourceUpdated(const sacn::MergeReceiver::Source& source,
-                                                  const SendersList& senders)
-{
-    flatbuffers::FlatBufferBuilder builder;
-    const auto msgCid = builder.CreateString(source.cid.ToString());
-    const auto msgName = builder.CreateString(source.name);
-    const auto msgIpAddr = builder.CreateString(source.addr.ip().ToString());
-    auto sourceUpdatedBuilder = message::SourceUpdatedBuilder(builder);
-    sourceUpdatedBuilder.add_cid(msgCid);
-    sourceUpdatedBuilder.add_name(msgName);
-    sourceUpdatedBuilder.add_ipAddr(msgIpAddr);
-    sourceUpdatedBuilder.add_hasPap(source.per_address_priorities_active);
-    sourceUpdatedBuilder.add_priority(source.universe_priority);
-    const auto msgSourceUpdated = sourceUpdatedBuilder.Finish();
-    const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-        builder,
-        getNowInMilliseconds(),
-        message::ReceiveLevelsRespVal::sourceUpdated,
-        msgSourceUpdated.Union()
-    );
-    builder.Finish(msgReceiveLevelsResp);
-    sendToSenders(senders, builder.GetBufferPointer(), builder.GetSize());
 }
 
 std::vector<std::string> SubscribableMergeReceiver::getOwnerCids(
@@ -184,13 +111,14 @@ std::vector<std::string> SubscribableMergeReceiver::getOwnerCids(
     return ownerCids;
 }
 
-bool SubscribableMergeReceiver::startup(WsBinarySender* sender)
+bool SubscribableMergeReceiver::startup(SubscriberPtr subscriber)
 {
     spdlog::debug("Creating sACN Receiver for univ {}", sacnSettings_.universe_id);
-    sacnSettings_.ip_supported = sender->getWsUserData()->sacnNetInt.addr().IsV4()
+    const auto& sacnSettings = SacnSettings::get();
+    sacnSettings_.ip_supported = sacnSettings->sacnNetInt.addr().IsV4()
             ? sacn_ip_support_t::kSacnIpV4Only
             : sacn_ip_support_t::kSacnIpV6Only;
-    auto mcastInterfaces = sender->getWsUserData()->sacnMcastInterfaces;
+    auto mcastInterfaces = sacnSettings->sacnMcastInterfaces;
     const auto res = receiver_.Startup(sacnSettings_, *this, mcastInterfaces);
     if (!res.IsOk()) {
         spdlog::critical("Error starting sACN Receiver: {}", res.ToString());
@@ -208,12 +136,39 @@ void SubscribableMergeReceiver::shutdown()
     receivers_.erase(sacnSettings_.universe_id);
 }
 
-void SubscribableMergeReceiver::onSenderAdded(WsBinarySender* sender)
+void SubscribableMergeReceiver::connectSignals(SubscriberPtr& subscriber)
 {
+    auto& conns = subscriberConnections_[subscriber];
+    conns.emplace_back(sigMergedData_.connect(
+            decltype(sigMergedData_)::slot_type(
+                &MergeReceiverSubscriber::onMergedData,
+                subscriber.get(),
+                boost::placeholders::_1,
+                boost::placeholders::_2
+            )
+            .track_foreign(subscriber))
+    );
+    conns.emplace_back(sigSourceUpdated_.connect(
+            decltype(sigSourceUpdated_)::slot_type(
+                &MergeReceiverSubscriber::onSourceUpdated,
+                subscriber.get(),
+                boost::placeholders::_1
+            )
+            .track_foreign(subscriber))
+    );
+    conns.emplace_back(sigSourceLost_.connect(
+            decltype(sigSourceLost_)::slot_type(
+                &MergeReceiverSubscriber::onSourceLost,
+                subscriber.get(),
+                boost::placeholders::_1
+            )
+            .track_foreign(subscriber))
+    );
+
     // Send the new sender information about current sources.
     std::scoped_lock sourcesLock(sourcesMutex_);
     for (const auto& source : sources_ | std::views::values) {
-        sendSourceUpdated(source, { sender });
+        subscriber->onSourceUpdated(source);
     }
 }
 
