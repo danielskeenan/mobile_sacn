@@ -22,6 +22,7 @@ add_dependencies(${PROJECT_NAME} mobile_sacn_webui ${PROJECT_NAME}_doc)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
+    target_sources(${PROJECT_NAME} PRIVATE mobilesacn.rc)
 endif ()
 
 # Updater
@@ -50,7 +51,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # This is a very ugly kludge because TARGET_RUNTIME_DLLS does not pick up ZLib.
     find_package(ZLIB REQUIRED)
     get_target_property(ZLIB_INC_DIR ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS ${ZLIB_INC_DIR})
     install(
         FILES "${ZLIB_INC_DIR}/../$<$<CONFIG:Debug>:debug/>bin/zlib$<$<CONFIG:Debug>:d>1.dll"
         TYPE BIN
