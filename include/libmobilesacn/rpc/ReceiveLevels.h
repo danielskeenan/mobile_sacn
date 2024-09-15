@@ -45,7 +45,9 @@ public Q_SLOTS:
     void handleClose() override;
 
 private:
+    static constexpr auto kMessageInterval = std::chrono::milliseconds(100);
     SubscribableMergeReceiver::Ptr receiver_;
+    std::chrono::steady_clock::time_point lastSent_;
 
     void onChangeUniverse(uint16_t universe);
 

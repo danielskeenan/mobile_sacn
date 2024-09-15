@@ -128,6 +128,11 @@ void ReceiveLevels::onSourceExpired(const etcpal::Uuid& cid)
 void ReceiveLevels::onMergedData(const SacnRecvMergedData& merged_data,
                                  const std::vector<std::string>& ownerCids)
 {
+    const auto now = std::chrono::steady_clock::now();
+    if (now - lastSent_ < kMessageInterval) {
+        // Don't flood clients with messages.
+        return;
+    }
     flatbuffers::FlatBufferBuilder builder;
 
     std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf{};
@@ -162,6 +167,7 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& merged_data,
     );
     builder.Finish(msgReceiveLevelsResp);
     sendBinary(builder.GetBufferPointer(), builder.GetSize());
+    lastSent_ = now;
 }
 
 void ReceiveLevels::onSourceLost(const etcpal::Uuid& cid)
