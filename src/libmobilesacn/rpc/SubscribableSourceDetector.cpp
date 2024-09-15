@@ -8,8 +8,8 @@
 
 #include <libmobilesacn/rpc/SubscribableSourceDetector.h>
 #include <ranges>
+#include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
-
 #include "libmobilesacn/SacnSettings.h"
 
 namespace mobilesacn::rpc {

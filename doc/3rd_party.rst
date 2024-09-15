@@ -3,6 +3,14 @@
 
 The following 3rd party software is included in Mobile sACN.
 
+Boost
+-----
+
+https://www.boost.org
+
+.. include:: licenses/boost.txt
+   :literal:
+
 Bootstrap
 ---------
 
