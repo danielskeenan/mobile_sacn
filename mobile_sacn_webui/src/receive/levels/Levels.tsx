@@ -11,7 +11,7 @@ import useWebsocket from "../../common/useWebsocket.ts";
 import {ReceiveLevelsResp} from "../../messages/receive-levels-resp.ts";
 import {ReceiveLevelsRespVal} from "../../messages/receive-levels-resp-val.ts";
 import {SourceUpdated} from "../../messages/source-updated.ts";
-import colorForCID from "../../common/colorForCID.ts";
+import colorForCID, {CidColor} from "../../common/colorForCID.ts";
 import {SourceExpired} from "../../messages/source-expired.ts";
 import {ByteBuffer} from "flatbuffers";
 import {LevelsChanged} from "../../messages/levels-changed.ts";
@@ -27,6 +27,8 @@ import LevelDisplay, {PriorityDisplay} from "../../common/components/LevelDispla
 import {LevelBar} from "../../common/components/LevelBar.tsx";
 import bigIntAbs from "../../common/bigIntAbs.ts";
 import AppContext from "../../common/Context.ts";
+import {FlickerFinder} from "../../messages/flicker-finder.ts";
+import {Flicker} from "../../messages/flicker.ts";
 
 enum ViewMode {
     GRID = "grid",
@@ -35,8 +37,7 @@ enum ViewMode {
 
 interface Source {
     cid: string;
-    lightColor: Color;
-    darkColor: Color;
+    color: CidColor;
     name: string;
     ipAddr: string;
     hasPap: boolean;
@@ -47,8 +48,10 @@ interface Source {
 // Used for addresses that have no owner.
 const DEFAULT_SOURCE: Source = {
     cid: "00000000-0000-0000-0000-000000000000",
-    lightColor: new Color("transparent"),
-    darkColor: new Color("transparent"),
+    color: {
+        light: new Color("transparent"),
+        dark: new Color("transparent"),
+    },
     name: "No Source",
     ipAddr: "",
     hasPap: false,
@@ -56,8 +59,23 @@ const DEFAULT_SOURCE: Source = {
     universes: new Uint16Array(),
 };
 
+const RAISE_COLOR: CidColor = {
+    light: new Color("aqua"),
+    dark: new Color("blue"),
+}
+const LOWER_COLOR: CidColor = {
+    light: new Color("lime"),
+    dark: new Color("blue")
+}
+
+const SAME_COLOR: CidColor = {
+    light: new Color("silver"),
+    dark: new Color("gray"),
+}
+
 const emptyLevelBuffer = () => Array.from(times(DMX_MAX, constant(0)));
 const emptyOwnerBuffer = () => Array.from(times(DMX_MAX, constant("")));
+const emptyFlickerBuffer = () => Array.from(times(DMX_MAX, constant(null)));
 const emptySourceMap = () => new Map<string, Source>();
 
 function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
@@ -86,9 +104,31 @@ export function Component() {
     }, [sourceMap]);
     const [viewMode, setViewMode] = useState(ViewMode.GRID);
     const [showPriorities, setShowPriorities] = useState(true);
+    const [flickerFinder, setFlickerFinder] = useState(false);
+    const [flickers, setFlickers] = useState<(number | null)[]>(emptyFlickerBuffer());
     const [showUnivDialog, setShowUnivDialog] = useState(false);
     const openUnivDialog = useCallback(() => setShowUnivDialog(true), [setShowUnivDialog]);
     const closeUnivDialog = useCallback(() => setShowUnivDialog(false), [setShowUnivDialog]);
+    const addressColors = useMemo(() => {
+        if (flickerFinder) {
+            return flickers.map(change => {
+                if (change === null) {
+                    return DEFAULT_SOURCE.color;
+                } else if (change < 0) {
+                    return LOWER_COLOR;
+                } else if (change > 0) {
+                    return RAISE_COLOR;
+                } else {
+                    return SAME_COLOR;
+                }
+            });
+        } else {
+            return owners.map(cid => {
+                const source = sourceMap.get(cid) ?? DEFAULT_SOURCE;
+                return source.color;
+            });
+        }
+    }, [flickerFinder, flickers, owners, sourceMap]);
 
     // RPC Receivers
     const onSourceUpdated = useCallback((msg: SourceUpdated) => {
@@ -101,7 +141,6 @@ export function Component() {
         } else {
             universes = msg.universesArray() ?? Uint16Array.from([universe]);
         }
-        const color = colorForCID(cid);
         const newSource: Source = {
             cid: cid,
             name: msg.name() as string,
@@ -109,8 +148,7 @@ export function Component() {
             hasPap: msg.hasPap() ?? oldSource?.hasPap ?? DEFAULT_SOURCE.hasPap,
             priority: msg.priority() ?? oldSource?.priority ?? DEFAULT_SOURCE.priority,
             universes: universes,
-            lightColor: color.light,
-            darkColor: color.dark,
+            color: colorForCID(cid)
         };
         newSourceMap.set(cid, newSource);
         setSourceMap(newSourceMap);
@@ -130,9 +168,20 @@ export function Component() {
         const newPriorities = Array.from({length: LevelBuffer.sizeOf()}, (v, i) => msgPriorities.levels(i)) as number[];
         setPriorities(newPriorities);
 
-        const newOwners = Array.from({length: msg.ownersLength()}, (v, i) => msg.owners(i)) as string[];
+        const newOwners = Array.from({length: msg.ownersLength()}, (v, i) => msg.owners(i));
         setOwners(newOwners);
     }, [setLevels, setPriorities, setOwners]);
+    const onFlicker = useCallback((msg: Flicker) => {
+        const newFlickers = flickers.slice();
+        const newLevels = levels.slice();
+        for (let ix = 0; ix < msg.changesLength(); ++ix) {
+            const change = msg.changes(ix)!;
+            newFlickers[change.address()] = change.change();
+            newLevels[change.address()] = change.newLevel();
+        }
+        setLevels(newLevels);
+        setFlickers(newFlickers);
+    }, [flickers, setFlickers, levels, setLevels]);
     const onSystemTime = useCallback((timestamp: bigint) => {
         setServerTimeOffset(timestamp - BigInt(Date.now()));
     }, [setServerTimeOffset]);
@@ -156,10 +205,13 @@ export function Component() {
             }
             const msgLevelsChanged = msg.val(new LevelsChanged()) as LevelsChanged;
             onLevelsChanged(msgLevelsChanged);
+        } else if (msg.valType() === ReceiveLevelsRespVal.flicker) {
+            const msgFlicker = msg.val(new Flicker()) as Flicker;
+            onFlicker(msgFlicker);
         } else if (msg.valType() == ReceiveLevelsRespVal.systemTime) {
             onSystemTime(msg.timestamp());
         }
-    }, [serverTimeOffset, onSourceUpdated, onSourceExpired, onLevelsChanged, onSystemTime]);
+    }, [serverTimeOffset, onSourceUpdated, onSourceExpired, onLevelsChanged, onFlicker, onSystemTime]);
     const onOpen = useCallback((e: WebSocketEventMap["open"]) => {
         const ws = e.currentTarget;
         if (ws instanceof WebSocket) {
@@ -176,12 +228,12 @@ export function Component() {
 
     // RPC Setters
     const sendUniverse = useCallback((val: typeof universe) => {
-        let builder = new fbsBuilder();
-        let msgUniverse = Universe.createUniverse(builder, val);
+        const builder = new fbsBuilder();
+        const msgUniverse = Universe.createUniverse(builder, val);
         ReceiveLevelsReq.startReceiveLevelsReq(builder);
         ReceiveLevelsReq.addValType(builder, ReceiveLevelsReqVal.universe);
         ReceiveLevelsReq.addVal(builder, msgUniverse);
-        let msgReceiveLevelsReq = ReceiveLevelsReq.endReceiveLevelsReq(builder);
+        const msgReceiveLevelsReq = ReceiveLevelsReq.endReceiveLevelsReq(builder);
         builder.finish(msgReceiveLevelsReq);
         const data = builder.asUint8Array();
         sendMessage(data);
@@ -194,6 +246,21 @@ export function Component() {
         setOwners(emptyOwnerBuffer());
         setSourceMap(emptySourceMap());
     }, [universe, sendUniverse, setLevels, setPriorities, setOwners, setSourceMap]);
+    const sendFlickerFinder = useCallback((val: typeof flickerFinder) => {
+        const builder = new fbsBuilder();
+        const msgFlickerFinder = FlickerFinder.createFlickerFinder(builder, val);
+        ReceiveLevelsReq.startReceiveLevelsReq(builder);
+        ReceiveLevelsReq.addValType(builder, ReceiveLevelsReqVal.flicker_finder);
+        ReceiveLevelsReq.addVal(builder, msgFlickerFinder);
+        const msgReceiveLevelsReq = ReceiveLevelsReq.endReceiveLevelsReq(builder);
+        builder.finish(msgReceiveLevelsReq);
+        const data = builder.asUint8Array();
+        sendMessage(data);
+    }, [sendMessage]);
+    useEffect(() => {
+        sendFlickerFinder(flickerFinder);
+        setFlickers(emptyFlickerBuffer());
+    }, [flickerFinder, sendFlickerFinder, setFlickers]);
 
     return (
         <>
@@ -228,6 +295,19 @@ export function Component() {
                             <h2>Universe {universe}</h2>
                             <SourceList sources={sources.filter(source => source.universes.includes(universe))}/>
 
+                            <Stack direction="horizontal">
+                                <Form.Check
+                                    label="Show Priorities"
+                                    checked={showPriorities}
+                                    onChange={() => setShowPriorities(!showPriorities)}
+                                />
+                                <Form.Check
+                                    label="Flicker Finder"
+                                    checked={flickerFinder}
+                                    onChange={() => setFlickerFinder(!flickerFinder)}
+                                />
+                            </Stack>
+
                             <Tabs
                                 className="mt-3"
                                 activeKey={viewMode}
@@ -239,6 +319,7 @@ export function Component() {
                                         levels={levels}
                                         priorities={priorities}
                                         owners={owners}
+                                        colors={addressColors}
                                         showPriorities={showPriorities}
                                     />
                                 </Tab>
@@ -248,6 +329,7 @@ export function Component() {
                                         levels={levels}
                                         priorities={priorities}
                                         owners={owners}
+                                        colors={addressColors}
                                         showPriorities={showPriorities}
                                     />
                                 </Tab>
@@ -343,7 +425,7 @@ function SourceList(props: SourceListProps) {
                                 <tbody>
                                 {sources.map(source => (
                                     <tr key={source.cid}
-                                        style={{backgroundColor: darkMode ? source.darkColor.display() : source.lightColor.display()}}>
+                                        style={{backgroundColor: darkMode ? source.color.dark.display() : source.color.light.display()}}>
                                         <td>{source.name}</td>
                                         <td>{source.ipAddr}</td>
                                         <td>{source.hasPap && "*"}{source.priority}</td>
@@ -376,13 +458,14 @@ interface LevelsViewProps {
     levels: number[];
     priorities: number[];
     owners: string[];
+    colors: CidColor[];
     showPriorities: boolean;
 }
 
 const DEFAULT_VIEW_GRID_COLS = 4;
 
 function ViewGrid(props: LevelsViewProps) {
-    const {sourceMap, levels, priorities, owners} = props;
+    const {levels, priorities, colors} = props;
     const {darkMode} = useContext(AppContext);
     const [recalcCols, setRecalcCols] = useState(true);
     const [cols, setCols] = useState(DEFAULT_VIEW_GRID_COLS);
@@ -425,13 +508,13 @@ function ViewGrid(props: LevelsViewProps) {
             setPreferredCellHeight(tdHeight);
             setCols(cols + 1);
         }
-    }, [recalcCols, cols]);
+    }, [recalcCols, cols, preferredCellHeight]);
     useEffect(() => {
         window.addEventListener("resize", forceRecalcCols);
         return () => {
             window.removeEventListener("resize", forceRecalcCols);
         };
-    }, []);
+    }, [forceRecalcCols]);
 
     // Setup level rows.
     const rows = [];
@@ -444,14 +527,14 @@ function ViewGrid(props: LevelsViewProps) {
         // Add cells for each address.
         for (let colIx = 0; colIx < cols; ++colIx, ++levelIx) {
             const level = levels[levelIx];
-            const ownerCid = owners[levelIx];
-            const owner = sourceMap.get(ownerCid) ?? DEFAULT_SOURCE;
+            const cidColor = colors[levelIx] ?? DEFAULT_SOURCE.color;
+            const color = darkMode ? cidColor.dark : cidColor.light;
             const priority = priorities[levelIx];
 
             row.push(
                 <td key={`level-${levelIx}`}
                     style={{
-                        backgroundColor: darkMode ? owner.darkColor.display() : owner.lightColor.display(),
+                        backgroundColor: color.display(),
                         overflowWrap: recalcCols ? "anywhere" : "unset",
                     }}>
                     <Stack direction="vertical" gap={0}>
@@ -489,13 +572,13 @@ function ViewBarsTitle() {
 }
 
 function ViewBars(props: LevelsViewProps) {
-    const {sourceMap, levels, priorities, owners} = props;
+    const {levels, priorities, colors} = props;
     const fgColors = useMemo(() => {
-        return owners.map(owner => sourceMap.get(owner)?.lightColor ?? DEFAULT_SOURCE.lightColor);
-    }, [sourceMap, owners]);
+        return colors.map(color => color.light ?? DEFAULT_SOURCE.color.light);
+    }, [colors]);
     const bgColors = useMemo(() => {
-        return owners.map(owner => sourceMap.get(owner)?.darkColor ?? DEFAULT_SOURCE.darkColor);
-    }, [sourceMap, owners]);
+        return colors.map(color => color.dark ?? DEFAULT_SOURCE.color.dark);
+    }, [colors]);
 
     return (
         <Stack className="msacn-viewbars" direction="vertical" gap={1}>

@@ -2,7 +2,7 @@ import CRC32 from "crc-32";
 import Color from "colorjs.io";
 import {each, every} from "lodash";
 
-interface CidColor {
+export interface CidColor {
     light: Color;
     dark: Color;
 }

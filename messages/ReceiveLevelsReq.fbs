@@ -2,8 +2,13 @@ include "Universe.fbs";
 
 namespace mobilesacn.message;
 
+table FlickerFinder {
+    flicker_finder:bool;
+}
+
 union ReceiveLevelsReqVal {
     universe:Universe,
+    flicker_finder:FlickerFinder,
 }
 
 table ReceiveLevelsReq {

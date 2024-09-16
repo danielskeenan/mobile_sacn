@@ -8,6 +8,16 @@ table LevelsChanged {
     owners:[string] (required);
 }
 
+struct LevelChange {
+    address: uint16;
+    new_level: uint8;
+    change: int8;
+}
+
+table Flicker {
+    changes: [LevelChange] (required);
+}
+
 table SourceUpdated {
     cid:string (required);
     name:string (required);
@@ -27,6 +37,7 @@ table SystemTime {
 
 union ReceiveLevelsRespVal {
     levelsChanged:LevelsChanged,
+    flicker:Flicker,
     sourceUpdated:SourceUpdated,
     sourceExpired:SourceExpired,
     systemTime:SystemTime,
