@@ -11,7 +11,7 @@ table LevelsChanged {
 struct LevelChange {
     address: uint16;
     new_level: uint8;
-    change: int8;
+    change: int;
 }
 
 table Flicker {

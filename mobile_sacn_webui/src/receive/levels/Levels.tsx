@@ -65,7 +65,7 @@ const RAISE_COLOR: CidColor = {
 }
 const LOWER_COLOR: CidColor = {
     light: new Color("lime"),
-    dark: new Color("blue")
+    dark: new Color("green")
 }
 
 const SAME_COLOR: CidColor = {

@@ -48,8 +48,12 @@ private:
     static constexpr auto kMessageInterval = std::chrono::milliseconds(100);
     SubscribableMergeReceiver::Ptr receiver_;
     std::chrono::steady_clock::time_point lastSent_;
+    bool flickerFinder_ = false;
+    std::mutex levelBufferMutex_;
+    std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuffer_;
 
     void onChangeUniverse(uint16_t universe);
+    void onChangeFlickerFinder(bool flickerFinder);
 
 };
 } // mobilesacn::rpc
