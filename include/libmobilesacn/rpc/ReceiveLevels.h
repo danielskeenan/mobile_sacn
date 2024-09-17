@@ -35,8 +35,8 @@ public:
     void onSourceUpdated(const SourceDetectorSource& source) override;
     void onSourceUpdated(const sacn::MergeReceiver::Source& source) override;
     void onSourceExpired(const etcpal::Uuid& cid) override;
-    void onMergedData(const SacnRecvMergedData& merged_data,
-                      const std::vector<std::string>& ownerCids) override;
+    void onMergedData(const SacnRecvMergedData& mergedData,
+                      const std::array<std::string, DMX_ADDRESS_COUNT>& ownerCids) override;
     void onSourceLost(const etcpal::Uuid& cid) override;
 
 public Q_SLOTS:
@@ -45,12 +45,18 @@ public Q_SLOTS:
     void handleClose() override;
 
 private:
+    struct LastSeen
+    {
+        std::array<uint8_t, DMX_ADDRESS_COUNT> levels{};
+        std::array<uint8_t, DMX_ADDRESS_COUNT> priorities{};
+        std::array<std::string, DMX_ADDRESS_COUNT> owners{};
+    };
     static constexpr auto kMessageInterval = std::chrono::milliseconds(100);
+    std::mutex lastSeenMutex_;
+    LastSeen lastSeen_;
     SubscribableMergeReceiver::Ptr receiver_;
     std::chrono::steady_clock::time_point lastSent_;
     bool flickerFinder_ = false;
-    std::mutex levelBufferMutex_;
-    std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuffer_;
 
     void onChangeUniverse(uint16_t universe);
     void onChangeFlickerFinder(bool flickerFinder);

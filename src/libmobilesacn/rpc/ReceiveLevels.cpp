@@ -132,38 +132,68 @@ void ReceiveLevels::onSourceExpired(const etcpal::Uuid& cid)
     sendBinary(builder.GetBufferPointer(), builder.GetSize());
 }
 
-void ReceiveLevels::onMergedData(const SacnRecvMergedData& merged_data,
-                                 const std::vector<std::string>& ownerCids)
+template <typename T>
+bool buffersEqual(std::span<T> lhs, T* rhs, std::size_t rhsSize)
+{
+    if (lhs.size() != rhsSize) {
+        return false;
+    }
+    for (std::size_t ix = 0; ix < rhsSize; ++ix) {
+        if (lhs[ix] != rhs[ix]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
+                                 const std::array<std::string, DMX_ADDRESS_COUNT>& ownerCids)
 {
     const auto now = std::chrono::steady_clock::now();
-    if (now - lastSent_ < kMessageInterval) {
-        // Don't flood clients with messages.
+    if (!flickerFinder_ && now - lastSent_ < kMessageInterval) {
+        // Don't flood clients with messages, unless we are in flicker finder as we don't want
+        // to miss flicker that last only one frame.
         return;
     }
 
-    std::unique_lock levelBufferLock(levelBufferMutex_, std::try_to_lock);
-    if (!levelBufferLock) {
-        // Try again next message.
+    std::unique_lock<decltype(lastSeenMutex_)> lastSeenLock;
+    if (flickerFinder_) {
+        // Block for the lock, as we don't want to miss frames in flicker finder.
+        lastSeenLock = std::unique_lock(lastSeenMutex_);
+    } else {
+        // If we can't get the lock, we will try again on the next frame.
+        lastSeenLock = std::unique_lock(lastSeenMutex_, std::try_to_lock);
+    }
+    if (!lastSeenLock) {
+        spdlog::debug("Could not lock last seen buffers.");
         return;
     }
 
-    const auto bufOffset = merged_data.slot_range.start_address - 1;
-    const auto bufCount = std::min(merged_data.slot_range.address_count, DMX_ADDRESS_COUNT);
+    // Determine where in addresses 1-512 our received data is.
+    const auto bufOffset = mergedData.slot_range.start_address - 1;
+    const auto bufCount = std::min(mergedData.slot_range.address_count, DMX_ADDRESS_COUNT);
+    // Determine if the data has changed since the last message.
+    if (buffersEqual(std::span<const uint8_t>(lastSeen_.levels).subspan(bufOffset, bufCount),
+                     mergedData.levels, bufCount)
+        && buffersEqual(std::span<const uint8_t>(lastSeen_.priorities).subspan(bufOffset, bufCount),
+                        mergedData.priorities, bufCount)
+        && lastSeen_.owners == ownerCids) {
+        // Nothing has changed, send no messages.
+        return;
+    }
+    // Something has changed, send a message.
+
     if (!flickerFinder_) {
-        std::memcpy(levelBuffer_.data() + bufOffset, merged_data.levels, bufCount);
+        // Normal "display current levels" mode.
+        std::memcpy(lastSeen_.levels.data() + bufOffset, mergedData.levels, bufCount);
+        std::memcpy(lastSeen_.priorities.data() + bufOffset, mergedData.priorities, bufCount);
+        lastSeen_.owners = ownerCids;
 
         flatbuffers::FlatBufferBuilder builder;
 
-        // Levels
-        auto msgLevels = message::LevelBuffer(levelBuffer_);
-
-        // Priorities
-        std::array<uint8_t, DMX_ADDRESS_COUNT> priorityBuffer{};
-        std::memcpy(priorityBuffer.data() + bufOffset, merged_data.priorities, bufCount);
-        auto msgPriorities = message::LevelBuffer(priorityBuffer);
-
-        // Owners
-        auto msgOwners = builder.CreateVectorOfStrings(ownerCids);
+        auto msgLevels = message::LevelBuffer(lastSeen_.levels);
+        auto msgPriorities = message::LevelBuffer(lastSeen_.priorities);
+        auto msgOwners = builder.CreateVectorOfStrings(ownerCids.cbegin(), ownerCids.cend());
 
         // Wrap the message.
         auto levelsChangedBuilder = message::LevelsChangedBuilder(builder);
@@ -174,17 +204,19 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& merged_data,
 
         // Send the message.
         const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-                builder, getNowInMilliseconds(), message::ReceiveLevelsRespVal::levelsChanged,
-                msgLevelsChanged.Union());
+            builder, getNowInMilliseconds(), message::ReceiveLevelsRespVal::levelsChanged,
+            msgLevelsChanged.Union());
         builder.Finish(msgReceiveLevelsResp);
         sendBinary(builder.GetBufferPointer(), builder.GetSize());
     } else {
+        // Flicker finder mode.
+        decltype(lastSeen_.levels) levelsBuffer{};
+        std::memcpy(levelsBuffer.data() + bufOffset, mergedData.levels, bufCount);
         // Compare new levels to levels stored in the buffer.
         std::vector<message::LevelChange> levelChanges;
-        for (unsigned int ix = 0; ix < bufCount; ++ix) {
-            const auto address = ix + bufOffset;
-            const auto oldLevel = levelBuffer_.at(address);
-            const auto newLevel = merged_data.levels[ix];
+        for (unsigned int address = 0; address < levelsBuffer.size(); ++address) {
+            const auto oldLevel = lastSeen_.levels[address];
+            const auto newLevel = levelsBuffer[address];
             const int diff = newLevel - oldLevel;
             if (diff != 0) {
                 // Found a flicker, add it to the list.
@@ -197,11 +229,15 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& merged_data,
             const auto msgLevelChanges = builder.CreateVectorOfStructs(levelChanges);
             const auto msgFlicker = message::CreateFlicker(builder, msgLevelChanges);
             const auto msgReceiveLevelsResp = message::CreateReceiveLevelsResp(
-                    builder, getNowInMilliseconds(), message::ReceiveLevelsRespVal::flicker,
-                    msgFlicker.Union());
+                builder, getNowInMilliseconds(), message::ReceiveLevelsRespVal::flicker,
+                msgFlicker.Union());
             builder.Finish(msgReceiveLevelsResp);
             sendBinary(builder.GetBufferPointer(), builder.GetSize());
         }
+        // Now that we've made comparisons, it's safe to update last seen.
+        std::memcpy(lastSeen_.levels.data() + bufOffset, mergedData.levels, bufCount);
+        std::memcpy(lastSeen_.priorities.data() + bufOffset, mergedData.priorities, bufCount);
+        lastSeen_.owners = ownerCids;
     }
     lastSent_ = now;
 }

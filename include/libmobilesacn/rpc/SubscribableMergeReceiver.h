@@ -19,7 +19,7 @@ class MergeReceiverSubscriber
 {
 public:
     virtual void onMergedData(const SacnRecvMergedData& merged_data,
-                              const std::vector<std::string>& ownerCids) = 0;
+                              const std::array<std::string, DMX_ADDRESS_COUNT> &ownerCids) = 0;
     virtual void onSourceUpdated(const sacn::MergeReceiver::Source& source) = 0;
     virtual void onSourceLost(const etcpal::Uuid& cid) = 0;
 };
@@ -57,15 +57,14 @@ private:
     std::mutex sourcesMutex_;
     std::unordered_map<etcpal::Uuid, sacn::MergeReceiver::Source> sources_;
     boost::signals2::signal<void(const SacnRecvMergedData& merged_data,
-                                 const std::vector<std::string>& ownerCids)> sigMergedData_;
+                                 const std::array<std::string, DMX_ADDRESS_COUNT>& ownerCids)> sigMergedData_;
     boost::signals2::signal<void(const sacn::MergeReceiver::Source& source)> sigSourceUpdated_;
     boost::signals2::signal<void(const etcpal::Uuid& cid)> sigSourceLost_;
 
     explicit SubscribableMergeReceiver() = default;
 
-private:
     void updateSources(const SacnRecvMergedData& mergedData);
-    std::vector<std::string> getOwnerCids(const SacnRecvMergedData& mergedData);
+    std::array<std::string, DMX_ADDRESS_COUNT> getOwnerCids(const SacnRecvMergedData &mergedData);
 };
 
 } // mobilesacn::rpc

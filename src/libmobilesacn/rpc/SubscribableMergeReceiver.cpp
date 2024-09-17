@@ -89,7 +89,7 @@ void SubscribableMergeReceiver::updateSources(const SacnRecvMergedData& mergedDa
     }
 }
 
-std::vector<std::string> SubscribableMergeReceiver::getOwnerCids(
+std::array<std::string, DMX_ADDRESS_COUNT> SubscribableMergeReceiver::getOwnerCids(
     const SacnRecvMergedData& mergedData)
 {
     // Get source CIDs.
@@ -100,12 +100,13 @@ std::vector<std::string> SubscribableMergeReceiver::getOwnerCids(
     }
 
     // Create a list of CIDs ordered by address.
-    std::vector<std::string> ownerCids;
-    ownerCids.reserve(mergedData.slot_range.address_count);
-    for (std::size_t addr = 0; addr < mergedData.slot_range.address_count; ++addr) {
-        const auto ownerHandle = mergedData.owners[addr];
-        // This will push an empty string for an address with no owner.
-        ownerCids.push_back(handleCids[ownerHandle]);
+    std::array<std::string, DMX_ADDRESS_COUNT> ownerCids{};
+    const auto bufOffset = mergedData.slot_range.start_address - 1;
+    for (std::size_t ix = 0; ix < mergedData.slot_range.address_count; ++ix) {
+        const auto address = bufOffset + ix;
+        Q_ASSERT(address < ownerCids.size());
+        const auto ownerHandle = mergedData.owners[ix];
+        ownerCids[address] = handleCids[ownerHandle];
     }
 
     return ownerCids;
