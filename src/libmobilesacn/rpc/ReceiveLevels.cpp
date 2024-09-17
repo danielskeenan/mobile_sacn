@@ -54,6 +54,7 @@ void ReceiveLevels::handleClose()
 
 void ReceiveLevels::onChangeUniverse(uint16_t universe)
 {
+    std::scoped_lock lastSeenLock(lastSeenMutex_);
     if (receiver_) {
         receiver_->unsubscribe(shared_from_this());
     }
@@ -64,7 +65,6 @@ void ReceiveLevels::onChangeUniverse(uint16_t universe)
     } else {
         receiver_.reset();
     }
-    std::scoped_lock lastSeenLock(lastSeenMutex_);
     lastSeen_.levels.fill(0);
     lastSeen_.priorities.fill(0);
     lastSeen_.owners.fill({});

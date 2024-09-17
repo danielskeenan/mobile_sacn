@@ -60,8 +60,8 @@ const DEFAULT_SOURCE: Source = {
 };
 
 const RAISE_COLOR: CidColor = {
-    light: new Color("aqua"),
-    dark: new Color("blue"),
+    light: new Color("blue"),
+    dark: new Color("navy"),
 }
 const LOWER_COLOR: CidColor = {
     light: new Color("lime"),
@@ -295,7 +295,7 @@ export function Component() {
                             <h2>Universe {universe}</h2>
                             <SourceList sources={sources.filter(source => source.universes.includes(universe))}/>
 
-                            <Stack direction="horizontal">
+                            <Stack direction="horizontal" gap={3}>
                                 <Form.Check
                                     label="Show Priorities"
                                     checked={showPriorities}
