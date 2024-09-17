@@ -64,10 +64,19 @@ void ReceiveLevels::onChangeUniverse(uint16_t universe)
     } else {
         receiver_.reset();
     }
+    std::scoped_lock lastSeenLock(lastSeenMutex_);
+    lastSeen_.levels.fill(0);
+    lastSeen_.priorities.fill(0);
+    lastSeen_.owners.fill({});
 }
 
 void ReceiveLevels::onChangeFlickerFinder(bool flickerFinder)
 {
+    if (!flickerFinder_ && flickerFinder) {
+        // Set up the flicker finder reference buffer.
+        std::scoped_lock lock(flickerFinderReferenceBufferMutex_);
+        flickerFinderReferenceBuffer_ = lastSeen_.levels;
+    }
     flickerFinder_ = flickerFinder;
 }
 
@@ -210,6 +219,7 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
         sendBinary(builder.GetBufferPointer(), builder.GetSize());
     } else {
         // Flicker finder mode.
+        std::scoped_lock flickerFinderLock(flickerFinderReferenceBufferMutex_);
         decltype(lastSeen_.levels) levelsBuffer{};
         std::memcpy(levelsBuffer.data() + bufOffset, mergedData.levels, bufCount);
         // Compare new levels to levels stored in the buffer.
@@ -217,9 +227,9 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
         for (unsigned int address = 0; address < levelsBuffer.size(); ++address) {
             const auto oldLevel = lastSeen_.levels[address];
             const auto newLevel = levelsBuffer[address];
-            const int diff = newLevel - oldLevel;
-            if (diff != 0) {
+            if (newLevel != oldLevel) {
                 // Found a flicker, add it to the list.
+                const auto diff = newLevel - flickerFinderReferenceBuffer_[address];
                 levelChanges.emplace_back(address, newLevel, diff);
             }
         }

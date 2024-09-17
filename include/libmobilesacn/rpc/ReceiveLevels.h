@@ -57,6 +57,8 @@ private:
     SubscribableMergeReceiver::Ptr receiver_;
     std::chrono::steady_clock::time_point lastSent_;
     bool flickerFinder_ = false;
+    std::mutex flickerFinderReferenceBufferMutex_;
+    std::array<uint8_t, DMX_ADDRESS_COUNT> flickerFinderReferenceBuffer_;
 
     void onChangeUniverse(uint16_t universe);
     void onChangeFlickerFinder(bool flickerFinder);
