@@ -51,9 +51,7 @@ jobs:
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
-          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           choco install pandoc -y --ia=ALLUSERS=1
-          refreshenv
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
