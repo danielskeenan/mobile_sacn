@@ -6,7 +6,7 @@
  * @copyright GNU GPLv3
  */
 
-#include "libmobilesacn/EtcPalLogHandler.h"
+#include "EtcPalLogHandler.h"
 #include <spdlog/spdlog.h>
 
 namespace mobilesacn {

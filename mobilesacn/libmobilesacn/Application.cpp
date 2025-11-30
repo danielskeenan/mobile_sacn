@@ -6,15 +6,14 @@
  * @copyright GNU GPLv3
  */
 
-#include "libmobilesacn/Application.h"
-
+#include "Application.h"
 #include <etcpal/cpp/netint.h>
 #include <spdlog/spdlog.h>
 #include <sacn/cpp/common.h>
 #include "mobilesacn_config.h"
-#include "libmobilesacn/HttpServer.h"
-#include "libmobilesacn/SacnCidGenerator.h"
-#include "libmobilesacn/SacnSettings.h"
+#include "HttpServer.h"
+#include "SacnCidGenerator.h"
+#include "SacnSettings.h"
 
 namespace mobilesacn {
 

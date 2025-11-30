@@ -7,7 +7,7 @@
  */
 
 #include <span>
-#include <libmobilesacn/SacnCidGenerator.h>
+#include "SacnCidGenerator.h"
 
 namespace mobilesacn {
 

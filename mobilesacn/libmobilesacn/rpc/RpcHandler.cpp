@@ -7,9 +7,7 @@
  */
 
 #include <etcpal/cpp/netint.h>
-#include <libmobilesacn/rpc/RpcHandler.h>
-
-#include "libmobilesacn/rpc/ChanCheck.h"
+#include "RpcHandler.h"
 
 namespace mobilesacn::rpc {
 

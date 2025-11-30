@@ -11,6 +11,7 @@
 
 #include <sacn/cpp/merge_receiver.h>
 #include "SubscribableNotifyHandler.h"
+#include "sacn/merge_receiver.h"
 #include <boost/signals2/signal.hpp>
 
 namespace mobilesacn::rpc {

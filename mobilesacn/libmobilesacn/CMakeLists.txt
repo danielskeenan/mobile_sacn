@@ -1,32 +1,32 @@
 add_library(libmobilesacn STATIC
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/ChanCheck.h
+    rpc/ChanCheck.h
     rpc/ChanCheck.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/ReceiveLevels.h
+    rpc/ReceiveLevels.h
     rpc/ReceiveLevels.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/RpcHandler.h
+    rpc/RpcHandler.h
     rpc/RpcHandler.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableMergeReceiver.h
+    rpc/SubscribableMergeReceiver.h
     rpc/SubscribableMergeReceiver.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableNotifyHandler.h
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/SubscribableSourceDetector.h
+    rpc/SubscribableNotifyHandler.h
+    rpc/SubscribableSourceDetector.h
     rpc/SubscribableSourceDetector.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitHandler.h
+    rpc/TransmitHandler.h
     rpc/TransmitHandler.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/rpc/TransmitLevels.h
+    rpc/TransmitLevels.h
     rpc/TransmitLevels.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Application.h
+    Application.h
     Application.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/CrowLogHandler.h
+    CrowLogHandler.h
     CrowLogHandler.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/EtcPalLogHandler.h
+    EtcPalLogHandler.h
     EtcPalLogHandler.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/Exception.h
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/HttpServer.h
+    Exception.h
+    HttpServer.h
     HttpServer.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnCidGenerator.h
+    SacnCidGenerator.h
     SacnCidGenerator.cpp
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/SacnSettings.h
-    ${PROJECT_SOURCE_DIR}/include/libmobilesacn/util.h
+    SacnSettings.h
+    util.h
 )
 
 include(FetchContent)

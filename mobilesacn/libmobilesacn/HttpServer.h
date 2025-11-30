@@ -15,7 +15,6 @@
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 #include <etcpal/cpp/netint.h>
-
 #include "CrowLogHandler.h"
 
 namespace mobilesacn {

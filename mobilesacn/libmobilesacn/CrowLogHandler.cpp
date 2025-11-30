@@ -6,7 +6,7 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/CrowLogHandler.h>
+#include "CrowLogHandler.h"
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 

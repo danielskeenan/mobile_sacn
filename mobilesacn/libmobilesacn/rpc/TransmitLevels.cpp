@@ -6,7 +6,7 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/rpc/TransmitLevels.h>
+#include "TransmitLevels.h"
 #include <mobilesacn_messages/TransmitLevels.h>
 
 namespace mobilesacn::rpc {

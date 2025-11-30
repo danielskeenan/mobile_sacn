@@ -12,7 +12,7 @@
 #include <QMainWindow>
 #include <QComboBox>
 #include <QPushButton>
-#include "libmobilesacn/Application.h"
+#include "mobilesacn/libmobilesacn/Application.h"
 #include "LogViewer.h"
 #include "QrCode.h"
 

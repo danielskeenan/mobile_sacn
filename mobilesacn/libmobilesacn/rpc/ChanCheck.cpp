@@ -6,7 +6,7 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/rpc/ChanCheck.h>
+#include "ChanCheck.h"
 #include <mobilesacn_messages/ChanCheck.h>
 #include <QApplication>
 

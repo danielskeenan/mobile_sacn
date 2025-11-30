@@ -6,11 +6,11 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/rpc/SubscribableMergeReceiver.h>
+#include "SubscribableMergeReceiver.h"
 #include <ranges>
-#include <mobilesacn_messages/ReceiveLevelsResp.h>
 #include <spdlog/spdlog.h>
-#include "libmobilesacn/SacnSettings.h"
+#include "mobilesacn/libmobilesacn/SacnSettings.h"
+#include "sacn/merge_receiver.h"
 
 namespace mobilesacn::rpc {
 

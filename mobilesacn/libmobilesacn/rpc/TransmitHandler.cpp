@@ -7,11 +7,10 @@
  */
 
 #include <QApplication>
-#include <libmobilesacn/rpc/TransmitHandler.h>
-#include <libmobilesacn/SacnCidGenerator.h>
+#include "TransmitHandler.h"
+#include "mobilesacn/libmobilesacn/SacnCidGenerator.h"
 #include <spdlog/spdlog.h>
-
-#include "libmobilesacn/SacnSettings.h"
+#include "mobilesacn/libmobilesacn/SacnSettings.h"
 
 namespace mobilesacn::rpc {
 

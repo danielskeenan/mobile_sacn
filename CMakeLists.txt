@@ -47,7 +47,7 @@ if (BUILD_EXEC)
     set(CMAKE_AUTOUIC ON)
     add_compile_definitions(QT_NO_KEYWORDS)
 
-    include_directories(${PROJECT_SOURCE_DIR}/include)
+    include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
     # This is more portable across compilers compared to other methods
     message(STATUS "Detected system as ${CMAKE_SYSTEM_NAME}")
@@ -72,7 +72,7 @@ if (BUILD_EXEC)
     qt_standard_project_setup()
 
     add_subdirectory(messages)
-    add_subdirectory(src)
+    add_subdirectory(mobilesacn)
 
     include(CTest)
     if (BUILD_TESTING)

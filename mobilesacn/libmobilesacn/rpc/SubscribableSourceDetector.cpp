@@ -6,11 +6,11 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/rpc/SubscribableSourceDetector.h>
+#include "SubscribableSourceDetector.h"
 #include <ranges>
 #include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
-#include "libmobilesacn/SacnSettings.h"
+#include <mobilesacn/libmobilesacn/SacnSettings.h>
 
 namespace mobilesacn::rpc {
 

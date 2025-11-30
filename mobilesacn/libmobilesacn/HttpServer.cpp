@@ -6,16 +6,16 @@
  * @copyright GNU GPLv3
  */
 
-#include "libmobilesacn/HttpServer.h"
+#include "HttpServer.h"
 #include <mobilesacn_config.h>
 #include <QCoreApplication>
 #include <QDir>
 #include <set>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
-#include "libmobilesacn/rpc/ChanCheck.h"
-#include "libmobilesacn/rpc/ReceiveLevels.h"
-#include "libmobilesacn/rpc/TransmitLevels.h"
+#include "rpc/ChanCheck.h"
+#include "rpc/ReceiveLevels.h"
+#include "rpc/TransmitLevels.h"
 
 namespace mobilesacn {
 

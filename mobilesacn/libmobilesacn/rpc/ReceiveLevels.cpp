@@ -6,12 +6,12 @@
  * @copyright GNU GPLv3
  */
 
-#include <libmobilesacn/rpc/ReceiveLevels.h>
+#include "ReceiveLevels.h"
 #include <mobilesacn_messages/ReceiveLevelsResp.h>
 #include <mobilesacn_messages/ReceiveLevelsReq.h>
 #include <flatbuffers/flatbuffers.h>
-#include <libmobilesacn/util.h>
-#include "libmobilesacn/rpc/SubscribableSourceDetector.h"
+#include "mobilesacn/libmobilesacn/util.h"
+#include "SubscribableSourceDetector.h"
 
 namespace mobilesacn::rpc {
 
