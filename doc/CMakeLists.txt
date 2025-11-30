@@ -1,20 +1,22 @@
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 # Create venv
+# Create venv
 message(STATUS "Creating Sphinx venv")
 execute_process(COMMAND "${Python3_EXECUTABLE}" -m venv .venv
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ERROR_IS_FATAL ANY
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND_ERROR_IS_FATAL ANY
 )
+set(SPHINX_VENV "${CMAKE_CURRENT_BINARY_DIR}/.venv")
 find_program(SPHINX_PIP pip
-    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/.venv"
-    PATH_SUFFIXES bin Scripts
-    NO_DEFAULT_PATH
-    REQUIRED
+        PATHS "${SPHINX_VENV}"
+        PATH_SUFFIXES bin Scripts
+        NO_DEFAULT_PATH
+        REQUIRED
 )
 execute_process(COMMAND "${SPHINX_PIP}" install --upgrade -r requirements.txt
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ERROR_IS_FATAL ANY
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMAND_ERROR_IS_FATAL ANY
 )
 
 # Create build info to send to Sphinx
@@ -27,10 +29,10 @@ file(WRITE "${CMAKE_CURRENT_LIST_DIR}/build_info.json" "${SPHINX_BUILD_INFO}")
 
 # Generate doc
 find_program(SPHINX_BUILD sphinx-build
-    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/.venv"
-    PATH_SUFFIXES bin Scripts
-    NO_DEFAULT_PATH
-    REQUIRED
+        PATHS "${SPHINX_VENV}"
+        PATH_SUFFIXES bin Scripts
+        NO_DEFAULT_PATH
+        REQUIRED
 )
 
 # HTML Docs
@@ -42,6 +44,6 @@ add_custom_target(${PROJECT_NAME}_doc
     VERBATIM
 )
 install(
-    DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
-    DESTINATION "${PROJECT_WEBUI_PATH}/doc"
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
+        DESTINATION "${PROJECT_HELP_PATH}"
 )
