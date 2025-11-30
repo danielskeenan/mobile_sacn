@@ -4,12 +4,26 @@ else ()
     set(_NPM_NAME npm)
 endif ()
 find_program(npm_PROG ${_NPM_NAME} DOC "Path to NPM (https://www.npmjs.com)" REQUIRED)
-message(STATUS "Installing Web UI dependencies...")
-execute_process(
-    COMMAND "${npm_PROG}" install
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMAND_ERROR_IS_FATAL ANY
-)
+set(NODE_MODULES_LOCKFILE "${CMAKE_CURRENT_SOURCE_DIR}/node_modules.lock")
+# Only run npm install if the package lock file has changed.
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/package-lock.json" CURRENT_PACKAGE_LOCK_HASH)
+if (NOT "${WEBUI_PACKAGE_LOCK_HASH}" STREQUAL "${CURRENT_PACKAGE_LOCK_HASH}")
+    if (EXISTS "${NODE_MODULES_LOCKFILE}")
+        message(STATUS "Waiting for lock on node_modules")
+        while (EXISTS "${NODE_MODULES_LOCKFILE}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E sleep 1.0)
+        endwhile ()
+    endif ()
+    file(TOUCH "${NODE_MODULES_LOCKFILE}")
+    message(STATUS "Installing Web UI dependencies...")
+    execute_process(
+            COMMAND "${npm_PROG}" install
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMAND_ERROR_IS_FATAL ANY
+    )
+    file(REMOVE "${NODE_MODULES_LOCKFILE}")
+endif ()
+set(WEBUI_PACKAGE_LOCK_HASH "${CURRENT_PACKAGE_LOCK_HASH}" CACHE INTERNAL "" FORCE)
 
 # Because the NPM deps are also used for doc, need an extra check to see if we really want to build the web UI.
 if (BUILD_EXEC)

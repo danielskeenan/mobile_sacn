@@ -29,3 +29,6 @@ vite.config.ts
 public/mobile_sacn.svg
 src/assets/mobile_sacn.svg
 src/messages
+
+# Lock file for node_modules
+node_modules.lock
