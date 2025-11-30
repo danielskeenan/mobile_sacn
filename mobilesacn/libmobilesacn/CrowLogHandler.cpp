@@ -12,7 +12,7 @@
 
 namespace mobilesacn {
 
-void CrowLogHandler::log(std::string message, crow::LogLevel crowLogLevel)
+void CrowLogHandler::log(const std::string &message, crow::LogLevel crowLogLevel)
 {
     // Convert Crow's log levels to spdlog's.
     const spdlog::level::level_enum level = [crowLogLevel]() {
@@ -36,4 +36,4 @@ void CrowLogHandler::log(std::string message, crow::LogLevel crowLogLevel)
     spdlog::log(level, message);
 }
 
-} // mobilesacn
+} // namespace mobilesacn

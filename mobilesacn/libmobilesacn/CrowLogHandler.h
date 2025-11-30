@@ -15,9 +15,9 @@ namespace mobilesacn {
 class CrowLogHandler : public crow::ILogHandler
 {
 public:
-    void log(std::string message, crow::LogLevel crowLogLevel) override;
+    void log(const std::string &message, crow::LogLevel crowLogLevel) override;
 };
 
-} // mobilesacn
+} // namespace mobilesacn
 
 #endif //CROWLOGHANDLER_H

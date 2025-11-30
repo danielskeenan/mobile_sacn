@@ -70,7 +70,7 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 SPDLOG_WARN("{} socket error: {}", userData->protocol, message);
             })
-            .onclose([](crow::websocket::connection& ws, const std::string& reason) {
+            .onclose([](crow::websocket::connection& ws, const std::string& reason, uint16_t with_status_code) {
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 SPDLOG_INFO("Closing {} handler for client {}", userData->protocol,
                              userData->clientIp);
