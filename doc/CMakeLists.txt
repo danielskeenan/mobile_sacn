@@ -45,5 +45,5 @@ add_custom_target(${PROJECT_NAME}_doc
 )
 install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
-        DESTINATION "${PROJECT_HELP_PATH}"
+        DESTINATION "${PROJECT_WEBUI_PATH}/doc"
 )

@@ -8,7 +8,7 @@ env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
   VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/.vcpkg-binary-cache
-  QT_VERSION: 6.10
+  QT_VERSION: 6.10.*
 
 defaults:
   run:
