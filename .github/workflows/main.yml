@@ -7,6 +7,7 @@ on:
 env:
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
+  VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/.vcpkg-binary-cache
   QT_VERSION: 6.10
 
 defaults:
@@ -39,6 +40,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup vcpkg
         run: echo "VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}" >> "$GITHUB_ENV"
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-binary-cache-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -75,7 +83,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{github.workspace}}/mobile_sacn_webui/node_modules
-          key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
+          key: ${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
+          restore-keys: |
+            ${{runner.os}}-webui-
       #######################
       # BUILD
       #######################
