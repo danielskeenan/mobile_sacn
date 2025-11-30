@@ -39,7 +39,10 @@ jobs:
           echo "CTEST_PARALLEL_LEVEL=1" >> ${GITHUB_ENV}
       - uses: actions/checkout@v4
       - name: Setup vcpkg
-        run: echo "VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}" >> "$GITHUB_ENV"
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git .vcpkg
+          cd .vcpkg && ./bootstrap-vcpkg.sh
+          echo "VCPKG_ROOT=${{github.workspace}}/.vcpkg" >> "$GITHUB_ENV"
       - name: Create vcpkg binary cache
         run: mkdir -p "${VCPKG_DEFAULT_BINARY_CACHE}"
       - name: Restore vcpkg binary cache
