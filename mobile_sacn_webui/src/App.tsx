@@ -4,7 +4,7 @@ import {APP_NAME} from "./common/constants.ts";
 import logo from "./assets/mobile_sacn.svg";
 import {TransmitChanCheckTitle, TransmitLevelsTitle} from "./transmit/TransmitTitle.tsx";
 import {SettingsTitle} from "./front/FrontTitle.tsx";
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet} from "react-router";
 import {Links} from "./routes.ts";
 import AppContext, {AppContextProps} from "./common/Context.ts";
 import {useEffect, useState} from "react";

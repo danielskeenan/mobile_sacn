@@ -1,7 +1,7 @@
 import Jumbotron from "../common/components/Jumbotron.tsx";
 import setPageTitle from "../common/setPageTitle.ts";
 import {APP_NAME} from "../common/constants.ts";
-import {generatePath, Link} from "react-router-dom";
+import {generatePath, Link} from "react-router";
 import {Links} from "../routes.ts";
 import {TransmitChanCheckTitle, TransmitLevelsTitle} from "../transmit/TransmitTitle.tsx";
 import {ReceiveLevelsTitle} from "../receive/ReceiveTitle.tsx";

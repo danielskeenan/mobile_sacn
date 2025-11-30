@@ -29,8 +29,8 @@ set(WEBUI_PACKAGE_LOCK_HASH "${CURRENT_PACKAGE_LOCK_HASH}" CACHE INTERNAL "" FOR
 if (BUILD_EXEC)
     set(WEBUI_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/dist")
     # The config assumes a relative path and will explode directories in the source dir if it is not given one.
+    # This is injected into the process environment when building.
     cmake_path(RELATIVE_PATH WEBUI_BUILD_DIR BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" OUTPUT_VARIABLE WEBUI_BUILD_DIR_REL)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vite.config.ts.in" "${CMAKE_CURRENT_SOURCE_DIR}/vite.config.ts" @ONLY)
 
     # Ensure favicon is correct.
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/public")
@@ -52,7 +52,7 @@ if (BUILD_EXEC)
     # Build site
     add_custom_target(mobile_sacn_webui
         COMMENT "Building Web UI..."
-        COMMAND "${npm_PROG}" run build
+        COMMAND "${CMAKE_COMMAND}" -E env WEBUI_BUILD_DIR_REL=${WEBUI_BUILD_DIR_REL} "${npm_PROG}" run build
         SOURCES ${WEBUI_SOURCES}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS mobile_sacn_messages_ts
