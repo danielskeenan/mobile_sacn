@@ -16,7 +16,7 @@
 
 namespace mobilesacn {
 
-void Caffeine::setActive(bool active)
+void Caffeine::setActive(const bool active)
 {
     if (active) {
         SPDLOG_INFO("Suppressing sleep");
@@ -39,7 +39,6 @@ void Caffeine::setActive(bool active)
         }
         const auto fd = inhibitHandle.arguments().first().value<QDBusUnixFileDescriptor>();
         inhibitHandle_ = dup(fd.fileDescriptor());
-
     } else {
         if (inhibitHandle_ != -1) {
             SPDLOG_INFO("Unsuppressing sleep");

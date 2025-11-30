@@ -24,7 +24,6 @@ public:
     void setActive(bool active);
 
 private:
-    explicit Caffeine();
     bool active_ = false;
 #ifdef PLATFORM_LINUX
     int inhibitHandle_ = -1;

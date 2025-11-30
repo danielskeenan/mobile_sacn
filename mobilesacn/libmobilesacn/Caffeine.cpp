@@ -19,12 +19,6 @@ Caffeine *Caffeine::get()
     return instance;
 }
 
-Caffeine::Caffeine()
-{
-    // Force initial state.
-    setActive(active_);
-}
-
 Caffeine::~Caffeine()
 {
     setActive(false);
