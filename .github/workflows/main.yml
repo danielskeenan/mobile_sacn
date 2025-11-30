@@ -5,27 +5,30 @@ on:
   workflow_dispatch: ~
 
 env:
-  BUILD_TYPE: Release
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
-  QT_VERSION: 6.6.*
-  # Increment when the cache must be invalidated.
-  CACHE_IX: 0
+  QT_VERSION: 6.10
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-13
-          - windows-2022
-          - ubuntu-24.04
-    runs-on: ${{matrix.os}}
-    env:
-      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-actions-cache
-      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        system:
+          - os: ubuntu-latest
+            cmake_preset: linux-release
+          - os: windows-latest
+            cmake_preset: windows-release
+            qt_arch: win64_msvc2022_64
+    runs-on: ${{matrix.system.os}}
     steps:
+      #######################
+      # SETUP
+      #######################
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
@@ -33,23 +36,9 @@ jobs:
         run: |
           echo "CMAKE_BUILD_PARALLEL_LEVEL=${{ steps.cpu-cores.outputs.count }}" >> ${GITHUB_ENV}
           echo "CTEST_PARALLEL_LEVEL=1" >> ${GITHUB_ENV}
-      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-actions-cache
-      - name: Export GitHub Actions cache environment variables
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-      #######################
-      # BUILD
-      #######################
       - uses: actions/checkout@v4
-      - name: Create Build Environment
-        # Use a bash shell so we can use the same syntax for environment variable
-        # access regardless of the host operating system
-        shell: bash
-        # Telling cmake to make the directory adapts the different syntax for each platform
-        run: cmake -E make_directory "${BUILD_DIR}"
+      - name: Setup vcpkg
+        run: echo "VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}" >> "$GITHUB_ENV"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -70,6 +59,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install libcurl4-openssl-dev uuid-dev pandoc libgl1-mesa-dev qt6-base-dev libqt6svg6-dev
+      - name: Setup MSVC (Windows)
+        if: ${{runner.os == 'Windows'}}
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
@@ -77,51 +71,35 @@ jobs:
         with:
           dir: ${{github.workspace}}/.qt
           version: ${{env.QT_VERSION}}
+          arch: ${{matrix.system.qt_arch}}
           cache: true
       - name: Cache web ui deps
         uses: actions/cache@v4
         with:
           path: ${{github.workspace}}/mobile_sacn_webui/node_modules
           key: ${{env.CACHE_IX}}-${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
+      #######################
+      # BUILD
+      #######################
       - name: Configure CMake
-        shell: bash
-        run: cmake -S "${SOURCE_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_TESTING=On -DBUILD_PACKAGE=On -DSENTRY_DSN="${{secrets.SENTRY_DSN}}" -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        run: >
+          cmake
+          -S "${SOURCE_DIR}"
+          -B "${BUILD_DIR}"
+          --preset=${{matrix.system.cmake_preset}}
+          -DBUILD_TESTING=On 
+          -DBUILD_PACKAGE=On 
+          -DSENTRY_DSN="${{secrets.SENTRY_DSN}}"
+          -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install_root"
       - name: Build
-        shell: bash
-        run: cmake --build "${BUILD_DIR}" --config ${BUILD_TYPE}
-
-      #######################
-      # TEST
-      #######################
-#      - name: Test
-#        working-directory: ${{env.BUILD_DIR}}
-#        shell: bash
-#        run: ctest -C ${BUILD_TYPE}
-#      - name: Upload test results
-#        uses: actions/upload-artifact@v3
-#        if: ${{ failure() }}
-#        with:
-#          name: test_results_${{runner.os}}
-#          path: ${{env.BUILD_DIR}}/Testing/Temporary/LastTest.log
+        run: cmake --build "${BUILD_DIR}"
 
       #######################
       # PACKAGE
       #######################
-      - name: Package (macOS)
-        if: ${{runner.os == 'macOS'}}
+      - name: Package
         working-directory: ${{env.BUILD_DIR}}
-        shell: bash
-        run: cpack -G "DragNDrop" -B "${BUILD_DIR}/packages"
-      - name: Package (Windows)
-        if: ${{runner.os == 'Windows'}}
-        working-directory: ${{env.BUILD_DIR}}
-        shell: bash
-        run: cpack -G "ZIP;WIX" -B "${BUILD_DIR}/packages"
-      - name: Package (Linux)
-        if: ${{runner.os == 'Linux'}}
-        working-directory: ${{env.BUILD_DIR}}
-        shell: bash
-        run: cpack -G "TGZ;DEB" -B "${BUILD_DIR}/packages"
+        run: cpack -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
         uses: actions/upload-artifact@v4
         if: ${{ failure() }}
@@ -131,7 +109,7 @@ jobs:
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
-          name: packages_${{runner.os}}
+          name: packages_${{runner.os}}_${{runner.arch}}
           path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
 
@@ -144,15 +122,15 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.ref_type == 'tag' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: repo
       - name: Get built packages
         uses: actions/download-artifact@v4
         id: download
         with:
-          path: packages
           pattern: packages_*
+          path: packages
           merge-multiple: true
       - name: Load signing key
         run: echo "${{ secrets.DSA_PRIVATE_KEY }}" > ${{github.workspace}}/dsa_priv.pem
