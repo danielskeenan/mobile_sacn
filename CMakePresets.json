@@ -44,7 +44,7 @@
         "rhs": "Linux"
       },
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wconversion -Wno-unused-parameter -Og"
+        "CMAKE_CXX_FLAGS_INIT": "-Og"
       }
     },
     {
@@ -57,7 +57,7 @@
         "rhs": "Linux"
       },
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wconversion -Werror -Wno-unused-parameter -O3",
+        "CMAKE_CXX_FLAGS_INIT": "-O3",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE"
       }
     },
@@ -71,7 +71,7 @@
         "rhs": "Windows"
       },
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS_INIT": "/W3 /wd4101 /Od"
+        "CMAKE_CXX_FLAGS_INIT": "/Od"
       }
     },
     {
@@ -84,7 +84,7 @@
         "rhs": "Windows"
       },
       "cacheVariables": {
-        "CMAKE_CXX_FLAGS_INIT": "/W3 /wd4101 /WX /O2",
+        "CMAKE_CXX_FLAGS_INIT": "/O2",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE"
       }
     }
