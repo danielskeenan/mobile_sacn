@@ -15,7 +15,7 @@ NetIntModel::NetIntModel(QObject *parent) : QAbstractTableModel(parent)
 {
     const auto netints = etcpal::netint::GetInterfaces();
     if (!netints) {
-        spdlog::critical("Could not load network interfaces.");
+        SPDLOG_CRITICAL("Could not load network interfaces.");
         return;
     }
 

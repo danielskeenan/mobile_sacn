@@ -38,7 +38,7 @@ public:
         std::scoped_lock subscriberConnectionsLock(subscriberConnectionsMutex_);
         if (subscriberConnections_.empty() && !running_) {
             if (!startup(subscriber)) {
-                spdlog::critical("Failed to startup SubscribableNotifyHandler");
+                SPDLOG_CRITICAL("Failed to startup SubscribableNotifyHandler");
                 return;
             }
             running_ = true;

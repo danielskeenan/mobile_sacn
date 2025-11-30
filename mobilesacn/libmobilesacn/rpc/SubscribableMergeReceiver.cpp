@@ -22,7 +22,7 @@ SubscribableMergeReceiver::~SubscribableMergeReceiver()
 SubscribableMergeReceiver::Ptr SubscribableMergeReceiver::getForUniverse(uint16_t universe)
 {
     if (universe == 0) {
-        spdlog::critical("Tried to get receiver for universe 0!");
+        SPDLOG_CRITICAL("Tried to get receiver for universe 0!");
     }
     std::lock_guard receiverLock(SubscribableMergeReceiver::receiversMutex_);
     auto& receiver = receivers_[universe];
@@ -114,7 +114,7 @@ std::array<std::string, DMX_ADDRESS_COUNT> SubscribableMergeReceiver::getOwnerCi
 
 bool SubscribableMergeReceiver::startup(SubscriberPtr subscriber)
 {
-    spdlog::debug("Creating sACN Receiver for univ {}", sacnSettings_.universe_id);
+    SPDLOG_DEBUG("Creating sACN Receiver for univ {}", sacnSettings_.universe_id);
     const auto& sacnSettings = SacnSettings::get();
     sacnSettings_.ip_supported = sacnSettings->sacnNetInt.addr().IsV4()
             ? sacn_ip_support_t::kSacnIpV4Only
@@ -122,7 +122,7 @@ bool SubscribableMergeReceiver::startup(SubscriberPtr subscriber)
     auto mcastInterfaces = sacnSettings->sacnMcastInterfaces;
     const auto res = receiver_.Startup(sacnSettings_, *this, mcastInterfaces);
     if (!res.IsOk()) {
-        spdlog::critical("Error starting sACN Receiver: {}", res.ToString());
+        SPDLOG_CRITICAL("Error starting sACN Receiver: {}", res.ToString());
         receiver_.Shutdown();
         return false;
     }
@@ -132,7 +132,7 @@ bool SubscribableMergeReceiver::startup(SubscriberPtr subscriber)
 
 void SubscribableMergeReceiver::shutdown()
 {
-    spdlog::debug("Destroying sACN Receiver for univ {}", sacnSettings_.universe_id);
+    SPDLOG_DEBUG("Destroying sACN Receiver for univ {}", sacnSettings_.universe_id);
     std::lock_guard lock(receiversMutex_);
     receivers_.erase(sacnSettings_.universe_id);
 }

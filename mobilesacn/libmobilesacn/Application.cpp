@@ -23,14 +23,14 @@ Application::Application(QObject* parent)
     // Init EtcPal.
     etcPalLogger_.SetSyslogAppName(config::kProjectName);
     if (!etcPalLogger_.Startup(etcPalLogHandler_)) {
-        spdlog::critical(
+        SPDLOG_CRITICAL(
             "Error starting the logger for the sACN subsystem.  Some logs will not be available.");
     }
 
     // Init sACN.
     auto result = sacn::Init(etcPalLogger_);
     if (!result.IsOk()) {
-        spdlog::critical("Error initializing the sACN subsystem: {}", result.ToString());
+        SPDLOG_CRITICAL("Error initializing the sACN subsystem: {}", result.ToString());
     }
 }
 
@@ -49,7 +49,7 @@ void Application::run(const Options& options)
     auto sacnNetInterface = etcpal::netint::GetInterfaceWithIp(
         etcpal::IpAddr::FromString(options.sacn_address));
     if (!sacnNetInterface) {
-        spdlog::critical("Could not get network interface for sACN.");
+        SPDLOG_CRITICAL("Could not get network interface for sACN.");
         return;
     }
     SacnCidGenerator::get().setMacAddress(sacnNetInterface->mac());

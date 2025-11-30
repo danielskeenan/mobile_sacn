@@ -94,7 +94,7 @@ void TransmitHandler::startTransmitting()
 {
     const auto res = sacn_.Startup(sacnSettings_);
     if (!res.IsOk()) {
-        spdlog::critical("Error starting sACN Transmitter: {}", res.ToString());
+        SPDLOG_CRITICAL("Error starting sACN Transmitter: {}", res.ToString());
         sacn_.Shutdown();
         return;
     }

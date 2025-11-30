@@ -174,7 +174,7 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
         lastSeenLock = std::unique_lock(lastSeenMutex_, std::try_to_lock);
     }
     if (!lastSeenLock) {
-        spdlog::debug("Could not lock last seen buffers.");
+        SPDLOG_DEBUG("Could not lock last seen buffers.");
         return;
     }
 

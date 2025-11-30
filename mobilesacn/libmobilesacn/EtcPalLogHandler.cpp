@@ -14,7 +14,7 @@ namespace mobilesacn {
 void EtcPalLogHandler::HandleLogMessage(const EtcPalLogStrings &strings) {
   // Ensure there is something to log.
   if (strings.raw == nullptr) {
-    spdlog::error("!!!UNDEFINED LOG MESSAGE!!!");
+    SPDLOG_ERROR("!!!UNDEFINED LOG MESSAGE!!!");
     return;
   }
 

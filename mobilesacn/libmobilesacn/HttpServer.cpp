@@ -28,7 +28,7 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
     const auto route = rule.rule();
     rule
             .onopen([route, parent](crow::websocket::connection& ws) {
-                spdlog::debug("Creating handler for route {}", route);
+                SPDLOG_DEBUG("Creating handler for route {}", route);
                 // Deleted when socket is closed.
                 const auto sacnInterface = parent->getOptions().sacn_interface;
                 auto* userData = new rpc::WsUserData{
@@ -42,14 +42,14 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                 userData->handler = std::move(handler);
                 wsUserDataList.insert(userData);
                 userData->handler->handleConnected();
-                spdlog::info("Started {} handler for client {}", userData->protocol,
+                SPDLOG_INFO("Started {} handler for client {}", userData->protocol,
                              userData->clientIp);
             })
             .onmessage([](crow::websocket::connection& ws, const std::string& message,
                           bool isBinary) {
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
                 if (isBinary) {
-                    spdlog::debug("Received binary message from {}: {} bytes", ws.get_remote_ip(),
+                    SPDLOG_DEBUG("Received binary message from {}: {} bytes", ws.get_remote_ip(),
                                   message.size());
                     userData->handler->handleBinaryMessage({
                         reinterpret_cast<const uint8_t*>(message.data()),
@@ -61,32 +61,32 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT>& rule, HttpServer* parent)
                         ws.send_text("pong");
                         return;
                     }
-                    spdlog::debug("Received text message from {}: {} bytes", ws.get_remote_ip(),
+                    SPDLOG_DEBUG("Received text message from {}: {} bytes", ws.get_remote_ip(),
                                   message.size());
                     userData->handler->handleTextMessage(message);
                 }
             })
             .onerror([](crow::websocket::connection& ws, const std::string& message) {
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
-                spdlog::warn("{} socket error: {}", userData->protocol, message);
+                SPDLOG_WARN("{} socket error: {}", userData->protocol, message);
             })
             .onclose([](crow::websocket::connection& ws, const std::string& reason) {
                 auto userData = static_cast<rpc::WsUserData*>(ws.userdata());
-                spdlog::info("Closing {} handler for client {}", userData->protocol,
+                SPDLOG_INFO("Closing {} handler for client {}", userData->protocol,
                              userData->clientIp);
                 // This handler gets called more than once sometimes for unknown reasons. Guard
                 // against double free crashes in that case.
                 if (userData->handler) {
                     userData->handler->handleClose();
                 } else {
-                    spdlog::debug(
+                    SPDLOG_DEBUG(
                         "Couldn't call {} close handler because it has been destroyed.",
                         userData->protocol);
                 }
                 if (wsUserDataList.erase(userData) > 0) {
                     delete userData;
                 } else {
-                    spdlog::debug("Didn't delete userdata because it was not stored in the cache.");
+                    SPDLOG_DEBUG("Didn't delete userdata because it was not stored in the cache.");
                 }
             });
 }
@@ -156,7 +156,7 @@ void HttpServer::run()
 {
     serverHandle_ = server_.run_async();
     server_.wait_for_server_start();
-    spdlog::info("Server listening on {}", getUrl());
+    SPDLOG_INFO("Server listening on {}", getUrl());
 }
 
 void HttpServer::stop()
@@ -166,7 +166,7 @@ void HttpServer::stop()
         delete wsUserData;
     }
     wsUserDataList.clear();
-    spdlog::info("Server stopped");
+    SPDLOG_INFO("Server stopped");
 }
 
 std::string HttpServer::getUrl()

@@ -27,7 +27,7 @@ SubscribableSourceDetector& SubscribableSourceDetector::get()
 
 bool SubscribableSourceDetector::startup(SubscriberPtr subscriber)
 {
-    spdlog::debug("Starting SourceDetector");
+    SPDLOG_DEBUG("Starting SourceDetector");
     const auto& sacnSettings = SacnSettings::get();
     auto settings = sacn::SourceDetector::Settings();
     // Creating the receiver will fail with the default settings if the chosen network interface
@@ -42,7 +42,7 @@ bool SubscribableSourceDetector::startup(SubscriberPtr subscriber)
         mcastInterfaces
     );
     if (res != kEtcPalErrOk) {
-        spdlog::error("Failed to start SourceDetector: {}", res.ToString());
+        SPDLOG_ERROR("Failed to start SourceDetector: {}", res.ToString());
         return false;
     }
 
@@ -52,7 +52,7 @@ bool SubscribableSourceDetector::startup(SubscriberPtr subscriber)
 void SubscribableSourceDetector::shutdown()
 {
     std::scoped_lock sourcesLock(sourcesMutex_);
-    spdlog::debug("Stopping SourceDetector");
+    SPDLOG_DEBUG("Stopping SourceDetector");
     sacn::SourceDetector::Shutdown();
     sources_.clear();
 }
@@ -65,7 +65,7 @@ void SubscribableSourceDetector::HandleSourceUpdated(
     source.cid = cid.ToString();
     source.name = name;
     source.universes = sourcedUniverses;
-    spdlog::debug("Source {} ({}) updated with univs {}", source.cid, source.name,
+    SPDLOG_DEBUG("Source {} ({}) updated with univs {}", source.cid, source.name,
                   fmt::join(sourcedUniverses, ", "));
     sigSourceUpdated_(source);
 }
@@ -74,7 +74,7 @@ void SubscribableSourceDetector::HandleSourceExpired(
     sacn::RemoteSourceHandle handle, const etcpal::Uuid& cid, const std::string& name)
 {
     sources_.erase(cid);
-    spdlog::debug("Source {} ({}) expired", cid.ToString(), name);
+    SPDLOG_DEBUG("Source {} ({}) expired", cid.ToString(), name);
     sigSourceExpired_(cid);
 }
 
