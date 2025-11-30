@@ -16,6 +16,8 @@ add_library(libmobilesacn STATIC
     rpc/TransmitLevels.cpp
     Application.h
     Application.cpp
+    Caffeine.cpp
+    Caffeine.h
     CrowLogHandler.h
     CrowLogHandler.cpp
     EtcPalLogHandler.h
@@ -28,6 +30,18 @@ add_library(libmobilesacn STATIC
     SacnSettings.h
     util.h
 )
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_sources(libmobilesacn PRIVATE
+            Caffeine_Linux.cpp
+    )
+    target_link_libraries(libmobilesacn PRIVATE
+            Qt::DBus
+    )
+else ()
+    target_sources(libmobilesacn PRIVATE
+            Caffeine_Other.cpp
+    )
+endif ()
 
 include(FetchContent)
 FetchContent_Declare(sACN

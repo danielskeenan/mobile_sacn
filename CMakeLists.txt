@@ -62,14 +62,21 @@ if (BUILD_EXEC)
     endif ()
 
     # Decide which Qt version to use.
-    find_package(Qt6 COMPONENTS
-        Core
-        Widgets
-        Svg
-        SvgWidgets
-        REQUIRED
+    set(QT_COMPONENTS
+            Core
+            Widgets
+            Svg
+            SvgWidgets
     )
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        list(APPEND QT_COMPONENTS "DBus")
+    endif ()
+    find_package(Qt6 COMPONENTS ${QT_COMPONENTS} REQUIRED)
+
     qt_standard_project_setup()
+
+    # Log levels
+    add_compile_definitions("SPDLOG_ACTIVE_LEVEL=$<IF:$<CONFIG:Debug>,0,2>")
 
     add_subdirectory(messages)
     add_subdirectory(mobilesacn)
