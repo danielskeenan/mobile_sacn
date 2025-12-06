@@ -1,5 +1,5 @@
-import reactUseWebSocket, {Options as ReactUseWebSocketOptions} from "react-use-websocket";
-import {useCallback} from "react";
+import reactUseWebSocket, {Options as ReactUseWebSocketOptions, ReadyState} from "react-use-websocket";
+import {useCallback, useEffect} from "react";
 import {localStorageGet, LocalStorageItem} from "./localStorage.ts";
 
 const serverOrigin = (() => {
@@ -8,12 +8,19 @@ const serverOrigin = (() => {
     return serverOverride ?? document.location.origin;
 })();
 
+/**
+ * Create a websocket connection to the host.
+ *
+ * @param protocol A string matching a path defined in HttpServer::HttpServer after `/ws` (e.g. where
+ * HttpServer::HttpServer defines a websocket route for `/ws/ChanCheck`, pass `ChanCheck` here).
+ * @param options Additional websocket options.
+ */
 export default function useWebsocket(protocol: string, options: Partial<ReactUseWebSocketOptions> = {}): ReturnType<typeof reactUseWebSocket> {
     const websocketOptions: ReactUseWebSocketOptions = {
-        // Attempt to reconnect every 5 seconds.
-        reconnectInterval: 5000,
-        // Reload the entire document if failed to reconnect after 20 times.
-        reconnectAttempts: 20,
+        // Attempt to reconnect every second.
+        reconnectInterval: 1000,
+        // Reload the entire document if failed to reconnect after a minute.
+        reconnectAttempts: 60,
         onReconnectStop: useCallback(() => window.location.reload(), []),
         shouldReconnect: useCallback<NonNullable<ReactUseWebSocketOptions["shouldReconnect"]>>((closeEvent) => {
             return !closeEvent.wasClean;
