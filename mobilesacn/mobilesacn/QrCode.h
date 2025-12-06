@@ -9,34 +9,40 @@
 #ifndef MOBILE_SACN_SRC_MOBILESACN_QRCODE_H_
 #define MOBILE_SACN_SRC_MOBILESACN_QRCODE_H_
 
-#include <QSvgWidget>
+#include <QWidget>
+
+class QSvgWidget;
+class QLabel;
 
 namespace mobilesacn {
-class QrCode : public QSvgWidget {
+class QrCode : public QWidget
+{
     Q_OBJECT
 
-  public:
+public:
     explicit QrCode(QWidget *parent = nullptr);
 
-    [[nodiscard]] const std::string &getContents() const {
-      return contents_;
+    [[nodiscard]] const std::string &getContents() const { return contents_; }
+
+    void setContents(const std::string &contents)
+    {
+        contents_ = contents;
+        updateDisplay();
     }
 
-    void setContents(const std::string &contents) {
-      contents_ = contents;
-      updateDisplay();
-    }
-
-    void clear() {
-      contents_.clear();
-      updateDisplay();
+    void clear()
+    {
+        contents_.clear();
+        updateDisplay();
     };
 
-  private:
+private:
+    QSvgWidget *svgWidget_;
+    QLabel *label_;
     std::string contents_;
 
     void updateDisplay();
 };
-} // mobilesacn
+} // namespace mobilesacn
 
 #endif //MOBILE_SACN_SRC_MOBILESACN_QRCODE_H_
