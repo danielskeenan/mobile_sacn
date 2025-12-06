@@ -1,5 +1,5 @@
 import "./ChanCheck.scss";
-import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useRef, useState} from "react";
+import {DetailedHTMLProps, InputHTMLAttributes, useCallback, useEffect, useEffectEvent, useRef, useState} from "react";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
 import {TransmitChanCheckTitle} from "../TransmitTitle.tsx";
 import {Connecting} from "../../common/components/Loading.tsx";
@@ -138,6 +138,23 @@ export function Component() {
             };
         }
     }, [blink, toggleLevel]);
+
+    // Sync settings
+    const syncSettings = useEffectEvent(() => {
+        sendLevel(level);
+        sendAddress(address);
+        sendUniverse(universe);
+        sendPerAddressPriority(perAddressPriority);
+        sendPriority(priority);
+        sendTransmit(transmit);
+    });
+    useEffect(() => {
+        if (readyState != ReadyState.OPEN) {
+            return;
+        }
+
+        syncSettings();
+    }, [readyState]);
 
     return (
         <>

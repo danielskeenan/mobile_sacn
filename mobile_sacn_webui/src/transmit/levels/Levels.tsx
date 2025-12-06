@@ -1,5 +1,5 @@
 import "./Levels.scss";
-import {useCallback, useContext, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useEffectEvent, useState} from "react";
 import {DMX_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "../../common/constants.ts";
 import {TransmitLevelsTitle} from "../TransmitTitle.tsx";
 import {ReadyState} from "react-use-websocket";
@@ -126,6 +126,22 @@ export function Component() {
     useEffect(() => {
         sendLevels(levels);
     }, [levels, sendLevels]);
+
+    // Sync settings
+    const syncSettings = useEffectEvent(() => {
+        sendUniverse(universe);
+        sendPerAddressPriority(perAddressPriority);
+        sendPriority(priority);
+        sendLevels(levels);
+        sendTransmit(transmit);
+    });
+    useEffect(() => {
+        if (readyState != ReadyState.OPEN) {
+            return;
+        }
+
+        syncSettings();
+    }, [readyState]);
 
     return (
         <>

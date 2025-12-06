@@ -1,5 +1,5 @@
 import "./Levels.scss";
-import {useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useState} from "react";
+import {useCallback, useContext, useEffect, useEffectEvent, useId, useLayoutEffect, useMemo, useState} from "react";
 import {clone, constant, range, some, sortedUniq, times} from "lodash";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "../../common/constants.ts";
 import {ReadyState} from "react-use-websocket";
@@ -261,6 +261,19 @@ export function Component() {
         sendFlickerFinder(flickerFinder);
         setFlickers(emptyFlickerBuffer());
     }, [flickerFinder, sendFlickerFinder, setFlickers]);
+
+    // Sync settings
+    const syncSettings = useEffectEvent(() => {
+        sendUniverse(universe);
+        sendFlickerFinder(flickerFinder);
+    });
+    useEffect(() => {
+        if (readyState != ReadyState.OPEN) {
+            return;
+        }
+
+        syncSettings();
+    }, [readyState]);
 
     return (
         <>
