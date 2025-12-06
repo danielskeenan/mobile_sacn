@@ -168,6 +168,14 @@ void MainWindow::appStarted()
 {
     widgets_.startButton->setText(tr("Stop"));
     widgets_.qrCode->setContents(app_->getWebUrl());
+
+    // Update settings.
+    const auto webuiIfaceRow = widgets_.webuiIfaceSelect->currentIndex();
+    const auto webuiIface = widgets_.webuiIfaceSelectModel->GetNetIntInfo(webuiIfaceRow);
+    Settings::SetLastWebUiInterfaceName(QString::fromStdString(webuiIface.friendly_name()));
+    const auto sacnIfaceRow = widgets_.sacnIfaceSelect->currentIndex();
+    const auto sacnIface = widgets_.sacnIfaceSelectModel->GetNetIntInfo(sacnIfaceRow);
+    Settings::SetLastSacnInterfaceName(QString::fromStdString(sacnIface.friendly_name()));
 }
 
 void MainWindow::appStopped()
