@@ -13,7 +13,7 @@
       "binaryDir": "${sourceDir}/cmake-build-${presetName}",
       "generator": "Ninja",
       "cacheVariables": {
-        "BUILD_APP": true,
+        "BUILD_EXEC": true,
         "BUILD_PACKAGE": false,
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/cmake-build-${presetName}/install_root"
@@ -27,7 +27,7 @@
       "binaryDir": "${sourceDir}/cmake-build-${presetName}",
       "generator": "Ninja",
       "cacheVariables": {
-        "BUILD_APP": true,
+        "BUILD_EXEC": true,
         "BUILD_PACKAGE": true,
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/cmake-build-${presetName}/install_root"

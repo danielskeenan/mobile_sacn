@@ -67,6 +67,7 @@ if (BUILD_EXEC)
             Widgets
             Svg
             SvgWidgets
+            Xml
     )
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         list(APPEND QT_COMPONENTS "DBus")
@@ -78,6 +79,7 @@ if (BUILD_EXEC)
     # Log levels
     add_compile_definitions("SPDLOG_ACTIVE_LEVEL=$<IF:$<CONFIG:Debug>,0,2>")
 
+    add_subdirectory(tools)
     add_subdirectory(messages)
     add_subdirectory(mobilesacn)
 

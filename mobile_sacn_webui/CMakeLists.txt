@@ -64,14 +64,23 @@ if (BUILD_EXEC)
         "${WEBUI_BUILD_DIR}"
     )
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        # Need extra logic to ensure it ends up inside the app bundle.
-        add_custom_command(TARGET mobile_sacn_webui POST_BUILD
-            COMMAND "${CMAKE_COMMAND}"
-            -E copy_directory "${WEBUI_BUILD_DIR}/"
-            \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_WEBUI_PATH}\"
+    # Add as Qt resource.
+    set(WEBUI_QRC "${CMAKE_CURRENT_BINARY_DIR}/webui.qrc")
+    find_package(Qt6 COMPONENTS Core REQUIRED)
+    add_custom_command(
+            OUTPUT "${WEBUI_QRC}.temp"
+            COMMAND Qt::rcc -o "${WEBUI_QRC}.temp" -root "/webui" -project
+            WORKING_DIRECTORY "${WEBUI_BUILD_DIR}"
+            DEPENDS mobile_sacn_webui ${WEBUI_SOURCES}
+            VERBATIM
         )
-    else ()
-        install(DIRECTORY "${WEBUI_BUILD_DIR}/" DESTINATION "${PROJECT_WEBUI_PATH}")
-    endif ()
+    add_custom_command(
+            OUTPUT "${WEBUI_QRC}"
+            COMMAND set_qrc_prefix "/webui" "${WEBUI_QRC}.temp" "${WEBUI_QRC}"
+            MAIN_DEPENDENCY "${WEBUI_QRC}.temp"
+            VERBATIM
+    )
+    add_library(webui_qrc STATIC "${WEBUI_QRC}")
+    set_target_properties(webui_qrc PROPERTIES LINKER_LANGUAGE CXX)
+    target_link_libraries(webui_qrc PRIVATE Qt::Core)
 endif ()
