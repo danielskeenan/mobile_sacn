@@ -1,9 +1,14 @@
 import "./App.scss";
-import logo from "./assets/mobile_sacn.svg"
+import logo from "./assets/mobile_sacn.svg";
 import {type Component, For, Suspense} from "solid-js";
 import {A, AnchorProps} from "@solidjs/router";
 import {Container, Nav, Navbar} from "solid-bootstrap";
 import {APP_NAME} from "./common/constants";
+import Loading from "./common/components/Loading";
+import ChanCheckTitle from "./pages/transmit/ChanCheckTitle";
+import LINKS from "@/links";
+import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
+import ReceiveLevelsTitle from "@/pages/receive/ReceiveLevelsTitle";
 
 interface MenuItem {
     title: string | Element;
@@ -12,16 +17,16 @@ interface MenuItem {
 
 const MENU: MenuItem[] = [
     {
-        title: "Send Levels",
-        href: "/transmit/levels"
+        title: <TransmitLevelsTitle/>,
+        href: LINKS.transmit_levels,
     },
     {
-        title: "Chan Check",
-        href: "/transmit/chancheck"
+        title: <ChanCheckTitle/>,
+        href: LINKS.transmit_chancheck,
     },
     {
-        title: "View Levels",
-        href: "/receive/levels",
+        title: <ReceiveLevelsTitle/>,
+        href: LINKS.receive_levels,
     }
 ]
 
@@ -30,7 +35,7 @@ const App: Component<{ children: Element }> = (props) => {
         <>
             <Navbar class="msacn-navbar-main" expand="lg" fixed="top" collapseOnSelect>
                 <Container fluid>
-                    <Navbar.Brand as={A} href="/">
+                    <Navbar.Brand as={A} href={LINKS.front_home}>
                         <img src={logo} class="msacn-logo" alt=""/>&nbsp;{APP_NAME}
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="msacn-navbar-content"/>
@@ -44,9 +49,9 @@ const App: Component<{ children: Element }> = (props) => {
                 </Container>
             </Navbar>
 
-            <main>
-                <Suspense>{props.children}</Suspense>
-            </main>
+            <Container as="main">
+                <Suspense fallback={<Loading/>}>{props.children}</Suspense>
+            </Container>
         </>
     );
 };

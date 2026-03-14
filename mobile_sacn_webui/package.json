@@ -28,6 +28,7 @@
     "bootstrap": "^5.3.8",
     "sass": "^1.98.0",
     "solid-bootstrap": "^1.0.21",
+    "solid-icons": "^1.2.0",
     "solid-js": "^1.9.5"
   }
 }
