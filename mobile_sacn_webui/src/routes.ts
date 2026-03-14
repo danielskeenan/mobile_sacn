@@ -1,29 +1,21 @@
-export const ControllerRouteBases = {
-    FRONT: "/",
-    TRANSMIT: "/transmit",
-    RECEIVE: "/receive",
-};
+import { lazy } from 'solid-js';
+import type { RouteDefinition } from '@solidjs/router';
 
-export const FrontRoutes = {
-    FRONT: "",
-    SETTINGS: "settings",
-};
+import Home from './pages/home';
+import AboutData from './pages/about.data';
 
-export const TransmitRoutes = {
-    LEVELS: "levels",
-    CHANCHECK: "chan_check",
-    FX: "fx",
-};
-
-export const ReceiveRoutes = {
-    LEVELS: "levels",
-};
-
-export const Links = {
-    FRONT_FRONT: `${ControllerRouteBases.FRONT}`,
-    FRONT_SETTINGS: `/${FrontRoutes.SETTINGS}`,
-    TRANSMIT_LEVELS: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.LEVELS}`,
-    TRANSMIT_CHANCHECK: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.CHANCHECK}`,
-    TRANSMIT_FX: `${ControllerRouteBases.TRANSMIT}/${TransmitRoutes.FX}`,
-    RECEIVE_LEVELS: `${ControllerRouteBases.RECEIVE}/${ReceiveRoutes.LEVELS}`,
-};
+export const routes: RouteDefinition[] = [
+  {
+    path: '/',
+    component: Home,
+  },
+  {
+    path: '/about',
+    component: lazy(() => import('./pages/about')),
+    data: AboutData,
+  },
+  {
+    path: '**',
+    component: lazy(() => import('./errors/404')),
+  },
+];

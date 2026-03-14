@@ -1,13 +1,17 @@
 import {defineConfig, loadEnv} from 'vite';
-import react from '@vitejs/plugin-react';
+import solidPlugin from 'vite-plugin-solid';
+import devtools from 'solid-devtools/vite';
 
-// https://vitejs.dev/config/
 export default defineConfig(({mode}) => {
     // See https://vite.dev/config/#using-environment-variables-in-config
     const env = loadEnv(mode, process.cwd(), '')
     return {
-        plugins: [react()],
+        plugins: [devtools(), solidPlugin()],
+        server: {
+            port: 3000,
+        },
         build: {
+            target: 'esnext',
             emptyOutDir: true,
             outDir: env.WEBUI_BUILD_DIR_REL,
         }

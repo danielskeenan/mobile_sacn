@@ -18,7 +18,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Widgets
     QSettingsContainer
     )
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_doc)
+if (TARGET ${PROJECT_NAME}_doc)
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_doc)
+endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)

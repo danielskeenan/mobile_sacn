@@ -7,6 +7,7 @@ html, body {
 
 .msacn-navbar-main {
   @extend .p-2;
+  @extend .bg-body-tertiary;
 
   .msacn-logo {
     @extend .me-1;
@@ -17,19 +18,19 @@ html, body {
     height: $navbar-brand-height;
   }
 
-  .btn {
-    background-color: $gray-100;
-  }
+  //.btn {
+  //  background-color: $gray-100;
+  //}
 
-  .nav-item {
-    &, .nav-link {
-      color: rgba(255, 255, 255, 0.75);
-    }
-
-    .dropdown-item.nav-link {
-      color: $dropdown-link-color;
-    }
-  }
+  //.nav-item {
+  //  &, .nav-link {
+  //    color: rgba(255, 255, 255, 0.75);
+  //  }
+  //
+  //  .dropdown-item.nav-link {
+  //    color: $dropdown-link-color;
+  //  }
+  //}
 }
 
 footer {
