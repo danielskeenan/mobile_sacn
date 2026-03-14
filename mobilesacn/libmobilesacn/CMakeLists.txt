@@ -71,6 +71,7 @@ target_link_libraries(libmobilesacn PRIVATE
         Qt::Widgets
         ZLIB::ZLIB
         mobile_sacn_messages
+        webui_qrc
         sACN
 )
 target_link_libraries(libmobilesacn PUBLIC

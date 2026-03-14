@@ -65,21 +65,30 @@ if (BUILD_EXEC)
     )
 
     # Add as Qt resource.
-    set(WEBUI_QRC "${CMAKE_CURRENT_BINARY_DIR}/webui.qrc")
     find_package(Qt6 COMPONENTS Core REQUIRED)
+    add_executable(gen_webui_qrc gen_webui_qrc.cpp)
+    target_link_libraries(gen_webui_qrc PRIVATE Qt::Core)
+    if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        qt_generate_deploy_app_script(
+                TARGET gen_webui_qrc
+                OUTPUT_SCRIPT DEPLOY_SCRIPT
+                NO_UNSUPPORTED_PLATFORM_ERROR
+        )
+        add_custom_command(
+                TARGET gen_webui_qrc POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:${TARGET}>" -DQT_DEPLOY_BIN_DIR=.
+                -DQT_DEPLOY_LIB_DIR=. -P "${DEPLOY_SCRIPT}"
+                VERBATIM
+        )
+    endif ()
+    set(WEBUI_QRC "${CMAKE_CURRENT_BINARY_DIR}/webui.qrc")
     add_custom_command(
-            OUTPUT "${WEBUI_QRC}.temp"
-            COMMAND Qt::rcc -o "${WEBUI_QRC}.temp" -root "/webui" -project
+            OUTPUT "${WEBUI_QRC}"
+            COMMAND gen_webui_qrc "${WEBUI_BUILD_DIR}" "${WEBUI_QRC}"
             WORKING_DIRECTORY "${WEBUI_BUILD_DIR}"
             DEPENDS mobile_sacn_webui ${WEBUI_SOURCES}
             VERBATIM
         )
-    add_custom_command(
-            OUTPUT "${WEBUI_QRC}"
-            COMMAND set_qrc_prefix "/webui" "${WEBUI_QRC}.temp" "${WEBUI_QRC}"
-            MAIN_DEPENDENCY "${WEBUI_QRC}.temp"
-            VERBATIM
-    )
     add_library(webui_qrc STATIC "${WEBUI_QRC}")
     set_target_properties(webui_qrc PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(webui_qrc PRIVATE Qt::Core)

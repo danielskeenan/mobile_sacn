@@ -7,19 +7,28 @@
  */
 
 #include "Application.h"
+
+#include <QDirListing>
 #include <etcpal/cpp/netint.h>
-#include <spdlog/spdlog.h>
 #include <sacn/cpp/common.h>
-#include "mobilesacn_config.h"
+#include <spdlog/spdlog.h>
 #include "HttpServer.h"
 #include "SacnCidGenerator.h"
 #include "SacnSettings.h"
+#include "mobilesacn_config.h"
+
+void initResources()
+{
+    Q_INIT_RESOURCE(webui);
+}
 
 namespace mobilesacn {
 
 Application::Application(QObject* parent)
     : QObject(parent)
 {
+    initResources();
+
     // Init EtcPal.
     etcPalLogger_.SetSyslogAppName(config::kProjectName);
     if (!etcPalLogger_.Startup(etcPalLogHandler_)) {

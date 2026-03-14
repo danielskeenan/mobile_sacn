@@ -64,6 +64,7 @@ private:
     std::future<void> serverHandle_;
 
     static const std::filesystem::path& getWebRoot();
+    static crow::response serveStaticFile(const std::string& path);
 };
 } // mobilesacn
 

@@ -10,6 +10,11 @@ set(PROJECT_ORGANIZATION_NAME "dankeenan")
 set(PROJECT_ORGANIZATION_DOMAIN "dankeenan.org")
 string(TIMESTAMP PROJECT_BUILD_TIMESTAMP "%s" UTC)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(Git REQUIRED)
@@ -41,10 +46,6 @@ if (BUILD_DOC)
 endif ()
 
 if (BUILD_EXEC)
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTORCC ON)
-    set(CMAKE_AUTOUIC ON)
     add_compile_definitions(QT_NO_KEYWORDS)
 
     include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -79,7 +80,6 @@ if (BUILD_EXEC)
     # Log levels
     add_compile_definitions("SPDLOG_ACTIVE_LEVEL=$<IF:$<CONFIG:Debug>,0,2>")
 
-    add_subdirectory(tools)
     add_subdirectory(messages)
     add_subdirectory(mobilesacn)
 

@@ -12,7 +12,6 @@ find_package(unofficial-nayuki-qr-code-generator CONFIG REQUIRED)
 include(${PROJECT_SOURCE_DIR}/cmake/qsettingscontainer.cmake)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     libmobilesacn
-    webui_qrc
     unofficial::nayuki-qr-code-generator::nayuki-qr-code-generator
     Qt::Svg
     Qt::SvgWidgets

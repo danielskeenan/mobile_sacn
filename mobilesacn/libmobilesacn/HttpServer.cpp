@@ -7,15 +7,17 @@
  */
 
 #include "HttpServer.h"
-#include <mobilesacn_config.h>
-#include <QCoreApplication>
-#include <QDir>
-#include <set>
-#include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include "rpc/ChanCheck.h"
 #include "rpc/ReceiveLevels.h"
 #include "rpc/TransmitLevels.h"
+#include <fmt/format.h>
+#include <mobilesacn_config.h>
+#include <set>
+#include <spdlog/spdlog.h>
+#include <QCoreApplication>
+#include <QDir>
+#include <QMimeDatabase>
+#include <QResource>
 
 namespace mobilesacn {
 
@@ -95,8 +97,6 @@ HttpServer::HttpServer(Options options, QObject* parent)
     : QObject(parent),
       options_(std::move(options))
 {
-    // Set working directory. This is needed for static file serving to work correctly.
-    std::filesystem::current_path(getWebRoot());
     // Setup HTTP server.
     crow::logger::setHandler(&crowLogHandler_);
     server_.bindaddr(options_.backend_address)
@@ -126,30 +126,10 @@ HttpServer::HttpServer(Options options, QObject* parent)
 
     // Static content.
     CROW_ROUTE(server_, "/").methods(crow::HTTPMethod::Get)
-    ([](crow::response& res) {
-        res.set_static_file_info_unsafe("index.html");
-        res.end();
+    ([]() {
+        return serveStaticFile("index.html");
     });
-    CROW_ROUTE(server_, "/<path>").methods(crow::HTTPMethod::Get)
-    ([this](crow::response& res, const std::string& path) {
-        // Crow requires things it serves to be relative to current working directory
-        // (this is why cwd in constructor).
-        auto cleanPath = path;
-        crow::utility::sanitize_filename(cleanPath);
-        // Directory index.
-        const auto absPath = std::filesystem::current_path() / cleanPath;
-        if (std::filesystem::is_directory(absPath)) {
-            res.redirect(fmt::format("/{}/index.html", path));
-        } else {
-            res.set_static_file_info_unsafe(cleanPath);
-            if (res.code == 404) {
-                // Serve index.html so client-side routing can work.
-                res.set_static_file_info_unsafe("index.html");
-            }
-        }
-
-        res.end();
-    });
+    CROW_ROUTE(server_, "/<path>").methods(crow::HTTPMethod::Get)(&HttpServer::serveStaticFile);
 }
 
 void HttpServer::run()
@@ -181,6 +161,45 @@ const std::filesystem::path& HttpServer::getWebRoot()
     static const auto webroot = std::filesystem::canonical(
         std::filesystem::path(qApp->applicationDirPath().toStdString()) / ".." / config::kWebPath);
     return webroot;
+}
+
+crow::response HttpServer::serveStaticFile(const std::string &path)
+{
+    // Try a static file.
+    const auto resourcePath = QString(":/webui/%1").arg(path);
+    QResource resource(resourcePath);
+    if (resource.isValid() && resource.data() != nullptr) {
+        // Read contents
+        crow::response res;
+        const auto bytes = resource.uncompressedData();
+        const std::string str(bytes.data(), bytes.size());
+        res.write(str);
+
+        // Set response mime type.
+        const QMimeDatabase mimeDatabase;
+        const auto mime = mimeDatabase.mimeTypeForFileNameAndData(resourcePath, bytes);
+        res.add_header("Content-Type", mime.name().toStdString());
+
+        return res;
+    }
+
+    // Try a directory index.
+    QResource indexResource(QString("%1/index.html").arg(resourcePath));
+    if (indexResource.isValid() && indexResource.data() != nullptr) {
+        crow::response res;
+        res.redirect(fmt::format("/{}/index.html", path));
+        return res;
+    }
+
+    if (QFileInfo(resourcePath).suffix().isEmpty()) {
+        // Let client-side routing work, so serve index.html.
+        return serveStaticFile("index.html");
+    }
+
+    // File not found.
+    crow::response res;
+    res.code = 404;
+    return res;
 }
 
 } // mobilesacn
