@@ -27,7 +27,19 @@ import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import Color from "colorjs.io";
 import {ByteBuffer} from "flatbuffers";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
-import {Accordion, Badge, Button, FloatingLabel, Form, Modal, Stack, Tab, Table, Tabs} from "solid-bootstrap";
+import {
+    Accordion,
+    Badge,
+    Button,
+    FloatingLabel,
+    Form,
+    Modal,
+    OverlayTrigger,
+    Stack,
+    Tab,
+    Table,
+    Tabs, Tooltip,
+} from "solid-bootstrap";
 import {BsList, BsTable} from "solid-icons/bs";
 import {Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
 import "./ReceiveLevels.scss";
@@ -523,6 +535,8 @@ const ViewGrid: Component<LevelsViewProps> = (props) => {
         setNumCols(Math.floor(tableWidth / cellWidth) - 1);
     });
 
+    const addressTooltipId = createUniqueId();
+
     return (
         <Table bordered class="msacn-viewgrid" ref={grid}
                style={{"max-width": numCols() == 0 ? "fit-content" : undefined}}>
@@ -550,16 +564,19 @@ const ViewGrid: Component<LevelsViewProps> = (props) => {
                             <IndexRange start={rowStartAddr()}
                                         to={Math.min(props.levels.length, rowStartAddr() + numCols())} step={1}>
                                 {addr => (
-                                    <td style={{"background-color": colors()[addr()].display()}}>
-                                        <Stack direction="vertical" gap={0}>
-                                            <Show when={props.priorities[addr()] > 0} fallback={<div>&nbsp;</div>}>
-                                                <LevelDisplay level={props.levels[addr()]}/>
-                                            </Show>
-                                            <Show when={props.showPriorities}>
-                                                <PriorityDisplay level={props.priorities[addr()]}/>
-                                            </Show>
-                                        </Stack>
-                                    </td>
+                                    <OverlayTrigger
+                                        overlay={<Tooltip id={`${addressTooltipId}-${addr()}`}>{addr() + 1}</Tooltip>}>
+                                        <td style={{"background-color": colors()[addr()].display()}}>
+                                            <Stack direction="vertical" gap={0}>
+                                                <Show when={props.priorities[addr()] > 0} fallback={<div>&nbsp;</div>}>
+                                                    <LevelDisplay level={props.levels[addr()]}/>
+                                                </Show>
+                                                <Show when={props.showPriorities}>
+                                                    <PriorityDisplay level={props.priorities[addr()]}/>
+                                                </Show>
+                                            </Stack>
+                                        </td>
+                                    </OverlayTrigger>
                                 )}
                             </IndexRange>
                         </tr>
