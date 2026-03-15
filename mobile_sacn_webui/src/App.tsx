@@ -1,4 +1,5 @@
 import "./App.scss";
+import {AppContextProvider} from "@/common/AppContext";
 import logo from "./assets/mobile_sacn.svg";
 import {type Component, For, Suspense} from "solid-js";
 import {A, AnchorProps} from "@solidjs/router";
@@ -32,7 +33,7 @@ const MENU: MenuItem[] = [
 
 const App: Component<{ children: Element }> = (props) => {
     return (
-        <>
+        <AppContextProvider>
             <Navbar class="msacn-navbar-main" expand="lg" fixed="top" collapseOnSelect>
                 <Container fluid>
                     <Navbar.Brand as={A} href={LINKS.front_home}>
@@ -52,7 +53,7 @@ const App: Component<{ children: Element }> = (props) => {
             <Container as="main">
                 <Suspense fallback={<Loading/>}>{props.children}</Suspense>
             </Container>
-        </>
+        </AppContextProvider>
     );
 };
 
