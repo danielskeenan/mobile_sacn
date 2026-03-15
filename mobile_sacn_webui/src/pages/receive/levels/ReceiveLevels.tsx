@@ -6,7 +6,6 @@ import {LevelBar} from "@/common/components/LevelBar";
 import {LevelDisplay, PriorityDisplay} from "@/common/components/LevelDisplay";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common/constants";
 import {generate} from "@/common/generate";
-import iota from "@/common/iota";
 import unique from "@/common/unique";
 import wsUrl from "@/common/wsUrl";
 import {Flicker} from "@/messages/flicker";
@@ -22,6 +21,7 @@ import {SourceUpdated} from "@/messages/source-updated";
 import {Universe} from "@/messages/universe";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
 import {createEventListener} from "@solid-primitives/event-listener";
+import {IndexRange, Repeat} from "@solid-primitives/range";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import Color from "colorjs.io";
 import {ByteBuffer} from "flatbuffers";
@@ -493,69 +493,22 @@ const ViewGridTitle: Component = () => {
 };
 
 const ViewGrid: Component<LevelsViewProps> = (props) => {
-    // TODO: Cells are re-rendered on every sACN frame. Fix that.
     const [appContext] = useAppContext();
+    const colors = createMemo(() => {
+        const colors = [];
+        for (let ix = 0; ix < props.levels.length; ++ix) {
+            const color = props.colors[ix] ?? DEFAULT_SOURCE.color;
+            colors.push(appContext.colorMode == ColorMode.Dark ? color.dark : color.light);
+        }
+        return colors;
+    });
     const [numCols, setNumCols] = createSignal(0);
     createEventListener(window, "resize", () => {
         // Force recalc.
         setNumCols(0);
     });
-    const header = createMemo(() => {
-        if (numCols() == 0) {
-            // Calculating
-            return [];
-        }
-        return (
-            <tr>
-                <th/>
-                <Index each={Array.from(iota(1, numCols() + 1))}>
-                    {(addr) => (
-                        <th scope="col">{addr()}</th>
-                    )}
-                </Index>
-            </tr>
-        );
-    });
-    const rows = createMemo(() => {
-        if (numCols() == 0) {
-            // Calculating
-            return [];
-        }
 
-        // Setup level rows.
-        const rows = [];
-        for (let rowIx = 0, addr = 0; addr < props.levels.length; ++rowIx) {
-            // Row header (first address in this row).
-            const row = [
-                <th scope="row">{addr + 1}</th>,
-            ];
-            // Add cells for each address.
-            for (let colIx = 0; colIx < numCols(); ++colIx, ++addr) {
-                const level = props.levels[addr];
-                const cidColor = props.colors[addr] ?? DEFAULT_SOURCE.color;
-                const color = appContext.colorMode == ColorMode.Dark ? cidColor.dark : cidColor.light;
-                const priority = props.priorities[addr];
-
-                row.push(
-                    <td style={{
-                        "background-color": color.display(),
-                        "overflow-wrap": numCols() == 0 ? "anywhere" : "unset",
-                    }}>
-                        <Stack direction="vertical" gap={0}>
-                            <Show when={priority > 0} fallback={<div>&nbsp;</div>}>
-                                <LevelDisplay level={level}/>
-                            </Show>
-                            <Show when={props.showPriorities}>
-                                <PriorityDisplay level={priority}/>
-                            </Show>
-                        </Stack>
-                    </td>,
-                );
-            }
-            rows.push(<tr>{row}</tr>);
-        }
-        return rows;
-    });
+    // Determine number of columns needed to display all values.
     let grid!: HTMLTableElement;
     let measurementCell!: HTMLTableCellElement;
     createEffect(() => {
@@ -573,14 +526,44 @@ const ViewGrid: Component<LevelsViewProps> = (props) => {
         <Table bordered class="msacn-viewgrid" ref={grid}
                style={{"max-width": numCols() == 0 ? "fit-content" : undefined}}>
             <thead>
-            {header()}
+            <tr>
+                <th/>
+                <Repeat times={numCols()}>
+                    {addr => (
+                        <th scope="col">{addr + 1}</th>
+                    )}
+                </Repeat>
+            </tr>
             </thead>
             <tbody>
-            {rows()}
             <Show when={numCols() == 0}>
                 <tr>
                     <td ref={measurementCell}><LevelDisplay level={0}/></td>
                 </tr>
+            </Show>
+            <Show when={numCols() > 0}>
+                <IndexRange start={0} to={props.levels.length} step={numCols()}>
+                    {rowStartAddr => (
+                        <tr>
+                            <th scope="row">{rowStartAddr() + 1}</th>
+                            <IndexRange start={rowStartAddr()}
+                                        to={Math.min(props.levels.length, rowStartAddr() + numCols())} step={1}>
+                                {addr => (
+                                    <td style={{"background-color": colors()[addr()].display()}}>
+                                        <Stack direction="vertical" gap={0}>
+                                            <Show when={props.priorities[addr()] > 0} fallback={<div>&nbsp;</div>}>
+                                                <LevelDisplay level={props.levels[addr()]}/>
+                                            </Show>
+                                            <Show when={props.showPriorities}>
+                                                <PriorityDisplay level={props.priorities[addr()]}/>
+                                            </Show>
+                                        </Stack>
+                                    </td>
+                                )}
+                            </IndexRange>
+                        </tr>
+                    )}
+                </IndexRange>
             </Show>
             </tbody>
         </Table>
