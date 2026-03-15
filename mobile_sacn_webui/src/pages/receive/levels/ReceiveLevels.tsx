@@ -6,6 +6,7 @@ import {LevelBar} from "@/common/components/LevelBar";
 import {LevelDisplay, PriorityDisplay} from "@/common/components/LevelDisplay";
 import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common/constants";
 import {generate} from "@/common/generate";
+import getBootstrapColor from "@/common/getBootstrapColor";
 import unique from "@/common/unique";
 import wsUrl from "@/common/wsUrl";
 import {Flicker} from "@/messages/flicker";
@@ -63,17 +64,17 @@ const DEFAULT_SOURCE: Source = {
 };
 
 const RAISE_COLOR: CidColor = {
-    light: new Color("blue"),
-    dark: new Color("navy"),
+    light: new Color(getBootstrapColor("cyan")),
+    dark: new Color(getBootstrapColor("blue")),
 };
 const LOWER_COLOR: CidColor = {
-    light: new Color("lime"),
-    dark: new Color("green"),
+    light: new Color(getBootstrapColor("teal")),
+    dark: new Color(getBootstrapColor("green")),
 };
 
 const SAME_COLOR: CidColor = {
-    light: new Color("silver"),
-    dark: new Color("gray"),
+    light: new Color(getBootstrapColor("gray-500")),
+    dark: new Color(getBootstrapColor("gray-700")),
 };
 
 const emptyLevelBuffer = () => Array.from(generate(DMX_MAX, 0));
