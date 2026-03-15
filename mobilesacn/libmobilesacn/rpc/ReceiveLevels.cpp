@@ -159,11 +159,12 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
                                  const std::array<std::string, DMX_ADDRESS_COUNT>& ownerCids)
 {
     const auto now = std::chrono::steady_clock::now();
-    if (!flickerFinder_ && now - lastSent_ < kMessageInterval) {
-        // Don't flood clients with messages, unless we are in flicker finder as we don't want
-        // to miss flicker that last only one frame.
-        return;
-    }
+    // TODO: Can this be removed once we use solidjs?
+    // if (!flickerFinder_ && now - lastSent_ < kMessageInterval) {
+    //     // Don't flood clients with messages, unless we are in flicker finder as we don't want
+    //     // to miss flicker that last only one frame.
+    //     return;
+    // }
 
     std::unique_lock<decltype(lastSeenMutex_)> lastSeenLock;
     if (flickerFinder_) {
@@ -181,15 +182,16 @@ void ReceiveLevels::onMergedData(const SacnRecvMergedData& mergedData,
     // Determine where in addresses 1-512 our received data is.
     const auto bufOffset = mergedData.slot_range.start_address - 1;
     const auto bufCount = std::min(mergedData.slot_range.address_count, DMX_ADDRESS_COUNT);
+    // TODO: Can this be removed once we use solidjs?
     // Determine if the data has changed since the last message.
-    if (buffersEqual(std::span<const uint8_t>(lastSeen_.levels).subspan(bufOffset, bufCount),
-                     mergedData.levels, bufCount)
-        && buffersEqual(std::span<const uint8_t>(lastSeen_.priorities).subspan(bufOffset, bufCount),
-                        mergedData.priorities, bufCount)
-        && lastSeen_.owners == ownerCids) {
-        // Nothing has changed, send no messages.
-        return;
-    }
+    // if (buffersEqual(std::span<const uint8_t>(lastSeen_.levels).subspan(bufOffset, bufCount),
+    //                  mergedData.levels, bufCount)
+    //     && buffersEqual(std::span<const uint8_t>(lastSeen_.priorities).subspan(bufOffset, bufCount),
+    //                     mergedData.priorities, bufCount)
+    //     && lastSeen_.owners == ownerCids) {
+    //     // Nothing has changed, send no messages.
+    //     return;
+    // }
     // Something has changed, send a message.
 
     if (!flickerFinder_) {

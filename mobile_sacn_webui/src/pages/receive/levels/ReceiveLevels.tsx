@@ -1,8 +1,12 @@
+import {ColorMode, useAppContext} from "@/common/AppContext";
 import bigIntAbs from "@/common/bigIntAbs";
 import colorForCID, {CidColor} from "@/common/cidColor";
 import Connecting from "@/common/components/Connecting";
-import {DMX_MAX} from "@/common/constants";
+import {LevelBar} from "@/common/components/LevelBar";
+import {LevelDisplay, PriorityDisplay} from "@/common/components/LevelDisplay";
+import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common/constants";
 import {generate} from "@/common/generate";
+import iota from "@/common/iota";
 import unique from "@/common/unique";
 import wsUrl from "@/common/wsUrl";
 import {Flicker} from "@/messages/flicker";
@@ -18,11 +22,15 @@ import {SourceUpdated} from "@/messages/source-updated";
 import {Universe} from "@/messages/universe";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
 import {createEventListener} from "@solid-primitives/event-listener";
-import {createReconnectingWS, createWSState, makeHeartbeatWS} from "@solid-primitives/websocket";
+import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import Color from "colorjs.io";
 import {ByteBuffer} from "flatbuffers";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
-import {Component, createEffect, createMemo, createSignal, Show} from "solid-js";
+import {Accordion, Badge, Button, FloatingLabel, Form, Modal, Stack, Tab, Table, Tabs} from "solid-bootstrap";
+import {BsList, BsTable} from "solid-icons/bs";
+import {Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
+import "./ReceiveLevels.scss";
+import {Portal} from "solid-js/web";
 
 
 enum ViewMode {
@@ -90,11 +98,17 @@ const ReceiveLevels: Component = () => {
     const [owners, setOwners] = createSignal(emptyOwnerBuffer());
     const [sourceMap, setSourceMap] = createSignal(emptySourceMap());
     const sources = createMemo(() => {
-        return Array.from(sourceMap().values());
+        const newSources = [];
+        for (const source of sourceMap().values()) {
+            if (source.universes.includes(universe())) {
+                newSources.push(source);
+            }
+        }
+        return newSources;
     });
     const availableUniverses = createMemo(() => {
-        const universes = new Uint16Array(unique(getSourceListUniverses(sourceMap().values())));
-        universes.sort();
+        const universes = Array.from(unique(getSourceListUniverses(sourceMap().values())));
+        universes.sort((lhs, rhs) => lhs - rhs);
         return universes;
     });
     const [viewMode, setViewMode] = createSignal(ViewMode.GRID);
@@ -134,7 +148,7 @@ const ReceiveLevels: Component = () => {
         if (msg.universesLength() == 0 && (oldSource = sourceMap().get(cid)) !== undefined) {
             universes = oldSource.universes;
         } else {
-            universes = msg.universesArray() ?? Uint16Array.from([universe]);
+            universes = msg.universesArray() ?? Uint16Array.from([universe()]);
         }
         const newSource: Source = {
             cid: cid,
@@ -186,7 +200,7 @@ const ReceiveLevels: Component = () => {
     };
 
     // Init Websocket.
-    const ws = makeHeartbeatWS(createReconnectingWS(wsUrl("ReceiveLevels")));
+    const ws = createReconnectingWS(wsUrl("ReceiveLevels"));
     const readyState = createWSState(ws);
     createEventListener(ws, "open", (e) => {
         const ws = e.currentTarget;
@@ -228,7 +242,6 @@ const ReceiveLevels: Component = () => {
         if (ws.readyState != WebSocket.OPEN) {
             return;
         }
-
         const builder = new fbsBuilder();
         const msgUniverse = Universe.createUniverse(builder, val);
         ReceiveLevelsReq.startReceiveLevelsReq(builder);
@@ -279,9 +292,331 @@ const ReceiveLevels: Component = () => {
             <h1><ReceiveLevelsTitle/></h1>
 
             <Show when={readyState() == WebSocket.OPEN} fallback={<Connecting/>}>
-                <p>Connected</p>
+                <>
+                    <Form class="msacn-receiveconfig-form mb-3" onSubmit={e => e.preventDefault()}>
+                        <Form.Group>
+                            <Form.Label visuallyHidden={true}>Universe</Form.Label>
+                            <Stack as="fieldset" direction="horizontal" gap={1}>
+                                <For each={availableUniverses()}>
+                                    {(univ) => (
+                                        <Button variant={univ == universe() ? "secondary" : "outline-secondary"}
+                                                active={univ == universe()}
+                                                onClick={() => setUniverse(univ)}>
+                                            Univ {univ}
+                                        </Button>
+                                    )}
+                                </For>
+                                <Button variant="outline-secondary" active={false} onClick={openUnivDialog}>
+                                    Choose Universe...
+                                </Button>
+                            </Stack>
+                        </Form.Group>
+                    </Form>
+
+                    <Show when={universe() > 0}>
+                        <>
+                            <h2>Universe {universe()}</h2>
+                            <SourceList sources={sources()}/>
+
+                            <Stack direction="horizontal" gap={3}>
+                                <Form.Check
+                                    label="Show Priorities"
+                                    checked={showPriorities()}
+                                    onChange={() => setShowPriorities(!showPriorities())}
+                                />
+                                <Form.Check
+                                    label="Flicker Finder"
+                                    checked={flickerFinder()}
+                                    onChange={() => setFlickerFinder(!flickerFinder())}
+                                />
+                            </Stack>
+
+                            <Tabs
+                                class="mt-3"
+                                activeKey={viewMode()}
+                                mountOnEnter
+                                unmountOnExit
+                                onSelect={newViewMode => setViewMode(newViewMode as ViewMode)}
+                            >
+                                <Tab eventKey={ViewMode.GRID} title={<ViewGridTitle/>}>
+                                    {/* Remove hidden tabs from the DOM to reduce the number of updates. */}
+                                    <Show when={viewMode() == ViewMode.GRID}>
+                                        <ViewGrid
+                                            sourceMap={sourceMap()}
+                                            levels={levels()}
+                                            priorities={priorities()}
+                                            owners={owners()}
+                                            colors={addressColors()}
+                                            showPriorities={showPriorities()}
+                                        />
+                                    </Show>
+                                </Tab>
+                                <Tab eventKey={ViewMode.BARS} title={<ViewBarsTitle/>}>
+                                    <Show when={viewMode() == ViewMode.BARS}>
+                                        <ViewBars
+                                            sourceMap={sourceMap()}
+                                            levels={levels()}
+                                            priorities={priorities()}
+                                            owners={owners()}
+                                            colors={addressColors()}
+                                            showPriorities={showPriorities()}
+                                        />
+                                    </Show>
+                                </Tab>
+                            </Tabs>
+                        </>
+                    </Show>
+
+                    <Portal>
+                        <Modal show={showUnivDialog()} onHide={closeUnivDialog}>
+                            <UnivDialog setUniv={setUniverse} onClose={closeUnivDialog}/>
+                        </Modal>
+                    </Portal>
+                </>
             </Show>
         </>
+    );
+};
+
+interface UnivDialogProps {
+    setUniv: (newUniv: number) => void;
+    onClose: () => void;
+}
+
+const UnivDialog: Component<UnivDialogProps> = (props) => {
+    let univInputRef!: HTMLInputElement;
+    const onSubmit = () => {
+        props.setUniv(univInputRef.valueAsNumber);
+        props.onClose();
+    };
+
+    return (
+        <>
+            <Modal.Header>
+                Universe
+            </Modal.Header>
+            <Modal.Body>
+                <Form onSubmit={e => {
+                    e.preventDefault();
+                    onSubmit();
+                }}>
+                    <FloatingLabel label="Other universe">
+                        <Form.Control
+                            type="number"
+                            min={SACN_UNIV_MIN}
+                            max={SACN_UNIV_MAX}
+                            ref={univInputRef}
+                        />
+                    </FloatingLabel>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={props.onClose}>Cancel</Button>
+                <Button variant="primary" onClick={onSubmit}>Set Universe</Button>
+            </Modal.Footer>
+        </>
+    );
+};
+
+interface SourceListProps {
+    sources: Source[];
+}
+
+const SourceList: Component<SourceListProps> = (props) => {
+    const [appContext] = useAppContext();
+    const accordianId = createUniqueId();
+    const showPapNote = createMemo(() => {
+        for (const source of props.sources) {
+            if (source.hasPap) {
+                return true;
+            }
+        }
+        return false;
+    });
+
+    return (
+        <Accordion class="mt-3">
+            <Accordion.Item eventKey={accordianId}>
+                <Accordion.Header>
+                    Sources&nbsp;<Badge bg="secondary">{props.sources.length}</Badge>
+                </Accordion.Header>
+                <Accordion.Body>
+                    <Show when={props.sources.length > 0} fallback="No sources sending this universe.">
+                        <>
+                            <Table class="msacn-sourcelist">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>IP Addr</th>
+                                    <th>Priority</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <For each={props.sources}>
+                                    {(source) => (
+                                        <tr
+                                            style={{"background-color": appContext.colorMode == ColorMode.Dark ? source.color.dark.display() : source.color.light.display()}}>
+                                            <td>{source.name}</td>
+                                            <td>{source.ipAddr}</td>
+                                            <td>{source.hasPap && "*"}{source.priority}</td>
+                                        </tr>
+                                    )}
+                                </For>
+                                </tbody>
+                            </Table>
+                            <Show when={showPapNote()}>
+                                <p>*Source has per-address-priority.</p>
+                            </Show>
+                        </>
+                    </Show>
+                </Accordion.Body>
+            </Accordion.Item>
+        </Accordion>
+    );
+};
+
+interface LevelsViewProps {
+    sourceMap: Map<string, Source>;
+    levels: number[];
+    priorities: number[];
+    owners: string[];
+    colors: CidColor[];
+    showPriorities: boolean;
+}
+
+const ViewGridTitle: Component = () => {
+    return (
+        <>
+            <BsTable/>&nbsp;Grid
+        </>
+    );
+};
+
+const ViewGrid: Component<LevelsViewProps> = (props) => {
+    // TODO: Cells are re-rendered on every sACN frame. Fix that.
+    const [appContext] = useAppContext();
+    const [numCols, setNumCols] = createSignal(0);
+    createEventListener(window, "resize", () => {
+        // Force recalc.
+        setNumCols(0);
+    });
+    const header = createMemo(() => {
+        if (numCols() == 0) {
+            // Calculating
+            return [];
+        }
+        return (
+            <tr>
+                <th/>
+                <Index each={Array.from(iota(1, numCols() + 1))}>
+                    {(addr) => (
+                        <th scope="col">{addr()}</th>
+                    )}
+                </Index>
+            </tr>
+        );
+    });
+    const rows = createMemo(() => {
+        if (numCols() == 0) {
+            // Calculating
+            return [];
+        }
+
+        // Setup level rows.
+        const rows = [];
+        for (let rowIx = 0, addr = 0; addr < props.levels.length; ++rowIx) {
+            // Row header (first address in this row).
+            const row = [
+                <th scope="row">{addr + 1}</th>,
+            ];
+            // Add cells for each address.
+            for (let colIx = 0; colIx < numCols(); ++colIx, ++addr) {
+                const level = props.levels[addr];
+                const cidColor = props.colors[addr] ?? DEFAULT_SOURCE.color;
+                const color = appContext.colorMode == ColorMode.Dark ? cidColor.dark : cidColor.light;
+                const priority = props.priorities[addr];
+
+                row.push(
+                    <td style={{
+                        "background-color": color.display(),
+                        "overflow-wrap": numCols() == 0 ? "anywhere" : "unset",
+                    }}>
+                        <Stack direction="vertical" gap={0}>
+                            <Show when={priority > 0} fallback={<div>&nbsp;</div>}>
+                                <LevelDisplay level={level}/>
+                            </Show>
+                            <Show when={props.showPriorities}>
+                                <PriorityDisplay level={priority}/>
+                            </Show>
+                        </Stack>
+                    </td>,
+                );
+            }
+            rows.push(<tr>{row}</tr>);
+        }
+        return rows;
+    });
+    let grid!: HTMLTableElement;
+    let measurementCell!: HTMLTableCellElement;
+    createEffect(() => {
+        if (numCols() != 0) {
+            return;
+        }
+        // Measure width of cell to determine how many columns to add.
+        const cellWidth = measurementCell.clientWidth;
+        const tableWidth = grid.parentElement!.clientWidth;
+        // Leave room for row header.
+        setNumCols(Math.floor(tableWidth / cellWidth) - 1);
+    });
+
+    return (
+        <Table bordered class="msacn-viewgrid" ref={grid}
+               style={{"max-width": numCols() == 0 ? "fit-content" : undefined}}>
+            <thead>
+            {header()}
+            </thead>
+            <tbody>
+            {rows()}
+            <Show when={numCols() == 0}>
+                <tr>
+                    <td ref={measurementCell}><LevelDisplay level={0}/></td>
+                </tr>
+            </Show>
+            </tbody>
+        </Table>
+    );
+};
+
+const ViewBarsTitle: Component = () => {
+    return (
+        <>
+            <BsList/>&nbsp;Bars
+        </>
+    );
+};
+
+const ViewBars: Component<LevelsViewProps> = (props) => {
+    const fgColors = createMemo(() => {
+        return props.colors.map(color => color.light ?? DEFAULT_SOURCE.color.light);
+    });
+    const bgColors = createMemo(() => {
+        return props.colors.map(color => color.dark ?? DEFAULT_SOURCE.color.dark);
+    });
+
+    return (
+        <Stack class="msacn-viewbars" direction="vertical" gap={1}>
+            <Index each={props.levels}>
+                {(level, addr) => (
+                    <LevelBar
+                        label={`${addr + 1}`.padStart(3, "0")}
+                        level={level()}
+                        priority={props.showPriorities ? props.priorities[addr] : undefined}
+                        color={fgColors()[addr]}
+                        bgColor={bgColors()[addr]}
+                    />
+                )}
+            </Index>
+        </Stack>
     );
 };
 

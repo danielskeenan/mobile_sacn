@@ -3,7 +3,7 @@ import {createEventListener} from "@solid-primitives/event-listener";
 import {createContext, createEffect, ParentComponent, useContext} from "solid-js";
 import {createStore, SetStoreFunction, Store} from "solid-js/store";
 
-enum ColorMode {
+export enum ColorMode {
     Auto = "",
     Light = "light",
     Dark = "dark",
@@ -20,7 +20,7 @@ const defaultAppContext: IAppContext = {
 };
 
 const AppContext = createContext<[Store<IAppContext>, SetStoreFunction<IAppContext>]>();
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => useContext(AppContext)!;
 
 export const AppContextProvider: ParentComponent = (props) => {
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
