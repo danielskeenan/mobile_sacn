@@ -1,11 +1,11 @@
-import {Component} from "solid-js";
-import {ListGroup} from "solid-bootstrap";
-import {A} from "@solidjs/router";
-import ChanCheckTitle from "@/pages/transmit/ChanCheckTitle";
-import LINKS from "@/links";
-import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
-import ReceiveLevelsTitle from "@/pages/receive/ReceiveLevelsTitle";
 import setPageTitle from "@/common/setPageTitle";
+import LINKS from "@/links";
+import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
+import ChanCheckTitle from "@/pages/transmit/ChanCheckTitle";
+import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
+import {A} from "@solidjs/router";
+import {ListGroup} from "solid-bootstrap";
+import {Component} from "solid-js";
 
 const Home: Component = () => {
     setPageTitle();

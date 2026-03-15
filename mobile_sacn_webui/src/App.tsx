@@ -1,15 +1,15 @@
 import "./App.scss";
 import {AppContextProvider} from "@/common/AppContext";
-import logo from "./assets/mobile_sacn.svg";
-import {type Component, For, Suspense} from "solid-js";
+import LINKS from "@/links";
+import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
+import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A, AnchorProps} from "@solidjs/router";
 import {Container, Nav, Navbar} from "solid-bootstrap";
-import {APP_NAME} from "./common/constants";
+import {type Component, For, Suspense} from "solid-js";
+import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
+import {APP_NAME} from "./common/constants";
 import ChanCheckTitle from "./pages/transmit/ChanCheckTitle";
-import LINKS from "@/links";
-import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
-import ReceiveLevelsTitle from "@/pages/receive/ReceiveLevelsTitle";
 
 interface MenuItem {
     title: string | Element;

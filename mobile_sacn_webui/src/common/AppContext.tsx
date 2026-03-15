@@ -1,3 +1,4 @@
+import {LevelDisplayMode} from "@/common/levelDisplay";
 import {createEventListener} from "@solid-primitives/event-listener";
 import {createContext, createEffect, ParentComponent, useContext} from "solid-js";
 import {createStore, SetStoreFunction, Store} from "solid-js/store";
@@ -10,10 +11,12 @@ enum ColorMode {
 
 interface IAppContext {
     colorMode: ColorMode;
+    levelDisplayMode: LevelDisplayMode;
 }
 
 const defaultAppContext: IAppContext = {
     colorMode: ColorMode.Auto,
+    levelDisplayMode: LevelDisplayMode.PERCENT,
 };
 
 const AppContext = createContext<[Store<IAppContext>, SetStoreFunction<IAppContext>]>();
