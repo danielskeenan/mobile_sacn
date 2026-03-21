@@ -16,6 +16,7 @@ import {Universe} from "@/messages/universe";
 import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitConfig from "@/pages/transmit/TransmitConfig";
 import {createEventListener} from "@solid-primitives/event-listener";
+import {createTimer} from "@solid-primitives/timer";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
 import {Button, Form, Stack} from "solid-bootstrap";
@@ -45,7 +46,8 @@ const ChannelCheck: Component = () => {
         setAddress(address() - 1);
     };
     const [level, setLevel] = createSignal(LEVEL_MAX);
-    const [blink, setBlink] = createSignal(false);
+    const [blink, setBlink] = createSignal<number | false>(false);
+    const [blinkLevel, setBlinkLevel] = createSignal(true);
 
     // Init Websocket
     const ws = createReconnectingWS(wsUrl("ChanCheck"));
@@ -157,7 +159,22 @@ const ChannelCheck: Component = () => {
         ws.send(data);
     };
     createEffect(() => {
+        setBlinkLevel(true);
         sendLevel(level());
+    });
+
+    // Blink setup
+    const BLINK_INTERVAL = 1000;
+    const blinkTimeout = () => {
+        setBlinkLevel(!blinkLevel());
+        sendLevel(blinkLevel() ? level() : 0);
+    };
+    createEffect(() => {
+        if (!blink()) {
+            setBlinkLevel(false);
+            sendLevel(level());
+        }
+        createTimer(blinkTimeout, blink, setInterval);
     });
 
     // Sync settings
@@ -204,7 +221,8 @@ const ChannelCheck: Component = () => {
                     <Stack class="mt-3" gap={3} direction="horizontal">
                         <Form.Group>
                             <Form.Label>Blink</Form.Label>
-                            <Form.Check checked={blink()} onChange={() => setBlink(!blink)}/>
+                            <Form.Check checked={blink() !== false}
+                                        onChange={(e) => setBlink(e.currentTarget.checked ? BLINK_INTERVAL : false)}/>
                         </Form.Group>
                         <Form.Group class="flex-grow-1">
                             <Form.Label>Level</Form.Label>
