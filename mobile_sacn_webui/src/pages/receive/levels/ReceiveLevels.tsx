@@ -382,7 +382,7 @@ const ReceiveLevels: Component = () => {
 
                     <Portal>
                         <Modal show={showUnivDialog()} onHide={closeUnivDialog}>
-                            <UnivDialog setUniv={setUniverse} onClose={closeUnivDialog}/>
+                            <UnivDialog onChangeUniverse={setUniverse} onClose={closeUnivDialog}/>
                         </Modal>
                     </Portal>
                 </>
@@ -392,14 +392,14 @@ const ReceiveLevels: Component = () => {
 };
 
 interface UnivDialogProps {
-    setUniv: (newUniv: number) => void;
+    onChangeUniverse: (newUniv: number) => void;
     onClose: () => void;
 }
 
 const UnivDialog: Component<UnivDialogProps> = (props) => {
     let univInputRef!: HTMLInputElement;
     const onSubmit = () => {
-        props.setUniv(univInputRef.valueAsNumber);
+        props.onChangeUniverse(univInputRef.valueAsNumber);
         props.onClose();
     };
 

@@ -1,7 +1,7 @@
 import setPageTitle from "@/common/setPageTitle";
 import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
-import ChanCheckTitle from "@/pages/transmit/ChanCheckTitle";
+import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A} from "@solidjs/router";
 import {ListGroup} from "solid-bootstrap";
@@ -17,7 +17,7 @@ const Home: Component = () => {
                     <TransmitLevelsTitle/>
                 </ListGroup.Item>
                 <ListGroup.Item as={A} href={LINKS.transmit_chancheck} action>
-                    <ChanCheckTitle/>
+                    <ChannelCheckTitle/>
                 </ListGroup.Item>
                 <ListGroup.Item as={A} href={LINKS.receive_levels} action>
                     <ReceiveLevelsTitle/>

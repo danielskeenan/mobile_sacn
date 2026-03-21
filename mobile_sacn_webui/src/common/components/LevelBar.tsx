@@ -62,7 +62,7 @@ export const LevelFader: Component<LevelFaderProps> = (props) => {
             <Show when={props.label}>
                 <span class="msacn-fader-label">{props.label}</span>
             </Show>
-            <Form.Range value={props.level} onChange={e => props.onLevelChange(e.target.valueAsNumber)}
+            <Form.Range value={props.level} onInput={e => props.onLevelChange(e.target.valueAsNumber)}
                         min={LEVEL_MIN} max={LEVEL_MAX}/>
             <LevelDisplay level={Number(props.level)}/>
         </div>

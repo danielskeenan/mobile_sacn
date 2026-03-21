@@ -9,6 +9,11 @@ const ROUTES: RouteDefinition[] = [
   },
 
   {
+    path: LINKS.transmit_chancheck,
+    component: lazy(() => import("./pages/transmit/ChannelCheck")),
+  },
+
+  {
     path: LINKS.receive_levels,
     component: lazy(() => import("./pages/receive/levels/ReceiveLevels")),
   },

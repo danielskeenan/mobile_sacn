@@ -2,6 +2,7 @@ import "./App.scss";
 import {AppContextProvider} from "@/common/AppContext";
 import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
+import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A, AnchorProps} from "@solidjs/router";
 import {Container, Nav, Navbar} from "solid-bootstrap";
@@ -9,7 +10,6 @@ import {type Component, For, Suspense} from "solid-js";
 import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
 import {APP_NAME} from "./common/constants";
-import ChanCheckTitle from "./pages/transmit/ChanCheckTitle";
 
 interface MenuItem {
     title: string | Element;
@@ -22,7 +22,7 @@ const MENU: MenuItem[] = [
         href: LINKS.transmit_levels,
     },
     {
-        title: <ChanCheckTitle/>,
+        title: <ChannelCheckTitle/>,
         href: LINKS.transmit_chancheck,
     },
     {

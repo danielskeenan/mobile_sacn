@@ -1,7 +1,7 @@
 import {Component} from "solid-js";
 import {BsCheckLg} from "solid-icons/bs";
 
-const ChanCheckTitle: Component = ()=>{
+const ChannelCheckTitle: Component = () => {
     return (
         <span>
             <BsCheckLg/>&nbsp;Channel Check
@@ -9,4 +9,4 @@ const ChanCheckTitle: Component = ()=>{
     );
 };
 
-export default ChanCheckTitle;
+export default ChannelCheckTitle;
