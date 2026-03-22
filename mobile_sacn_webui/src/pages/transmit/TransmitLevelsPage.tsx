@@ -275,7 +275,7 @@ const KeypadDisplay: Component<KeypadDisplayProps> = (props) => {
             <Show when={props.cmdline.length > 0} fallback={(<span aria-hidden>&nbsp;</span>)}>
                 <For each={props.cmdline}>
                     {(token) => (
-                        <span class="msacn-cmdline-token">{token.toString()}</span>
+                        <div class="msacn-cmdline-token">{token.toString()}</div>
                     )}
                 </For>
             </Show>

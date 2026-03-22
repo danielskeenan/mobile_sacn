@@ -4,6 +4,8 @@
   @extend .px-3;
   @extend .py-3;
 
+  display: flex;
+  flex-wrap: wrap;
   width: 100%;
   appearance: none;
   background-color: $black;
