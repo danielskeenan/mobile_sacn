@@ -1,9 +1,11 @@
 import "./TransmitLevelsPage.scss";
+import {useAppContext} from "@/common/AppContext";
 import ConnectButton from "@/common/components/ConnectButton";
 import Connecting from "@/common/components/Connecting";
 import {LevelFader} from "@/common/components/LevelBar";
 import {DMX_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "@/common/constants";
 import {generate} from "@/common/generate";
+import {LevelDisplayMode} from "@/common/levelDisplay";
 import wsUrl from "@/common/wsUrl";
 import {LevelBuffer} from "@/messages/level-buffer";
 import {PerAddressPriority} from "@/messages/per-address-priority";
@@ -12,16 +14,31 @@ import {Transmit} from "@/messages/transmit";
 import {TransmitLevels} from "@/messages/transmit-levels";
 import {TransmitLevelsVal} from "@/messages/transmit-levels-val";
 import {Universe} from "@/messages/universe";
+import {
+    allowedTokens,
+    cmdLineIsComplete,
+    CmdLineToken,
+    CmdLineTokenAt,
+    CmdLineTokenEnter,
+    CmdLineTokenHexDigit,
+    CmdLineTokenMinus,
+    CmdLineTokenNumber,
+    CmdLineTokenPlus,
+    CmdLineTokenThru,
+    CmdLineTokenType,
+    updateLevelsFromCmdLine,
+} from "@/pages/transmit/cmdline";
 import TransmitConfig from "@/pages/transmit/TransmitConfig";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {trackStore} from "@solid-primitives/deep";
 import {createEventListener} from "@solid-primitives/event-listener";
+import {IndexRange} from "@solid-primitives/range";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
-import {Card, Form, ListGroup, Tab, Tabs} from "solid-bootstrap";
+import {Button, Card, Form, ListGroup, Tab, Tabs} from "solid-bootstrap";
 import {BsKeyboard, BsSliders} from "solid-icons/bs";
-import {Component, createEffect, createSignal, Index, Show} from "solid-js";
-import {createStore} from "solid-js/store";
+import {Component, createEffect, createMemo, createSignal, For, Index, Show} from "solid-js";
+import {createStore, SetStoreFunction} from "solid-js/store";
 
 
 const TransmitLevelsPage: Component = () => {
@@ -184,7 +201,7 @@ const TransmitLevelsPage: Component = () => {
                         <LevelFaders active={transmit()} levels={levels} onLevelChange={setLevels}/>
                     </Tab>
                     <Tab eventKey="keypad" title={<LevelKeypadTitle/>}>
-
+                        <LevelKeypad active={transmit()} levels={levels} onLevelChange={setLevels}/>
                     </Tab>
                 </Tabs>
             </Show>
@@ -195,7 +212,7 @@ const TransmitLevelsPage: Component = () => {
 interface LevelsProps {
     active: boolean;
     levels: number[];
-    onLevelChange: (addr: number, level: number) => void;
+    onLevelChange: SetStoreFunction<number[]>;
 }
 
 const LevelFadersTitle: Component = () => {
@@ -228,6 +245,139 @@ const LevelKeypadTitle: Component = () => {
         <>
             <BsKeyboard/>&nbsp;Keypad
         </>
+    );
+};
+
+const LevelKeypad: Component<LevelsProps> = (props) => {
+    const [appContext] = useAppContext();
+    const [cmdLine, setCmdLine] = createStore<CmdLineToken[]>([]);
+
+    const onEnter = () => {
+        updateLevelsFromCmdLine(cmdLine, props.levels, props.onLevelChange, appContext.levelDisplayMode);
+    };
+
+    return (
+        <Card class="msacn-keypad" classList={{active: props.active}}>
+            <KeypadDisplay cmdline={cmdLine}/>
+            <Keypad cmdline={cmdLine} onCmdlineChange={setCmdLine} onEnter={onEnter}/>
+        </Card>
+    );
+};
+
+interface KeypadDisplayProps {
+    cmdline: CmdLineToken[];
+}
+
+const KeypadDisplay: Component<KeypadDisplayProps> = (props) => {
+    return (
+        <div class="msacn-cmdline mb-3">
+            {/* Inserting a space here means an empty command line has the same height as a one-line command line. */}
+            <Show when={props.cmdline.length > 0} fallback={(<span aria-hidden>&nbsp;</span>)}>
+                <For each={props.cmdline}>
+                    {(token) => (
+                        <span class="msacn-cmdline-token">{token.toString()}</span>
+                    )}
+                </For>
+            </Show>
+        </div>
+    );
+};
+
+interface KeypadProps {
+    cmdline: CmdLineToken[];
+    onCmdlineChange: SetStoreFunction<CmdLineToken[]>;
+    onEnter: () => void;
+}
+
+const Keypad: Component<KeypadProps> = (props) => {
+    const [appContext] = useAppContext();
+
+    // Button callbacks.
+    const updateCmdLine = (token: CmdLineToken) => {
+        const lastToken = props.cmdline.at(-1);
+        if (lastToken instanceof CmdLineTokenEnter) {
+            // Clear list.
+            props.onCmdlineChange(() => []);
+        }
+
+        if (props.cmdline.length > 0 && token instanceof CmdLineTokenNumber && lastToken instanceof CmdLineTokenNumber) {
+            // Append this digit to the previous one.
+            props.onCmdlineChange(props.cmdline.length - 1, (lastToken) => {
+                return new CmdLineTokenNumber((lastToken as CmdLineTokenNumber).value + token.value);
+            });
+        } else {
+            props.onCmdlineChange(props.cmdline.length, token);
+        }
+    };
+    const backspace = () => {
+        if (props.cmdline.length === 0) {
+            return;
+        }
+
+        const lastToken = props.cmdline.at(-1);
+        if (lastToken instanceof CmdLineTokenEnter) {
+            // Clear list.
+            props.onCmdlineChange(() => []);
+        } else if (lastToken instanceof CmdLineTokenNumber && lastToken.value.length > 1) {
+            // Remove the last digit from the command line.
+            props.onCmdlineChange(props.cmdline.length - 1, (lastToken) => {
+                return new CmdLineTokenNumber((lastToken as CmdLineTokenNumber).value.slice(0, -1));
+            });
+        } else {
+            props.onCmdlineChange(props.cmdline.slice(0, -1));
+        }
+    };
+    const enter = () => {
+        updateCmdLine(new CmdLineTokenEnter());
+        props.onEnter();
+    };
+    const nextTokenAllowed = createMemo(() => {
+        return allowedTokens(props.cmdline);
+    });
+
+    return (
+        <div class="msacn-keypad-buttons">
+            {/* CSS puts this in rows of 2 columns each. */}
+            <Button variant="light" class="msacn-keypad-button-1"
+                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.PLUS)}
+                    onClick={() => updateCmdLine(new CmdLineTokenPlus())}>+</Button>
+            <Button variant="light" class="msacn-keypad-button-1"
+                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.THRU)}
+                    onClick={() => updateCmdLine(new CmdLineTokenThru())}>Thru</Button>
+            <Button variant="light" class="msacn-keypad-button-1"
+                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.MINUS)}
+                    onClick={() => updateCmdLine(new CmdLineTokenMinus())}>&minus;</Button>
+            <Show when={appContext.levelDisplayMode == LevelDisplayMode.HEX}>
+                <Index each={["D", "E", "F", "A", "B", "C"]}>
+                    {(char) => (
+                        <Button variant="light" class="msacn-keypad-button-1"
+                                disabled={!nextTokenAllowed().includes(CmdLineTokenType.HEX_DIGIT)}
+                                onClick={() => updateCmdLine(new CmdLineTokenHexDigit(char()))}>{char()}</Button>
+                    )}
+                </Index>
+            </Show>
+            <IndexRange start={7} to={0} step={-3}>
+                {nStart => (
+                    <IndexRange start={nStart()} to={nStart() + 3}>
+                        {n => (
+                            <Button variant="light" class="msacn-keypad-button-1"
+                                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.NUMBER)}
+                                    onClick={() => updateCmdLine(new CmdLineTokenNumber(n().toString()))}>{n()}</Button>
+                        )}
+                    </IndexRange>
+                )}
+            </IndexRange>
+            <Button variant="light" class="msacn-keypad-button-1" disabled={props.cmdline.length === 0}
+                    onClick={backspace}>Clear</Button>
+            <Button variant="light" class="msacn-keypad-button-2"
+                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.NUMBER)}
+                    onClick={() => updateCmdLine(new CmdLineTokenNumber("0"))}>0</Button>
+            <Button variant="light" class="msacn-keypad-button-1"
+                    disabled={!nextTokenAllowed().includes(CmdLineTokenType.AT)}
+                    onClick={() => updateCmdLine(new CmdLineTokenAt())}>At</Button>
+            <Button variant="light" class="msacn-keypad-button-2" disabled={!cmdLineIsComplete(props.cmdline)}
+                    onClick={enter}>Enter</Button>
+        </div>
     );
 };
 

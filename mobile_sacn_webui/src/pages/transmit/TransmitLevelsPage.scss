@@ -22,19 +22,20 @@
 
 .msacn-keypad {
   @extend .my-3;
+  @extend .mx-auto;
+  // This keeps the keypad from getting unwieldy on larger screens (e.g. iPad).
+  max-width: map-get($container-max-widths, "sm");
 
-  table {
-    border-collapse: separate;
-    border-spacing: $spacer * 0.5;
-    table-layout: fixed;
+  .msacn-keypad-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: map-get($spacers, 2);
 
-    td {
-      width: calc(100% / 3);
-    }
-
-    button.btn {
-      display: block;
-      width: 100%;
+    // Colspan helpers.
+    @for $span from 1 through 3 {
+      .msacn-keypad-button-#{$span} {
+        grid-column: span #{$span};
+      }
     }
   }
 }

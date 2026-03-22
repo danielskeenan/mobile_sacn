@@ -2,6 +2,7 @@ import {useAppContext} from "@/common/AppContext";
 import clamp from "@/common/clamp";
 import {DMX_MAX, DMX_MIN, LEVEL_MAX, LEVEL_MIN} from "@/common/constants";
 import {LEVEL_PERCENT_TABLE, LevelDisplayMode, PERCENT_LEVEL_TABLE} from "@/common/levelDisplay";
+import {SetStoreFunction} from "solid-js/store";
 
 export enum CmdLineTokenType {
     NUMBER,
@@ -170,13 +171,12 @@ export function cmdLineIsComplete(cmdline: CmdLineToken[]) {
  *
  * @param cmdline
  * @param levels
+ * @param setLevels A SolidJS setStore function.
  */
-export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[]): number[] {
+export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[], setLevels: SetStoreFunction<number[]>, levelDisplayMode: LevelDisplayMode) {
     if (cmdline.length === 0) {
-        return levels;
+        return;
     }
-
-    const [appContext] = useAppContext();
 
     let cmdlineIx = 0;
     // Determine the addresses to change.
@@ -228,13 +228,13 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
         const token = cmdline[cmdlineIx];
         if (token instanceof CmdLineTokenNumber) {
             if (!thru) {
-                levelRange = [parseInt(token.value, appContext.levelDisplayMode == LevelDisplayMode.HEX ? 16 : 10)];
+                levelRange = [parseInt(token.value, levelDisplayMode == LevelDisplayMode.HEX ? 16 : 10)];
             } else {
                 // Allows for things like 1 thru 5 at 10 thru 50 => 1@10, 2@20, 3@30, 4@40, 5@50
                 const levelStart = levelRange[0];
                 levelRange = [];
                 if (selection.size > 1) {
-                    const levelEnd = parseInt(token.value, appContext.levelDisplayMode == LevelDisplayMode.HEX ? 16 : 10);
+                    const levelEnd = parseInt(token.value, levelDisplayMode == LevelDisplayMode.HEX ? 16 : 10);
                     const levelChange = (levelEnd - levelStart) / (selection.size - 1);
                     for (let level = levelStart; levelRange.length < selection.size; level += levelChange) {
                         levelRange.push(level);
@@ -264,7 +264,7 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
     let levelIx = 0;
     selection.forEach((addr) => {
         // Working with DMX (0-255) can cause off-by-one errors when the user is thinking in percentages.
-        const currentLevel = convertActualLevelToUserLevel(levels[addr - 1]);
+        const currentLevel = convertActualLevelToUserLevel(levels[addr - 1], levelDisplayMode);
         const levelChange = levelRange[levelIx];
         let newLevel;
         if (plus) {
@@ -282,20 +282,18 @@ export function updateLevelsFromCmdLine(cmdline: CmdLineToken[], levels: number[
 
         // Only set the level if it fits in a DMX stream.
         if (addr >= DMX_MIN && addr <= DMX_MAX) {
-            levels[addr - 1] = clamp(convertUserLevelToActualLevel(newLevel), LEVEL_MIN, LEVEL_MAX, LEVEL_MIN)!;
+            setLevels(addr - 1, clamp(convertUserLevelToActualLevel(newLevel, levelDisplayMode), LEVEL_MIN, LEVEL_MAX, LEVEL_MIN)!);
         }
     });
-
-    return levels;
 }
 
 /**
  * Convert a level as the user sees it (may be a percent) to actual 0-255 level.
  * @param level
+ * @param levelDisplayMode
  */
-function convertUserLevelToActualLevel(level: number): number {
-    const [appContext] = useAppContext();
-    if (appContext.levelDisplayMode === LevelDisplayMode.PERCENT) {
+function convertUserLevelToActualLevel(level: number, levelDisplayMode: LevelDisplayMode): number {
+    if (levelDisplayMode === LevelDisplayMode.PERCENT) {
         let actualLevel = PERCENT_LEVEL_TABLE[level];
         if (actualLevel === undefined) {
             // The level is some decimal percentage value.
@@ -310,10 +308,10 @@ function convertUserLevelToActualLevel(level: number): number {
 /**
  * Convert an actual 0-255 level to a level as the user sees it (may be a percent).
  * @param level
+ * @param levelDisplayMode
  */
-function convertActualLevelToUserLevel(level: number): number {
-    const [appContext] = useAppContext();
-    if (appContext.levelDisplayMode === LevelDisplayMode.PERCENT) {
+function convertActualLevelToUserLevel(level: number, levelDisplayMode: LevelDisplayMode): number {
+    if (levelDisplayMode === LevelDisplayMode.PERCENT) {
         return LEVEL_PERCENT_TABLE[level] ?? 0;
     }
 
