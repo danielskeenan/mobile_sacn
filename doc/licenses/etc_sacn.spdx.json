@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/refs/tags/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/sACN-3.1.0.2",
+  "name": "sACN",
+  "creationInfo": {
+    "created": "2026-03-22T00:34:30Z",
+    "creators": ["Dan Keenan"]
+  },
+  "packages": [
+    {
+      "name": "sACN",
+      "SPDXID": "SPDXRef-lib",
+      "versionInfo": "3.1.0.2",
+      "downloadLocation": "https://github.com/ETCLabs/sACN/archive/refs/tags/v3.1.0.2.zip",
+      "homepage": "https://github.com/ETCLabs/sACN",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "description": "C-language library and a C++ wrapper library for communicating via sACN."
+    }
+  ]
+}

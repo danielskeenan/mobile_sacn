@@ -40,11 +40,11 @@ option(BUILD_EXEC "Build the executable program.  You probably want to do this."
 add_subdirectory(mobile_sacn_webui)
 
 # TODO: Add this back in.
-#find_package(Python3 COMPONENTS Interpreter)
-#option(BUILD_DOC "Build documentation (Requires Python)" ${Python3_FOUND})
-#if (BUILD_DOC)
-#    add_subdirectory(doc)
-#endif ()
+find_package(Python3 COMPONENTS Interpreter)
+option(BUILD_DOC "Build documentation (Requires Python)" ${Python3_FOUND})
+if (BUILD_DOC)
+    add_subdirectory(doc)
+endif ()
 
 if (BUILD_EXEC)
     add_compile_definitions(QT_NO_KEYWORDS)

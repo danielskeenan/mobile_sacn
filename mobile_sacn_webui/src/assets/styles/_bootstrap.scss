@@ -1,5 +1,10 @@
 // Configuration
 @import "bootstrap/scss/functions";
+
+// Bootstrap overrides
+@import "colors";
+
+// Bootstrap defaults
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
 @import "bootstrap/scss/maps";
@@ -44,3 +49,4 @@
 
 // Utilities
 @import "bootstrap/scss/utilities/api";
+

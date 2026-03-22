@@ -182,3 +182,5 @@ _deps
 CMakeUserPresets.json
 
 .idea
+.qt
+aqtinstall.log

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/refs/tags/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/etcpal-1.0.0.14",
+  "name": "EtcPal",
+  "creationInfo": {
+    "created": "2026-03-22T00:34:30Z",
+    "creators": ["Dan Keenan"]
+  },
+  "packages": [
+    {
+      "name": "EtcPal",
+      "SPDXID": "SPDXRef-lib",
+      "versionInfo": "1.0.0.14",
+      "downloadLocation": "https://github.com/ETCLabs/EtcPal/archive/refs/tags/v1.0.0.14.zip",
+      "homepage": "https://github.com/ETCLabs/EtcPal",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "description": "EtcPal is a C99 library for platform abstraction."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/refs/tags/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/Qt",
+  "name": "Qt",
+  "creationInfo": {
+    "created": "2026-03-22T00:34:30Z",
+    "creators": ["Dan Keenan"]
+  },
+  "packages": [
+    {
+      "name": "Qt",
+      "SPDXID": "SPDXRef-lib",
+      "versionInfo": "6.10.3",
+      "downloadLocation": "git://code.qt.io/qt/qtbase.git@6.10.3",
+      "homepage": "https://www.qt.io",
+      "licenseConcluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+      "licenseDeclared": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+      "copyrightText": "Copyright (C) The Qt Company Ltd. and other contributors."
+    }
+  ]
+}
