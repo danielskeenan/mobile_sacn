@@ -14,12 +14,14 @@ import {TransmitLevelsVal} from "@/messages/transmit-levels-val";
 import {Universe} from "@/messages/universe";
 import TransmitConfig from "@/pages/transmit/TransmitConfig";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
+import {trackStore} from "@solid-primitives/deep";
 import {createEventListener} from "@solid-primitives/event-listener";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
 import {Card, Form, ListGroup, Tab, Tabs} from "solid-bootstrap";
 import {BsKeyboard, BsSliders} from "solid-icons/bs";
 import {Component, createEffect, createSignal, Index, Show} from "solid-js";
+import {createStore} from "solid-js/store";
 
 
 const TransmitLevelsPage: Component = () => {
@@ -37,7 +39,7 @@ const TransmitLevelsPage: Component = () => {
         setPerAddressPriority(!perAddressPriority());
     };
     const [universe, setUniverse] = createSignal(SACN_UNIV_DEFAULT);
-    const [levels, setLevels] = createSignal(Array.from(generate(DMX_MAX, 0)));
+    const [levels, setLevels] = createStore(Array.from(generate(DMX_MAX, 0)));
 
     // Init Websocket
     const ws = createReconnectingWS(wsUrl("TransmitLevels"));
@@ -116,7 +118,7 @@ const TransmitLevelsPage: Component = () => {
         sendUniverse(universe());
     });
 
-    const sendLevels = (val: ReturnType<typeof levels>) => {
+    const sendLevels = (val: typeof levels) => {
         if (ws.readyState != WebSocket.OPEN) {
             return;
         }
@@ -131,7 +133,10 @@ const TransmitLevelsPage: Component = () => {
         ws.send(data);
     };
     createEffect(() => {
-        sendLevels(levels());
+        // Needed to update level buffer whenever any single level changes.
+        trackStore(levels);
+
+        sendLevels(levels);
     });
 
     // Sync settings
@@ -139,7 +144,7 @@ const TransmitLevelsPage: Component = () => {
         sendUniverse(universe());
         sendPerAddressPriority(perAddressPriority());
         sendPriority(priority());
-        sendLevels(levels());
+        sendLevels(levels);
         sendTransmit(transmit());
     });
 
@@ -176,7 +181,7 @@ const TransmitLevelsPage: Component = () => {
 
                 <Tabs class="mt-3" defaultActiveKey="faders">
                     <Tab eventKey="faders" title={<LevelFadersTitle/>}>
-                        <LevelFaders active={transmit()} levels={levels()} onLevelsChange={setLevels}/>
+                        <LevelFaders active={transmit()} levels={levels} onLevelChange={setLevels}/>
                     </Tab>
                     <Tab eventKey="keypad" title={<LevelKeypadTitle/>}>
 
@@ -190,7 +195,7 @@ const TransmitLevelsPage: Component = () => {
 interface LevelsProps {
     active: boolean;
     levels: number[];
-    onLevelsChange: (levels: number[]) => void;
+    onLevelChange: (addr: number, level: number) => void;
 }
 
 const LevelFadersTitle: Component = () => {
@@ -202,12 +207,6 @@ const LevelFadersTitle: Component = () => {
 };
 
 const LevelFaders: Component<LevelsProps> = (props) => {
-    const onLevelChange = (addr: number, level: number) => {
-        const newLevels = props.levels.slice();
-        newLevels[addr] = level;
-        props.onLevelsChange(newLevels);
-    };
-
     return (
         <Card>
             <ListGroup variant="flush">
@@ -215,7 +214,7 @@ const LevelFaders: Component<LevelsProps> = (props) => {
                     {(level, addr) => (
                         <LevelFader
                             label={`${addr + 1}`.padStart(3, "0")}
-                            onLevelChange={(newLevel) => onLevelChange(addr, newLevel)}
+                            onLevelChange={(newLevel) => props.onLevelChange(addr, newLevel)}
                             level={level()}/>
                     )}
                 </Index>
