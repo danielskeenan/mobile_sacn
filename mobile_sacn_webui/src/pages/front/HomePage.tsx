@@ -7,7 +7,7 @@ import {A} from "@solidjs/router";
 import {ListGroup} from "solid-bootstrap";
 import {Component} from "solid-js";
 
-const Home: Component = () => {
+const HomePage: Component = () => {
     setPageTitle();
 
     return (
@@ -27,4 +27,4 @@ const Home: Component = () => {
     );
 };
 
-export default Home;
+export default HomePage;

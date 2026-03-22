@@ -42,7 +42,7 @@ import {
 } from "solid-bootstrap";
 import {BsList, BsTable} from "solid-icons/bs";
 import {Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
-import "./ReceiveLevels.scss";
+import "./ReceiveLevelsPage.scss";
 import {Portal} from "solid-js/web";
 
 
@@ -102,7 +102,7 @@ function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
     }
 }
 
-const ReceiveLevels: Component = () => {
+const ReceiveLevelsPage: Component = () => {
     // State
     const [serverTimeOffset, setServerTimeOffset] = createSignal(0n);
     const [universe, setUniverse] = createSignal(0);
@@ -621,4 +621,4 @@ const ViewBars: Component<LevelsViewProps> = (props) => {
     );
 };
 
-export default ReceiveLevels;
+export default ReceiveLevelsPage;

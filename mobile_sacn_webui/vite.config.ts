@@ -7,7 +7,12 @@ export default defineConfig(({mode}) => {
     // See https://vite.dev/config/#using-environment-variables-in-config
     const env = loadEnv(mode, process.cwd(), '')
     return {
-        plugins: [devtools(), solidPlugin()],
+        plugins: [
+            devtools({
+                autoname: true,
+            }),
+            solidPlugin(),
+        ],
         server: {
             port: 3000,
         },

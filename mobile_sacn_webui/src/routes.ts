@@ -5,17 +5,22 @@ import LINKS from "./links";
 const ROUTES: RouteDefinition[] = [
   {
     path: LINKS.front_home,
-    component: lazy(() => import("./pages/front/Home")),
+    component: lazy(() => import("./pages/front/HomePage")),
   },
 
   {
     path: LINKS.transmit_chancheck,
-    component: lazy(() => import("./pages/transmit/ChannelCheck")),
+    component: lazy(() => import("./pages/transmit/ChannelCheckPage")),
+  },
+
+  {
+    path: LINKS.transmit_levels,
+    component: lazy(() => import("./pages/transmit/TransmitLevelsPage")),
   },
 
   {
     path: LINKS.receive_levels,
-    component: lazy(() => import("./pages/receive/levels/ReceiveLevels")),
+    component: lazy(() => import("./pages/receive/levels/ReceiveLevelsPage")),
   },
 
   {

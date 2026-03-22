@@ -1,4 +1,4 @@
-import "./ChannelCheck.scss";
+import "./ChannelCheckPage.scss";
 import clamp from "@/common/clamp";
 import ConnectButton from "@/common/components/ConnectButton";
 import Connecting from "@/common/components/Connecting";
@@ -23,7 +23,7 @@ import {Button, Form, Stack} from "solid-bootstrap";
 import {BsCaretLeftFill, BsCaretRightFill} from "solid-icons/bs";
 import {Component, createEffect, createSignal, JSX, Show} from "solid-js";
 
-const ChannelCheck: Component = () => {
+const ChannelCheckPage: Component = () => {
     // State
     const [transmit, setTransmit] = createSignal(false);
     const startTransmit = () => {
@@ -206,6 +206,7 @@ const ChannelCheck: Component = () => {
                                 <Form.Check
                                     inline
                                     disabled={transmit()}
+                                    checked={perAddressPriority()}
                                     onChange={togglePerAddressPriority}
                                 />
                             </div>
@@ -298,4 +299,4 @@ const NextLast: Component<NextLastProps> = (props) => {
     );
 };
 
-export default ChannelCheck;
+export default ChannelCheckPage;
