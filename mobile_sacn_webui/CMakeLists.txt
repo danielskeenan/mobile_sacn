@@ -22,12 +22,6 @@ if (NOT "${WEBUI_PACKAGE_LOCK_HASH}" STREQUAL "${CURRENT_PACKAGE_LOCK_HASH}")
             COMMAND_ERROR_IS_FATAL ANY
     )
     file(REMOVE "${NODE_MODULES_LOCKFILE}")
-    execute_process(
-            COMMAND "${npm_PROG}" sbom --omit dev --sbom-format spdx --sbom-type application
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            OUTPUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/webui.sbom.json"
-            COMMAND_ERROR_IS_FATAL ANY
-    )
 endif ()
 set(WEBUI_PACKAGE_LOCK_HASH "${CURRENT_PACKAGE_LOCK_HASH}" CACHE INTERNAL "" FORCE)
 

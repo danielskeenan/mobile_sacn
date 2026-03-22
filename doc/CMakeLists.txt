@@ -60,7 +60,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party.md"
         "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party.py"
         -o "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party.md"
         --vcpkg_install_root "${VCPKG_INSTALLED_DIR}"
-        "${PROJECT_BINARY_DIR}/mobile_sacn_webui/webui.sbom.json"
+        --npm_project_root "${PROJECT_SOURCE_DIR}/mobile_sacn_webui"
         ${LOCAL_SBOMS}
         DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party.py"

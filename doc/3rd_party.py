@@ -1,8 +1,10 @@
 import json
 import re
+import shutil
+import subprocess
+import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
-from operator import attrgetter
 from pathlib import Path
 from shutil import unpack_archive
 from tempfile import TemporaryDirectory
@@ -10,7 +12,7 @@ from typing import TextIO, Optional
 from urllib.parse import urlsplit
 from urllib.request import urlretrieve
 
-from natsort import humansorted, natsorted
+from natsort import natsorted
 
 SPDX_FIELDNOTPRESENT = frozenset(("NOASSERTION", "NONE"))
 
@@ -87,7 +89,7 @@ class LicenseFileFinder:
         return None
 
 
-def get_packages(sbom_path: Path) -> list[PackageInfo]:
+def get_spdx_packages(sbom_path: Path) -> list[PackageInfo]:
     with sbom_path.open("rt") as sbom_file:
         sbom = json.load(sbom_file)
 
@@ -135,6 +137,47 @@ def get_packages(sbom_path: Path) -> list[PackageInfo]:
     return packages
 
 
+def get_npm_packages(npm_project_root: Path) -> list[PackageInfo]:
+    # Ask npm about production deps.
+    print("Loading npm packages...")
+    npm = shutil.which("npm")
+    if npm is None:
+        raise RuntimeError("Cannot find npm")
+    npm_sbom_result = subprocess.run([
+        npm, "sbom",
+        "--omit", "dev",
+        "--sbom-format", "spdx",
+        "--sbom-type", "application",
+    ], cwd=npm_project_root, stderr=sys.stderr, stdout=subprocess.PIPE, check=True, encoding="UTF-8")
+    sbom = json.loads(npm_sbom_result.stdout)
+
+    packages = []
+    for package in sbom["packages"]:
+        if "primaryPackagePurpose" in package and package["primaryPackagePurpose"] == "APPLICATION":
+            # Skip this program.
+            continue
+        package_info = PackageInfo(package["name"])
+
+        # Homepage
+        if "homepage" in package and package["homepage"] not in SPDX_FIELDNOTPRESENT:
+            package_info.homepage = package["homepage"]
+
+        # License
+        package_dir = npm_project_root / "node_modules" / package["name"]
+        if not package_dir.is_dir():
+            raise RuntimeError(f"Could not find installed dir for {package["name"]}")
+        license_path = LicenseFileFinder.find_license_path(Path(package_dir))
+        if license_path is not None:
+            with license_path.open("rt") as license_file:
+                package_info.license_text = license_file.read()
+        else:
+            print(f"Could not find license file for {package["name"]}")
+
+        packages.append(package_info)
+
+    return packages
+
+
 SKIP_PATTERNS = (
     re.compile(r"-?vcpkg-?", re.IGNORECASE),
     re.compile(r"-?cmake-?", re.IGNORECASE),
@@ -149,6 +192,7 @@ def should_skip_vcpkg_package(package_name: str):
 
 
 def get_vcpkg_packages(vcpkg_install_root: Path) -> list[PackageInfo]:
+    print("Loading vcpkg packages...")
     port_dirs = []
     status_path = vcpkg_install_root / "vcpkg" / "status"
     with status_path.open("rt") as status_file:
@@ -215,33 +259,38 @@ def write_packages(packages: list[PackageInfo], out: TextIO):
             )
 
 
+def dedupe_packages(packages: list[PackageInfo]):
+    package_names = set()
+    package_ix = 0
+    while package_ix < len(packages):
+        package = packages[package_ix]
+        if package.name in package_names:
+            del packages[package_ix]
+        else:
+            package_names.add(package.name)
+            package_ix += 1
+
 def main():
     parser = ArgumentParser(description="Generate a page of 3rd party software with links and their licenses.")
     parser.add_argument("-o", "--output", required=True, type=lambda p: Path(p), help="Path to output file")
     parser.add_argument("--vcpkg_install_root", type=lambda p: Path(p),
                         help="Path to vcpkg package install root to search for SBOMs")
-    parser.add_argument("input", nargs="+", type=lambda p: Path(p), help="Input SPDX file(s)")
+    parser.add_argument("--npm_project_root", type=lambda p: Path(p),
+                        help="Path to a directory containing package.json and node_modules.")
+    parser.add_argument("spdx", nargs="*", type=lambda p: Path(p), help="Input SPDX file(s)")
     args = parser.parse_args()
 
     with args.output.open("wt") as out:
         write_header(out)
         packages: list[PackageInfo] = []
-        for sbom_path in args.input:
-            packages.extend(get_packages(sbom_path))
+        for sbom_path in args.spdx:
+            packages.extend(get_spdx_packages(sbom_path))
         if args.vcpkg_install_root:
             packages.extend(get_vcpkg_packages(args.vcpkg_install_root))
+        if args.npm_project_root:
+            packages.extend(get_npm_packages(args.npm_project_root))
 
-        # Dedupe the list
-        package_names = set()
-        package_ix = 0
-        while package_ix < len(packages):
-            package = packages[package_ix]
-            if package.name not in package_names:
-                package_names.add(package.name)
-                package_ix += 1
-                continue
-            del packages[package_ix]
-
+        dedupe_packages(packages)
         packages = natsorted(packages, key=lambda p: p.name.casefold())
         write_packages(packages, out)
 
