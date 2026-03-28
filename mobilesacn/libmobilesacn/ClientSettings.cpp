@@ -14,8 +14,9 @@
 
 static constexpr auto kClientSettingsGroup = QLatin1StringView("clientSettings");
 
-static constexpr auto kSettingPreferredColorMode = QLatin1StringView("preferredColorMode");
-static const QSet kAllowedPreferredColorMode{
+static constexpr auto kSettingPreferredColorScheme = QLatin1StringView("preferredColorScheme");
+static const QSet kAllowedPreferredColorScheme{
+    QStringLiteral(""),
     QStringLiteral("light"),
     QStringLiteral("dark"),
 };
@@ -36,9 +37,9 @@ ClientSettings::ClientSettings()
 
     // Preferred color mode
     {
-        const auto preferredColorMode = settings.value(kSettingPreferredColorMode);
+        const auto preferredColorMode = settings.value(kSettingPreferredColorScheme);
         if (preferredColorMode.isValid()
-            && kAllowedPreferredColorMode.contains(preferredColorMode.toString())) {
+            && kAllowedPreferredColorScheme.contains(preferredColorMode.toString())) {
             preferredColorMode_ = preferredColorMode.toString();
         }
     }
@@ -57,9 +58,9 @@ ClientSettings::ClientSettings(const QJsonDocument &json)
 {
     // Preferred color mode
     {
-        const auto preferredColorMode = json[kSettingPreferredColorMode].toString();
-        if (kAllowedPreferredColorMode.contains(preferredColorMode)) {
-            preferredColorMode_ = preferredColorMode;
+        const auto preferredColorScheme = json[kSettingPreferredColorScheme].toString();
+        if (kAllowedPreferredColorScheme.contains(preferredColorScheme)) {
+            preferredColorMode_ = preferredColorScheme;
         }
     }
 
@@ -78,7 +79,7 @@ QJsonObject ClientSettings::toJson() const
 
     // Preferred color mode
     if (preferredColorMode_.has_value()) {
-        json[kSettingPreferredColorMode] = *preferredColorMode_;
+        json[kSettingPreferredColorScheme] = *preferredColorMode_;
     }
 
     // Level display mode
@@ -96,9 +97,9 @@ void ClientSettings::save() const
 
     // Preferred color mode
     if (preferredColorMode_.has_value()) {
-        settings.setValue(kSettingPreferredColorMode, *preferredColorMode_);
+        settings.setValue(kSettingPreferredColorScheme, *preferredColorMode_);
     } else {
-        settings.remove(kSettingPreferredColorMode);
+        settings.remove(kSettingPreferredColorScheme);
     }
 
     // Level display mode

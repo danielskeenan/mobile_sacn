@@ -6,8 +6,22 @@ import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
 import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A, AnchorProps} from "@solidjs/router";
-import {Alert, Container, Nav, Navbar} from "solid-bootstrap";
-import {type Component, createEffect, createResource, For, JSXElement, Match, Show, Suspense, Switch} from "solid-js";
+import {Alert, Button, Container, Form, Modal, Nav, Navbar} from "solid-bootstrap";
+import {BsGearFill} from "solid-icons/bs";
+import {
+    type Component,
+    createEffect,
+    createResource,
+    createSignal,
+    For,
+    JSXElement,
+    Match,
+    Show,
+    Suspense,
+    Switch,
+} from "solid-js";
+import {produce} from "solid-js/store";
+import {Portal} from "solid-js/web";
 import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
 import {APP_NAME} from "./common/constants";
@@ -56,6 +70,9 @@ async function loadClientSettings() {
 
     // Preferred color scheme
     switch (json.preferredColorScheme) {
+        case "":
+            appContext.preferredColorScheme = undefined;
+            break;
         case "light":
             appContext.preferredColorScheme = ColorScheme.Light;
             break;
@@ -94,7 +111,7 @@ const App: Component<{ children: Element }> = (props) => {
         }
 
         const saveSettings: Omit<ClientSettings, "wsRoot"> = {};
-        saveSettings.preferredColorScheme = appContext.preferredColorScheme;
+        saveSettings.preferredColorScheme = appContext.preferredColorScheme ?? "";
         saveSettings.levelDisplayMode = appContext.levelDisplayMode;
 
         fetch(`${serverOrigin}/clientsettings`, {
@@ -110,6 +127,10 @@ const App: Component<{ children: Element }> = (props) => {
             console.error(`Failed saving settings: ${e}`);
         });
     });
+
+    const [showSettingsDialog, setShowSettingsDialog] = createSignal(false);
+    const openSettingsDialog = () => setShowSettingsDialog(true);
+    const closeSettingsDialog = () => setShowSettingsDialog(false);
 
     return (
         <Switch>
@@ -140,6 +161,7 @@ const App: Component<{ children: Element }> = (props) => {
                                 <For each={MENU}>{(item) => (
                                     <Nav.Link as={A} href={item.href}>{item.title}</Nav.Link>
                                 )}</For>
+                                <Nav.Link onClick={openSettingsDialog}><BsGearFill/>&nbsp;Settings</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
@@ -148,8 +170,75 @@ const App: Component<{ children: Element }> = (props) => {
                 <Container as="main">
                     <Suspense fallback={<Loading/>}>{props.children}</Suspense>
                 </Container>
+
+                <Portal>
+                    <Modal show={showSettingsDialog()} onHide={closeSettingsDialog}>
+                        <SettingsDialog onClose={closeSettingsDialog}/>
+                    </Modal>
+                </Portal>
             </Match>
         </Switch>
+    );
+};
+
+interface SettingsDialogProps {
+    onClose: () => void;
+}
+
+const SettingsDialog: Component<SettingsDialogProps> = (props) => {
+    const [appContext, setAppContext] = useAppContext();
+
+    let colorSchemeRef!: HTMLSelectElement;
+    let levelDisplayModeRef!: HTMLSelectElement;
+    const onSubmit = () => {
+        setAppContext(produce((newContext) => {
+            if (colorSchemeRef.value) {
+                newContext.preferredColorScheme = colorSchemeRef.value as ColorScheme;
+            } else {
+                // Auto
+                newContext.preferredColorScheme = undefined;
+            }
+            newContext.levelDisplayMode = levelDisplayModeRef.value as LevelDisplayMode;
+        }));
+        props.onClose();
+    };
+
+    return (
+        <>
+            <Modal.Header closeButton>
+                <Modal.Title>Settings</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form onSubmit={(e) => {
+                    e.preventDefault();
+                    onSubmit();
+                }}>
+                    {/* Preferred color scheme */}
+                    <Form.Group class="mb-3">
+                        <Form.Label>Color Scheme</Form.Label>
+                        <Form.Select value={appContext.preferredColorScheme} ref={colorSchemeRef}>
+                            <option value="">Auto</option>
+                            <option value={ColorScheme.Light}>Light</option>
+                            <option value={ColorScheme.Dark}>Dark</option>
+                        </Form.Select>
+                    </Form.Group>
+
+                    {/* Level display mode */}
+                    <Form.Group class="mb-3">
+                        <Form.Label>Level Display Mode</Form.Label>
+                        <Form.Select value={appContext.levelDisplayMode} ref={levelDisplayModeRef}>
+                            <option value={LevelDisplayMode.DECIMAL}>Decimal (255)</option>
+                            <option value={LevelDisplayMode.HEX}>Hex (FF)</option>
+                            <option value={LevelDisplayMode.PERCENT}>Percent (100%)</option>
+                        </Form.Select>
+                    </Form.Group>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={props.onClose}>Cancel</Button>
+                <Button variant="primary" onClick={onSubmit}>Save</Button>
+            </Modal.Footer>
+        </>
     );
 };
 

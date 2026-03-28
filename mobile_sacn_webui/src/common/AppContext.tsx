@@ -40,9 +40,11 @@ export const AppContextProvider: ParentComponent = (props) => {
         }
     });
     createEffect(()=>{
-        if (appStore.preferredColorScheme === undefined) {
-            setAppStore("activeColorScheme", prefersDarkMode.matches ? ColorScheme.Dark : ColorScheme.Light);
+        let activeColorScheme = appStore.preferredColorScheme;
+        if (activeColorScheme === undefined) {
+            activeColorScheme = prefersDarkMode.matches ? ColorScheme.Dark : ColorScheme.Light;
         }
+        setAppStore("activeColorScheme", activeColorScheme);
     })
 
     return (
