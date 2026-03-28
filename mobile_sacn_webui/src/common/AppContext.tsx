@@ -8,7 +8,7 @@ export enum ColorScheme {
     Dark = "dark",
 }
 
-interface IAppContext {
+export interface IAppContext {
     wsRoot: string;
     preferredColorScheme?: ColorScheme;
     activeColorScheme: ColorScheme;

@@ -1,5 +1,5 @@
 import "./App.scss";
-import {ColorScheme, useAppContext} from "@/common/AppContext";
+import {ColorScheme, IAppContext, useAppContext} from "@/common/AppContext";
 import {LevelDisplayMode} from "@/common/levelDisplay";
 import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
@@ -7,11 +7,22 @@ import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A, AnchorProps} from "@solidjs/router";
 import {Alert, Container, Nav, Navbar} from "solid-bootstrap";
-import {type Component, createEffect, createResource, For, Match, Show, Suspense, Switch} from "solid-js";
-import {produce} from "solid-js/store";
+import {
+    type Component,
+    createEffect,
+    createResource,
+    createSignal,
+    For,
+    JSX,
+    Match,
+    Show,
+    Suspense,
+    Switch,
+} from "solid-js";
 import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
 import {APP_NAME} from "./common/constants";
+import Element = JSX.Element;
 
 interface MenuItem {
     title: string | Element;
@@ -45,47 +56,71 @@ interface ClientSettings {
     levelDisplayMode?: string;
 }
 
+async function loadClientSettings() {
+    const response = await fetch(`${serverOrigin}/clientsettings`);
+    const json = await response.json() as Partial<ClientSettings>;
+
+    if (json.wsRoot === undefined) {
+        throw new Error("wsRoot not in server response.");
+    }
+
+    const appContext: Partial<IAppContext> = {wsRoot: json.wsRoot};
+
+    // Preferred color scheme
+    switch (json.preferredColorScheme) {
+        case "light":
+            appContext.preferredColorScheme = ColorScheme.Light;
+            break;
+        case "dark":
+            appContext.preferredColorScheme = ColorScheme.Dark;
+            break;
+    }
+
+    // Level display mode
+    switch (json.levelDisplayMode) {
+        case "decimal":
+            appContext.levelDisplayMode = LevelDisplayMode.DECIMAL;
+            break;
+        case "hex":
+            appContext.levelDisplayMode = LevelDisplayMode.HEX;
+            break;
+        case "percent":
+            appContext.levelDisplayMode = LevelDisplayMode.PERCENT;
+            break;
+    }
+
+    return appContext;
+}
+
 const App: Component<{ children: Element }> = (props) => {
     const [appContext, setAppContext] = useAppContext();
-    const [clientSettings] = createResource(async () => {
-        const response = await fetch(`${serverOrigin}/clientsettings`);
-        const json = await response.json() as Partial<ClientSettings>;
-
-        if (json.wsRoot === undefined) {
-            throw new Error("wsRoot not in server response.");
-        }
-
-        return json as ClientSettings;
-    });
+    const [clientSettings] = createResource(loadClientSettings);
     createEffect(() => {
         if (clientSettings.state == "ready") {
-            setAppContext(produce(context => {
-                context.wsRoot = clientSettings().wsRoot;
-
-                // Preferred color scheme
-                switch (clientSettings().preferredColorScheme) {
-                    case "light":
-                        context.preferredColorScheme = ColorScheme.Light;
-                        break;
-                    case "dark":
-                        context.preferredColorScheme = ColorScheme.Dark;
-                        break;
-                }
-
-                // Level display mode
-                switch (clientSettings().levelDisplayMode) {
-                    case "decimal":
-                        context.levelDisplayMode = LevelDisplayMode.DECIMAL;
-                        break;
-                    case "hex":
-                        context.levelDisplayMode = LevelDisplayMode.HEX;
-                        break;
-                    case "percent":
-                        context.levelDisplayMode = LevelDisplayMode.PERCENT;
-                        break;
-                }
-            }));
+            setAppContext(clientSettings());
         }
+    });
+    createEffect(() => {
+        if (clientSettings.state != "ready") {
+            return;
+        }
+
+        const saveSettings: Omit<ClientSettings, "wsRoot"> = {};
+        saveSettings.preferredColorScheme = appContext.preferredColorScheme;
+        saveSettings.levelDisplayMode = appContext.levelDisplayMode;
+
+        fetch(`${serverOrigin}/clientsettings`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: JSON.stringify(saveSettings),
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(`${response.status} ${response.statusText}`);
+            }
+            console.log("Settings saved");
+        }).catch((e) => {
+            console.error(`Failed saving settings: ${e}`);
+        });
     });
 
     return (
