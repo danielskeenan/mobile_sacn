@@ -69,10 +69,11 @@ void setupWebsocketRoute(crow::WebSocketRule<CrowT> &rule, HttpServer *parent)
                     const std::string &reason,
                     uint16_t with_status_code) {
             auto userData = static_cast<rpc::WsUserData *>(ws.userdata());
-            SPDLOG_INFO("Closing {} handler for client {}", userData->protocol, userData->clientIp);
             // This handler gets called more than once sometimes for unknown reasons. Guard
             // against double free crashes in that case.
             if (userData->handler) {
+                SPDLOG_INFO(
+                    "Closing {} handler for client {}", userData->protocol, userData->clientIp);
                 userData->handler->handleClose();
             } else {
                 SPDLOG_DEBUG(
@@ -103,6 +104,7 @@ HttpServer::HttpServer(Options options, QObject *parent) :
     CROW_ROUTE(server_, "/clientsettings")
         .methods(crow::HTTPMethod::Get, crow::HTTPMethod::Put)([this](const crow::request &req) {
             crow::response res;
+            res.set_header("Cache-Control", "no-store");
             if (req.method == crow::HTTPMethod::Get) {
                 ClientSettings settings;
                 auto json = settings.toJson();

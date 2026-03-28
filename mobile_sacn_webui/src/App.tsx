@@ -49,7 +49,10 @@ const MENU: MenuItem[] = [
 const serverOrigin = (() => {
     // Allow overriding the backend URL during development so the frontend can run from Vite's server.
     const serverOverride = localStorage.getItem("server");
-    return serverOverride ?? document.location.origin;
+    if (serverOverride) {
+        return serverOverride;
+    }
+    return document.location.origin;
 })();
 
 interface ClientSettings {
