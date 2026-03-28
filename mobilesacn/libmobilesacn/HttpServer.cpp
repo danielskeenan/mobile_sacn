@@ -16,8 +16,11 @@
 #include <spdlog/spdlog.h>
 #include <QCoreApplication>
 #include <QDir>
+#include <QJsonObject>
 #include <QMimeDatabase>
 #include <QResource>
+
+#include "ClientSettings.h"
 
 namespace mobilesacn {
 
@@ -103,12 +106,17 @@ HttpServer::HttpServer(Options options, QObject* parent)
             .methods(crow::HTTPMethod::Get)
             .origin("*");
 
-    // Websocket url.
-    CROW_ROUTE(server_, "/ws_url").methods(crow::HTTPMethod::Get)
-    ([this](crow::response& res) {
-        const auto url = fmt::format("ws://{}:{}/ws", server_.bindaddr(), server_.port());
-        res.set_header("Content-Type", "text/plain");
-        res.end(url);
+    // Client settings
+    CROW_ROUTE(server_, "/clientsettings").methods(crow::HTTPMethod::Get)
+    ([this]() {
+        ClientSettings settings;
+        auto json = settings.toJson();
+        json.object().insert("wsUrl", QString("ws://%1:%2/ws").arg(QString::fromStdString(server_.bindaddr())).arg(server_.port()));
+
+        crow::response res;
+        res.set_header("Content-Type", "application/json; charset=utf-8");
+        res.body = json.toJson(QJsonDocument::Compact).toStdString();
+        return res;
     });
 
     // Websocket handlers.

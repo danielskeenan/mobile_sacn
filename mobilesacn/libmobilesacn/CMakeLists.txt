@@ -18,6 +18,8 @@ add_library(libmobilesacn STATIC
         Application.cpp
         Caffeine.cpp
         Caffeine.h
+        ClientSettings.cpp
+        ClientSettings.h
         CrowLogHandler.h
         CrowLogHandler.cpp
         EtcPalLogHandler.h
