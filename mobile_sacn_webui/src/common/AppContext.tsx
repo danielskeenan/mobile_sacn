@@ -3,19 +3,20 @@ import {createEventListener} from "@solid-primitives/event-listener";
 import {createContext, createEffect, ParentComponent, useContext} from "solid-js";
 import {createStore, SetStoreFunction, Store} from "solid-js/store";
 
-export enum ColorMode {
-    Auto = "",
+export enum ColorScheme {
     Light = "light",
     Dark = "dark",
 }
 
 interface IAppContext {
-    colorMode: ColorMode;
+    preferredColorScheme?: ColorScheme;
+    activeColorScheme: ColorScheme;
     levelDisplayMode: LevelDisplayMode;
 }
 
 const defaultAppContext: IAppContext = {
-    colorMode: ColorMode.Auto,
+    preferredColorScheme: undefined,
+    activeColorScheme: ColorScheme.Light,
     levelDisplayMode: LevelDisplayMode.PERCENT,
 };
 
@@ -23,18 +24,24 @@ const AppContext = createContext<[Store<IAppContext>, SetStoreFunction<IAppConte
 export const useAppContext = () => useContext(AppContext)!;
 
 export const AppContextProvider: ParentComponent = (props) => {
-    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const [appStore, setAppStore] = createStore<IAppContext>(Object.assign({}, defaultAppContext, {colorMode: prefersDarkMode.matches ? ColorMode.Dark : ColorMode.Light}));
+    const [appStore, setAppStore] = createStore<IAppContext>(defaultAppContext);
 
     // Color mode updates
     createEffect(() => {
         // Update Bootstrap color mode.
-        document.documentElement.dataset.bsTheme = appStore.colorMode;
+        document.documentElement.dataset.bsTheme = appStore.activeColorScheme;
     });
+    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
     createEventListener(prefersDarkMode, "change", e => {
-        setAppStore("colorMode", e.matches ? ColorMode.Dark : ColorMode.Light);
+        if (appStore.preferredColorScheme === undefined) {
+            setAppStore("activeColorScheme", e.matches ? ColorScheme.Dark : ColorScheme.Light);
+        }
     });
+    createEffect(()=>{
+        if (appStore.preferredColorScheme === undefined) {
+            setAppStore("activeColorScheme", prefersDarkMode.matches ? ColorScheme.Dark : ColorScheme.Light);
+        }
+    })
 
     return (
         <AppContext.Provider value={[appStore, setAppStore]}>

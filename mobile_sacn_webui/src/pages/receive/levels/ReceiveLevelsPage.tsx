@@ -1,4 +1,4 @@
-import {ColorMode, useAppContext} from "@/common/AppContext";
+import {ColorScheme, useAppContext} from "@/common/AppContext";
 import bigIntAbs from "@/common/bigIntAbs";
 import colorForCID, {CidColor} from "@/common/cidColor";
 import Connecting from "@/common/components/Connecting";
@@ -468,7 +468,7 @@ const SourceList: Component<SourceListProps> = (props) => {
                                 <For each={props.sources}>
                                     {(source) => (
                                         <tr
-                                            style={{"background-color": appContext.colorMode == ColorMode.Dark ? source.color.dark.display() : source.color.light.display()}}>
+                                            style={{"background-color": appContext.activeColorScheme == ColorScheme.Dark ? source.color.dark.display() : source.color.light.display()}}>
                                             <td>{source.name}</td>
                                             <td>{source.ipAddr}</td>
                                             <td>{source.hasPap && "*"}{source.priority}</td>
@@ -511,7 +511,7 @@ const ViewGrid: Component<LevelsViewProps> = (props) => {
         const colors = [];
         for (let ix = 0; ix < props.levels.length; ++ix) {
             const color = props.colors[ix] ?? DEFAULT_SOURCE.color;
-            colors.push(appContext.colorMode == ColorMode.Dark ? color.dark : color.light);
+            colors.push(appContext.activeColorScheme == ColorScheme.Dark ? color.dark : color.light);
         }
         return colors;
     });
