@@ -36,7 +36,7 @@ public:
      * Convert settings to json for sending to client.
      * @return
      */
-    [[nodiscard]] QJsonDocument toJson() const;
+    [[nodiscard]] QJsonObject toJson() const;
 
     /**
      * Save settings to system.

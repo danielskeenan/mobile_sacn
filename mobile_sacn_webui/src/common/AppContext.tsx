@@ -9,12 +9,14 @@ export enum ColorScheme {
 }
 
 interface IAppContext {
+    wsRoot: string;
     preferredColorScheme?: ColorScheme;
     activeColorScheme: ColorScheme;
     levelDisplayMode: LevelDisplayMode;
 }
 
 const defaultAppContext: IAppContext = {
+    wsRoot: `${document.location.origin}/ws`,
     preferredColorScheme: undefined,
     activeColorScheme: ColorScheme.Light,
     levelDisplayMode: LevelDisplayMode.PERCENT,

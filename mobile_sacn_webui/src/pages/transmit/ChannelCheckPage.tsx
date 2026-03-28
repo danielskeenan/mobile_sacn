@@ -1,4 +1,5 @@
 import "./ChannelCheckPage.scss";
+import {useAppContext} from "@/common/AppContext";
 import clamp from "@/common/clamp";
 import ConnectButton from "@/common/components/ConnectButton";
 import Connecting from "@/common/components/Connecting";
@@ -24,6 +25,8 @@ import {BsCaretLeftFill, BsCaretRightFill} from "solid-icons/bs";
 import {Component, createEffect, createSignal, JSX, Show} from "solid-js";
 
 const ChannelCheckPage: Component = () => {
+    const [appContext] = useAppContext();
+
     // State
     const [transmit, setTransmit] = createSignal(false);
     const startTransmit = () => {
@@ -50,7 +53,7 @@ const ChannelCheckPage: Component = () => {
     const [blinkLevel, setBlinkLevel] = createSignal(true);
 
     // Init Websocket
-    const ws = createReconnectingWS(wsUrl("ChanCheck"));
+    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "ChanCheck"));
     const readyState = createWSState(ws);
 
     // RPC Setters

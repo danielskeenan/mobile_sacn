@@ -111,11 +111,11 @@ HttpServer::HttpServer(Options options, QObject* parent)
     ([this]() {
         ClientSettings settings;
         auto json = settings.toJson();
-        json.object().insert("wsUrl", QString("ws://%1:%2/ws").arg(QString::fromStdString(server_.bindaddr())).arg(server_.port()));
+        json["wsRoot"] = QString("ws://%1:%2/ws").arg(QString::fromStdString(server_.bindaddr())).arg(server_.port());
 
         crow::response res;
         res.set_header("Content-Type", "application/json; charset=utf-8");
-        res.body = json.toJson(QJsonDocument::Compact).toStdString();
+        res.body = QJsonDocument(json).toJson(QJsonDocument::Compact).toStdString();
         return res;
     });
 

@@ -103,6 +103,8 @@ function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
 }
 
 const ReceiveLevelsPage: Component = () => {
+    const [appContext] = useAppContext();
+
     // State
     const [serverTimeOffset, setServerTimeOffset] = createSignal(0n);
     const [universe, setUniverse] = createSignal(0);
@@ -213,7 +215,7 @@ const ReceiveLevelsPage: Component = () => {
     };
 
     // Init Websocket.
-    const ws = createReconnectingWS(wsUrl("ReceiveLevels"));
+    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "ReceiveLevels"));
     const readyState = createWSState(ws);
     createEventListener(ws, "open", (e) => {
         const ws = e.currentTarget;

@@ -72,7 +72,7 @@ ClientSettings::ClientSettings(const QJsonDocument &json)
     }
 }
 
-QJsonDocument ClientSettings::toJson() const
+QJsonObject ClientSettings::toJson() const
 {
     QJsonObject json;
 
@@ -86,7 +86,7 @@ QJsonDocument ClientSettings::toJson() const
         json[kSettingLevelDisplayMode] = *levelDisplayMode_;
     }
 
-    return QJsonDocument(json);
+    return json;
 }
 
 void ClientSettings::save() const

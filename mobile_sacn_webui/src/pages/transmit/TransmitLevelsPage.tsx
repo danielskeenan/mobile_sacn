@@ -42,6 +42,8 @@ import {createStore, SetStoreFunction} from "solid-js/store";
 
 
 const TransmitLevelsPage: Component = () => {
+    const [appContext] = useAppContext();
+
     // State
     const [transmit, setTransmit] = createSignal(false);
     const startTransmit = () => {
@@ -59,7 +61,7 @@ const TransmitLevelsPage: Component = () => {
     const [levels, setLevels] = createStore(Array.from(generate(DMX_MAX, 0)));
 
     // Init Websocket
-    const ws = createReconnectingWS(wsUrl("TransmitLevels"));
+    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "TransmitLevels"));
     const readyState = createWSState(ws);
 
     // RPC Setters
