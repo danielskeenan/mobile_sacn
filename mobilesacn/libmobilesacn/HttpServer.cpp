@@ -102,22 +102,46 @@ HttpServer::HttpServer(Options options, QObject* parent)
             .multithreaded()
             .use_compression(crow::compression::algorithm::GZIP);
     auto& cors = server_.get_middleware<crow::CORSHandler>();
-    cors.global()
-            .methods(crow::HTTPMethod::Get)
-            .origin("*");
+    cors.global().methods(crow::HTTPMethod::Get, crow::HTTPMethod::Put).origin("*");
 
     // Client settings
-    CROW_ROUTE(server_, "/clientsettings").methods(crow::HTTPMethod::Get)
-    ([this]() {
-        ClientSettings settings;
-        auto json = settings.toJson();
-        json["wsRoot"] = QString("ws://%1:%2/ws").arg(QString::fromStdString(server_.bindaddr())).arg(server_.port());
-
-        crow::response res;
-        res.set_header("Content-Type", "application/json; charset=utf-8");
-        res.body = QJsonDocument(json).toJson(QJsonDocument::Compact).toStdString();
-        return res;
-    });
+    CROW_ROUTE(server_, "/clientsettings")
+        .methods(crow::HTTPMethod::Get, crow::HTTPMethod::Put)([this](const crow::request &req) {
+            crow::response res;
+            if (req.method == crow::HTTPMethod::Get) {
+                ClientSettings settings;
+                auto json = settings.toJson();
+                json["wsRoot"] = QString("ws://%1:%2/ws")
+                                     .arg(QString::fromStdString(server_.bindaddr()))
+                                     .arg(server_.port());
+                res.set_header("Content-Type", "application/json; charset=utf-8");
+                res.code = crow::status::OK;
+                res.body = QJsonDocument(json).toJson(QJsonDocument::Compact).toStdString();
+            } else if (req.method == crow::HTTPMethod::Put) {
+                res.set_header("Content-Type", "text/plain; charset=utf-8");
+                if (req.get_header_value("Content-Type").starts_with("application/json")) {
+                    try {
+                        QJsonParseError err;
+                        const QByteArray data(req.body.data(), req.body.size());
+                        const auto json = QJsonDocument::fromJson(data, &err);
+                        if (json.isNull()) {
+                            throw std::runtime_error("Malformed request body");
+                        }
+                        ClientSettings settings(json);
+                        settings.save();
+                        res.code = crow::status::OK;
+                        res.body = "Settings saved";
+                    } catch (const std::exception &e) {
+                        res.code = crow::status::BAD_REQUEST;
+                        res.body = e.what();
+                    }
+                } else {
+                    res.code = crow::status::UNSUPPORTED_MEDIA_TYPE;
+                    res.body = "Unsupported media type";
+                }
+            }
+            return res;
+        });
 
     // Websocket handlers.
     setupWebsocketRoute<rpc::ChanCheck>(

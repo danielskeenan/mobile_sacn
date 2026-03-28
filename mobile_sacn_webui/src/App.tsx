@@ -7,25 +7,13 @@ import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A, AnchorProps} from "@solidjs/router";
 import {Alert, Container, Nav, Navbar} from "solid-bootstrap";
-import {
-    type Component,
-    createEffect,
-    createResource,
-    createSignal,
-    For,
-    JSX,
-    Match,
-    Show,
-    Suspense,
-    Switch,
-} from "solid-js";
+import {type Component, createEffect, createResource, For, JSXElement, Match, Show, Suspense, Switch} from "solid-js";
 import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
 import {APP_NAME} from "./common/constants";
-import Element = JSX.Element;
 
 interface MenuItem {
-    title: string | Element;
+    title: string | JSXElement;
     href: AnchorProps['href']
 }
 
