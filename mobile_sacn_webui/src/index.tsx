@@ -1,17 +1,13 @@
 /* @refresh reload */
-import 'solid-devtools';
+import "solid-devtools";
 import {AppContextProvider} from "@/common/AppContext";
+import {Router} from "@solidjs/router";
+import {render} from "solid-js/web";
+import App from "./App";
+import ROUTES from "./routes";
 
-import {render} from 'solid-js/web';
-import App from './App';
-import {Router} from '@solidjs/router';
-import ROUTES from './routes';
-import setPageTitle from "./common/setPageTitle";
-
-setPageTitle();
-
-render(()=>(
+render(() => (
     <AppContextProvider>
         <Router root={App}>{ROUTES}</Router>
     </AppContextProvider>
-), document.getElementById("root") as HTMLElement)
+), document.getElementById("root") as HTMLElement);

@@ -1,0 +1,29 @@
+{
+  "app": "Mobile sACN",
+  "clientSettings": {
+    "error": {
+      "title": "An error occurred while connecting to the host:",
+      "unknown": "Unknown"
+    }
+  },
+  "loading": "Loading...",
+  "settings": {
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "colorScheme": {
+      "auto": "Auto",
+      "dark": "Dark",
+      "light": "Light",
+      "title": "Color Scheme"
+    },
+    "levelDisplayMode": {
+      "decimal": "Decimal (255)",
+      "hex": "Hex (FF)",
+      "percent": "Percent (100%)",
+      "title": "Level Display Mode"
+    },
+    "title": "Settings"
+  }
+}

@@ -1,4 +1,4 @@
-import {APP_NAME} from "./constants";
+import {t} from "i18next";
 
 /**
  * Set the page title, prefixing with the site name.
@@ -10,6 +10,6 @@ export default function setPageTitle(title: string | string[] | null = null) {
     } else if (!Array.isArray(title)) {
         title = [title];
     }
-    title.unshift(APP_NAME);
+    title.unshift(t("app"));
     document.title = title.join(" - ");
 }
