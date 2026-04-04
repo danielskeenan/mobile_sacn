@@ -1,0 +1,25 @@
+{
+  "cmdLine": {
+    "at": "@",
+    "enter": "*",
+    "minus": "−",
+    "plus": "+",
+    "thru": "Thru"
+  },
+  "config": {
+    "papNote": "(Sets priority for any address with a level above 0 to the chosen priority ({{currentPriority}}). All other addresses are assigned priority 0 and will be ignored by sACN receivers.)",
+    "usePapCheck": "Use Per-Address-Priority"
+  },
+  "faders": {
+    "title": "Faders"
+  },
+  "keypad": {
+    "at": "At",
+    "clear": "Clear",
+    "enter": "Enter",
+    "minus": "$t(transmitLevels:cmdLine.minus)",
+    "plus": "$t(transmitLevels:cmdLine.plus)",
+    "thru": "$t(transmitLevels:cmdLine.thru)",
+    "title": "Keypad"
+  }
+}

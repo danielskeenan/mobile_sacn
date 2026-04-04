@@ -1,6 +1,7 @@
 import clamp from "@/common/clamp";
 import {DMX_MAX, DMX_MIN, LEVEL_MAX, LEVEL_MIN} from "@/common/constants";
 import {LEVEL_PERCENT_TABLE, LevelDisplayMode, PERCENT_LEVEL_TABLE} from "@/common/levelDisplay";
+import {t} from "i18next";
 import {SetStoreFunction} from "solid-js/store";
 
 export enum CmdLineTokenType {
@@ -48,7 +49,7 @@ export class CmdLineTokenPlus extends CmdLineToken {
     }
 
     toString(): string {
-        return "+";
+        return t("transmitLevels:cmdLine.plus");
     }
 }
 
@@ -58,8 +59,7 @@ export class CmdLineTokenMinus extends CmdLineToken {
     }
 
     toString(): string {
-        // This is a minus sign (U+2212), not a dash!
-        return "−";
+        return t("transmitLevels:cmdLine.minus");
     }
 }
 
@@ -69,7 +69,7 @@ export class CmdLineTokenThru extends CmdLineToken {
     }
 
     toString(): string {
-        return "Thru";
+        return t("transmitLevels:cmdLine.thru");
     }
 }
 
@@ -79,7 +79,7 @@ export class CmdLineTokenAt extends CmdLineToken {
     }
 
     toString(): string {
-        return "@";
+        return t("transmitLevels:cmdLine.at");
     }
 }
 
@@ -90,7 +90,7 @@ export class CmdLineTokenEnter extends CmdLineToken {
 
 
     toString(): string {
-        return "*";
+        return t("transmitLevels:cmdLine.enter");
     }
 }
 

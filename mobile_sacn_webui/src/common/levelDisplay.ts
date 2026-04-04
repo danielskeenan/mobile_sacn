@@ -393,7 +393,7 @@ export function levelDisplayString(level: number, displayMode?: LevelDisplayMode
     if (LEVEL_PERCENT_STR_LOOKUP_TABLE === undefined) {
         // The intl.NumberFormat formatter multiplies by 100 internally.
         LEVEL_PERCENT_STR_LOOKUP_TABLE = LEVEL_PERCENT_TABLE.map(level => t("levelDisplay.percent", {val: level / 100}));
-        LEVEL_PERCENT_STR_LOOKUP_TABLE[255] = t("levelDisplay.full");
+        LEVEL_PERCENT_STR_LOOKUP_TABLE[255] = t("levelDisplay.percent_full");
     }
     switch (displayMode) {
         case LevelDisplayMode.DECIMAL:

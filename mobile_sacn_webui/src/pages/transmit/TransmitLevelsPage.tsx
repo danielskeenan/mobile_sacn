@@ -35,6 +35,7 @@ import {createEventListener} from "@solid-primitives/event-listener";
 import {IndexRange} from "@solid-primitives/range";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
+import {t} from "i18next";
 import {Button, Card, Form, ListGroup, Tab, Tabs} from "solid-bootstrap";
 import {BsKeyboard, BsSliders} from "solid-icons/bs";
 import {Component, createEffect, createMemo, createSignal, For, Index, Show} from "solid-js";
@@ -181,7 +182,7 @@ const TransmitLevelsPage: Component = () => {
                 >
                     <Form.Group class="d-flex flex-column">
                         <div>
-                            <Form.Label className="me-3">Use Per-Address-Priority</Form.Label>
+                            <Form.Label className="me-3">{t("transmitLevels:config.usePapCheck")}</Form.Label>
                             <Form.Check
                                 inline
                                 disabled={transmit()}
@@ -190,8 +191,7 @@ const TransmitLevelsPage: Component = () => {
                             />
                         </div>
                         <Form.Text>
-                            (Sets priority for any address with a level above 0 to the chosen priority ({priority()}).
-                            All other addresses are assigned priority 0 and will be ignored by sACN receivers.)
+                            {t("transmitLevels:config.papNote", {currentPriority: priority()})}
                         </Form.Text>
                     </Form.Group>
                 </TransmitConfig>
@@ -220,7 +220,7 @@ interface LevelsProps {
 const LevelFadersTitle: Component = () => {
     return (
         <>
-            <BsSliders/>&nbsp;Faders
+            <BsSliders/>&nbsp;{t("transmitLevels:faders.title")}
         </>
     );
 };
@@ -245,7 +245,7 @@ const LevelFaders: Component<LevelsProps> = (props) => {
 const LevelKeypadTitle: Component = () => {
     return (
         <>
-            <BsKeyboard/>&nbsp;Keypad
+            <BsKeyboard/>&nbsp;{t("transmitLevels:keypad.title")}
         </>
     );
 };
@@ -342,13 +342,13 @@ const Keypad: Component<KeypadProps> = (props) => {
             {/* CSS puts this in rows of 2 columns each. */}
             <Button variant="light" class="msacn-keypad-button-1"
                     disabled={!nextTokenAllowed().includes(CmdLineTokenType.PLUS)}
-                    onClick={() => updateCmdLine(new CmdLineTokenPlus())}>+</Button>
+                    onClick={() => updateCmdLine(new CmdLineTokenPlus())}>{t("transmitLevels:keypad.plus")}</Button>
             <Button variant="light" class="msacn-keypad-button-1"
                     disabled={!nextTokenAllowed().includes(CmdLineTokenType.THRU)}
-                    onClick={() => updateCmdLine(new CmdLineTokenThru())}>Thru</Button>
+                    onClick={() => updateCmdLine(new CmdLineTokenThru())}>{t("transmitLevels:keypad.thru")}</Button>
             <Button variant="light" class="msacn-keypad-button-1"
                     disabled={!nextTokenAllowed().includes(CmdLineTokenType.MINUS)}
-                    onClick={() => updateCmdLine(new CmdLineTokenMinus())}>&minus;</Button>
+                    onClick={() => updateCmdLine(new CmdLineTokenMinus())}>{t("transmitLevels:keypad.minus")}</Button>
             <Show when={appContext.levelDisplayMode == LevelDisplayMode.HEX}>
                 <Index each={["D", "E", "F", "A", "B", "C"]}>
                     {(char) => (
@@ -370,15 +370,15 @@ const Keypad: Component<KeypadProps> = (props) => {
                 )}
             </IndexRange>
             <Button variant="light" class="msacn-keypad-button-1" disabled={props.cmdline.length === 0}
-                    onClick={backspace}>Clear</Button>
+                    onClick={backspace}>{t("transmitLevels:keypad.clear")}</Button>
             <Button variant="light" class="msacn-keypad-button-2"
                     disabled={!nextTokenAllowed().includes(CmdLineTokenType.NUMBER)}
                     onClick={() => updateCmdLine(new CmdLineTokenNumber("0"))}>0</Button>
             <Button variant="light" class="msacn-keypad-button-1"
                     disabled={!nextTokenAllowed().includes(CmdLineTokenType.AT)}
-                    onClick={() => updateCmdLine(new CmdLineTokenAt())}>At</Button>
+                    onClick={() => updateCmdLine(new CmdLineTokenAt())}>{t("transmitLevels:keypad.at")}</Button>
             <Button variant="light" class="msacn-keypad-button-2" disabled={!cmdLineIsComplete(props.cmdline)}
-                    onClick={enter}>Enter</Button>
+                    onClick={enter}>{t("transmitLevels:keypad.enter")}</Button>
         </div>
     );
 };

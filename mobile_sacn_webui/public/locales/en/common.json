@@ -24,8 +24,8 @@
     "pageTitle": "$t(app)"
   },
   "levelDisplay": {
-    "full": "FL",
-    "percent": "{{val, number(style: percent; minimumIntegerDigits: 2)}}"
+    "percent": "{{val, number(style: percent; minimumIntegerDigits: 2)}}",
+    "percent_full": "FL%"
   },
   "loading": "Loading...",
   "receiveLevels": {
