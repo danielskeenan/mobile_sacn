@@ -1,0 +1,27 @@
+{
+  "bars": {
+    "title": "Bars"
+  },
+  "flickerFinderCheck": "Flicker Finder",
+  "grid": {
+    "title": "Grid"
+  },
+  "openUnivDialog": "Choose Universe...",
+  "selectUniv": "Univ {{val}}",
+  "showPrioritiesCheck": "Show Priorities",
+  "sourceList": {
+    "papNote": "*Source has per-address-priority.",
+    "papPriority": "*{{val}}",
+    "sourceIpAddress": "IP Addr",
+    "sourceName": "Name",
+    "sourcePriority": "Priority",
+    "title": "Sources"
+  },
+  "univDialog": {
+    "cancel": "Cancel",
+    "otherUniverse": "Other Universe",
+    "submit": "Set Universe",
+    "title": "Universe"
+  },
+  "univTitle": "Universe {{val}}"
+}

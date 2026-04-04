@@ -27,6 +27,7 @@ import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import Color from "colorjs.io";
 import {ByteBuffer} from "flatbuffers";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
+import {t} from "i18next";
 import {
     Accordion,
     Badge,
@@ -317,12 +318,12 @@ const ReceiveLevelsPage: Component = () => {
                                         <Button variant={univ == universe() ? "secondary" : "outline-secondary"}
                                                 active={univ == universe()}
                                                 onClick={() => setUniverse(univ)}>
-                                            Univ {univ}
+                                            {t("receiveLevels:selectUniv", {val: univ})}
                                         </Button>
                                     )}
                                 </For>
                                 <Button variant="outline-secondary" active={false} onClick={openUnivDialog}>
-                                    Choose Universe...
+                                    {t("receiveLevels:openUnivDialog")}
                                 </Button>
                             </Stack>
                         </Form.Group>
@@ -330,17 +331,17 @@ const ReceiveLevelsPage: Component = () => {
 
                     <Show when={universe() > 0}>
                         <>
-                            <h2>Universe {universe()}</h2>
+                            <h2>{t("receiveLevels:univTitle", {val: universe()})}</h2>
                             <SourceList sources={sources()}/>
 
                             <Stack direction="horizontal" gap={3}>
                                 <Form.Check
-                                    label="Show Priorities"
+                                    label={t("receiveLevels:showPrioritiesCheck")}
                                     checked={showPriorities()}
                                     onChange={() => setShowPriorities(!showPriorities())}
                                 />
                                 <Form.Check
-                                    label="Flicker Finder"
+                                    label={t("receiveLevels:flickerFinderCheck")}
                                     checked={flickerFinder()}
                                     onChange={() => setFlickerFinder(!flickerFinder())}
                                 />
@@ -408,14 +409,14 @@ const UnivDialog: Component<UnivDialogProps> = (props) => {
     return (
         <>
             <Modal.Header>
-                Universe
+                {t("receiveLevels:univDialog.title")}
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={e => {
                     e.preventDefault();
                     onSubmit();
                 }}>
-                    <FloatingLabel label="Other universe">
+                    <FloatingLabel label={t("receiveLevels:univDialog.otherUniverse")}>
                         <Form.Control
                             type="number"
                             min={SACN_UNIV_MIN}
@@ -426,8 +427,8 @@ const UnivDialog: Component<UnivDialogProps> = (props) => {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={props.onClose}>Cancel</Button>
-                <Button variant="primary" onClick={onSubmit}>Set Universe</Button>
+                <Button variant="secondary" onClick={props.onClose}>{t("receiveLevels:univDialog.cancel")}</Button>
+                <Button variant="primary" onClick={onSubmit}>{t("receiveLevels:univDialog.submit")}</Button>
             </Modal.Footer>
         </>
     );
@@ -453,7 +454,7 @@ const SourceList: Component<SourceListProps> = (props) => {
         <Accordion class="mt-3">
             <Accordion.Item eventKey={accordianId}>
                 <Accordion.Header>
-                    Sources&nbsp;<Badge bg="secondary">{props.sources.length}</Badge>
+                    {t("receiveLevels:sourceList.title")}&nbsp;<Badge bg="secondary">{props.sources.length}</Badge>
                 </Accordion.Header>
                 <Accordion.Body>
                     <Show when={props.sources.length > 0} fallback="No sources sending this universe.">
@@ -461,9 +462,9 @@ const SourceList: Component<SourceListProps> = (props) => {
                             <Table class="msacn-sourcelist">
                                 <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>IP Addr</th>
-                                    <th>Priority</th>
+                                    <th>{t("receiveLevels:sourceList.sourceName")}</th>
+                                    <th>{t("receiveLevels:sourceList.sourceIpAddress")}</th>
+                                    <th>{t("receiveLevels:sourceList.sourcePriority")}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -473,14 +474,18 @@ const SourceList: Component<SourceListProps> = (props) => {
                                             style={{"background-color": appContext.activeColorScheme == ColorScheme.Dark ? source.color.dark.display() : source.color.light.display()}}>
                                             <td>{source.name}</td>
                                             <td>{source.ipAddr}</td>
-                                            <td>{source.hasPap && "*"}{source.priority}</td>
+                                            <td>
+                                                <Show when={source.hasPap} fallback={source.priority}>
+                                                    {t("receiveLevels:sourceList.papPriority", {val: source.priority})}
+                                                </Show>
+                                            </td>
                                         </tr>
                                     )}
                                 </For>
                                 </tbody>
                             </Table>
                             <Show when={showPapNote()}>
-                                <p>*Source has per-address-priority.</p>
+                                <p>{t("receiveLevels:sourceList.papNote")}</p>
                             </Show>
                         </>
                     </Show>
@@ -502,7 +507,7 @@ interface LevelsViewProps {
 const ViewGridTitle: Component = () => {
     return (
         <>
-            <BsTable/>&nbsp;Grid
+            <BsTable/>&nbsp;{t("receiveLevels:grid.title")}
         </>
     );
 };
@@ -593,7 +598,7 @@ const ViewGrid: Component<LevelsViewProps> = (props) => {
 const ViewBarsTitle: Component = () => {
     return (
         <>
-            <BsList/>&nbsp;Bars
+            <BsList/>&nbsp;{t("receiveLevels:bars.title")}
         </>
     );
 };

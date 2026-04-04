@@ -1,5 +1,8 @@
 {
   "app": "Mobile sACN",
+  "channelCheck": {
+    "title": "Channel Check"
+  },
   "clientSettings": {
     "error": {
       "title": "An error occurred while connecting to the host:",
@@ -25,6 +28,12 @@
     "percent": "{{val, number(style: percent, minimumIntegerDigits: 2)}}"
   },
   "loading": "Loading...",
+  "receiveLevels": {
+    "title": "View Levels"
+  },
+  "sendLevels": {
+    "title": "Send Levels"
+  },
   "settings": {
     "actions": {
       "cancel": "Cancel",

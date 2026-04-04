@@ -10,7 +10,7 @@ export default async function createTranslator() {
         .init({
             fallbackLng: "en",
             debug: DEV !== undefined,
-            ns: ["common"],
+            ns: ["common", "receiveLevels", "transmitLevels", "channelCheck"],
             defaultNS: "common",
         });
 }

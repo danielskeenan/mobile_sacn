@@ -6,46 +6,15 @@ import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
 import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
-import {A, AnchorProps} from "@solidjs/router";
+import {A} from "@solidjs/router";
 import {t} from "i18next";
 import {Alert, Button, Container, Form, Modal, Nav, Navbar} from "solid-bootstrap";
 import {BsGearFill} from "solid-icons/bs";
-import {
-    type Component,
-    createEffect,
-    createResource,
-    createSignal,
-    For,
-    JSXElement,
-    Match,
-    Show,
-    Suspense,
-    Switch,
-} from "solid-js";
+import {type Component, createEffect, createResource, createSignal, Match, Show, Suspense, Switch} from "solid-js";
 import {produce} from "solid-js/store";
 import {Portal} from "solid-js/web";
 import logo from "./assets/mobile_sacn.svg";
 import Loading from "./common/components/Loading";
-
-interface MenuItem {
-    title: string | JSXElement;
-    href: AnchorProps["href"];
-}
-
-const MENU: MenuItem[] = [
-    {
-        title: <TransmitLevelsTitle/>,
-        href: LINKS.transmit_levels,
-    },
-    {
-        title: <ChannelCheckTitle/>,
-        href: LINKS.transmit_chancheck,
-    },
-    {
-        title: <ReceiveLevelsTitle/>,
-        href: LINKS.receive_levels,
-    },
-];
 
 const serverOrigin = (() => {
     // Allow overriding the backend URL during development so the frontend can run from Vite's server.
@@ -174,9 +143,18 @@ const App: Component<{ children: Element }> = (props) => {
                             <Navbar.Toggle aria-controls="msacn-navbar-content"/>
                             <Navbar.Collapse id="msacn-navbar-content">
                                 <Nav class="me-auto">
-                                    <For each={MENU}>{(item) => (
-                                        <Nav.Link as={A} href={item.href}>{item.title}</Nav.Link>
-                                    )}</For>
+                                    <Nav.Link as={A} href={LINKS.transmit_levels}>
+                                        <TransmitLevelsTitle/>
+                                    </Nav.Link>
+
+                                    <Nav.Link as={A} href={LINKS.transmit_chancheck}>
+                                        <ChannelCheckTitle/>
+                                    </Nav.Link>
+
+                                    <Nav.Link as={A} href={LINKS.receive_levels}>
+                                        <ReceiveLevelsTitle/>
+                                    </Nav.Link>
+
                                     <Nav.Link onClick={openSettingsDialog}>
                                         <BsGearFill/>&nbsp;{t("settings.title")}
                                     </Nav.Link>
