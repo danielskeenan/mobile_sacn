@@ -1,8 +1,13 @@
 {
+  "address": {
+    "title": "Address"
+  },
   "blinkCheck": "Blink",
   "config": {
     "papNote": "(Sets priority for the currently checked address to the chosen priority ({{currentPriority}}). All other addresses are assigned priority 0 and will be ignored by sACN receivers.)",
     "usePapCheck": "Use Per-Address-Priority"
   },
-  "levelSlider": "Level"
+  "lastButton": "Last",
+  "levelSlider": "Level",
+  "nextButton": "Next"
 }

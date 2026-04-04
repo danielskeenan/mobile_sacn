@@ -69,7 +69,7 @@ const DEFAULT_SOURCE: Source = {
         light: new Color("transparent"),
         dark: new Color("transparent"),
     },
-    name: "No Source",
+    name: "",
     ipAddr: "",
     hasPap: false,
     priority: 0,
@@ -311,14 +311,14 @@ const ReceiveLevelsPage: Component = () => {
                 <>
                     <Form class="msacn-receiveconfig-form mb-3" onSubmit={e => e.preventDefault()}>
                         <Form.Group>
-                            <Form.Label visuallyHidden={true}>Universe</Form.Label>
+                            <Form.Label visuallyHidden={true}>{t("receiveLevels:univList.title")}</Form.Label>
                             <Stack as="fieldset" direction="horizontal" gap={1}>
                                 <For each={availableUniverses()}>
                                     {(univ) => (
                                         <Button variant={univ == universe() ? "secondary" : "outline-secondary"}
                                                 active={univ == universe()}
                                                 onClick={() => setUniverse(univ)}>
-                                            {t("receiveLevels:selectUniv", {val: univ})}
+                                            {t("receiveLevels:univList.button", {val: univ})}
                                         </Button>
                                     )}
                                 </For>
@@ -457,7 +457,7 @@ const SourceList: Component<SourceListProps> = (props) => {
                     {t("receiveLevels:sourceList.title")}&nbsp;<Badge bg="secondary">{props.sources.length}</Badge>
                 </Accordion.Header>
                 <Accordion.Body>
-                    <Show when={props.sources.length > 0} fallback="No sources sending this universe.">
+                    <Show when={props.sources.length > 0} fallback={t("receiveLevels:sourceList.empty")}>
                         <>
                             <Table class="msacn-sourcelist">
                                 <thead>

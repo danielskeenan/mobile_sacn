@@ -7,9 +7,9 @@
     "title": "Grid"
   },
   "openUnivDialog": "Choose Universe...",
-  "selectUniv": "Univ {{val}}",
   "showPrioritiesCheck": "Show Priorities",
   "sourceList": {
+    "empty": "No sources sending this universe.",
     "papNote": "*Source has per-address-priority.",
     "papPriority": "*{{val}}",
     "sourceIpAddress": "IP Addr",
@@ -21,6 +21,10 @@
     "cancel": "Cancel",
     "otherUniverse": "Other Universe",
     "submit": "Set Universe",
+    "title": "Universe"
+  },
+  "univList": {
+    "button": "Univ {{val}}",
     "title": "Universe"
   },
   "univTitle": "Universe {{val}}"

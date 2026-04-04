@@ -234,7 +234,7 @@ const ChannelCheckPage: Component = () => {
                         </Form.Group>
                     </Stack>
 
-                    <h2 class="mt-3">Address</h2>
+                    <h2 class="mt-3">{t("channelCheck:address.title")}</h2>
                     <BigDisplay value={address()} onValueChange={setAddress} min={DMX_MIN} max={DMX_MAX}
                                 active={transmit()}/>
                     <NextLast
@@ -293,10 +293,10 @@ const NextLast: Component<NextLastProps> = (props) => {
     return (
         <div class="msacn-nextlast">
             <Button variant="primary" disabled={!props.lastEnabled} size="lg" onclick={props.onLast}>
-                <BsCaretLeftFill title="Last"/>
+                <BsCaretLeftFill title={t("channelCheck:lastButton")}/>
             </Button>
             <Button variant="primary" disabled={!props.nextEnabled} size="lg" onclick={props.onNext}>
-                <BsCaretRightFill title="Next"/>
+                <BsCaretRightFill title={t("channelCheck:nextButton")}/>
             </Button>
         </div>
     );
