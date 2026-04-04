@@ -37,6 +37,14 @@
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     },
     {
+      "name": "doc",
+      "inherits": ["linux-release"],
+      "cacheVariables": {
+        "BUILD_EXEC": false,
+        "BUILD_DOC": true
+      }
+    },
+    {
       "name": "linux-debug",
       "displayName": "Debug (Linux)",
       "inherits": "debug",
