@@ -1,7 +1,6 @@
 import "./App.scss";
 import {ColorScheme, IAppContext, useAppContext} from "@/common/AppContext";
 import {LevelDisplayMode} from "@/common/levelDisplay";
-import setPageTitle from "@/common/setPageTitle";
 import createTranslator from "@/common/translator";
 import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
@@ -107,7 +106,7 @@ const App: Component<{ children: Element }> = (props) => {
     const [translator] = createResource(createTranslator);
     createEffect(() => {
         if (translator.state == "ready") {
-            setPageTitle();
+            document.title = t("app");
         } else if (translator.error) {
             console.error(`Error loading translator: ${translator.error}`);
         }
@@ -146,6 +145,7 @@ const App: Component<{ children: Element }> = (props) => {
     const closeSettingsDialog = () => setShowSettingsDialog(false);
 
     return (
+        // Can't use fallback here because the loading element relies on the translator.
         <Show when={translator.state == "ready"}>
             <Switch>
                 <Match when={clientSettings.loading}>

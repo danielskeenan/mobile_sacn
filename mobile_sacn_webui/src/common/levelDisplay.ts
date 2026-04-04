@@ -1,3 +1,5 @@
+import {t} from "i18next";
+
 export enum LevelDisplayMode {
     DECIMAL = "decimal",
     HEX = "hex",
@@ -272,12 +274,10 @@ export const LEVEL_PERCENT_TABLE = [
 /**
  * Same as LEVEL_PERCENT_LOOKUP_TABLE, but with strings. 100% is stored as "FL" so
  * all strings are two characters long.
+ *
+ * Initialized at first usage as it requires the translator to be available.
  */
-export const LEVEL_PERCENT_STR_LOOKUP_TABLE = (() => {
-    const table = LEVEL_PERCENT_TABLE.map(level => level.toString().padStart(2, "0"));
-    table[255] = "FL";
-    return table;
-})();
+let LEVEL_PERCENT_STR_LOOKUP_TABLE: string[]|undefined;
 
 /**
  * Lookup table for mapping percentages to DMX values.
@@ -390,13 +390,17 @@ export function levelDisplayString(level: number, displayMode?: LevelDisplayMode
     if (level === undefined) {
         return "";
     }
+    if (LEVEL_PERCENT_STR_LOOKUP_TABLE === undefined) {
+        LEVEL_PERCENT_STR_LOOKUP_TABLE = LEVEL_PERCENT_TABLE.map(level => t("levelDisplay.percent", {val: level}));
+        LEVEL_PERCENT_STR_LOOKUP_TABLE[255] = t("levelDisplay.full");
+    }
     switch (displayMode) {
         case LevelDisplayMode.DECIMAL:
             return level.toString(10).padStart(3, "0");
         case LevelDisplayMode.HEX:
             return level.toString(16).toUpperCase().padStart(2, "0");
         case LevelDisplayMode.PERCENT:
-            return `${(LEVEL_PERCENT_STR_LOOKUP_TABLE[level] ?? "??")}%`;
+            return LEVEL_PERCENT_STR_LOOKUP_TABLE[level] ?? "??";
     }
     return "??";
 }

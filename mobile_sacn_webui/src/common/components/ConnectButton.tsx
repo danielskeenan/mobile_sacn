@@ -1,4 +1,5 @@
 import "./ConnectButton.scss";
+import {t} from "i18next";
 import {Button, ButtonProps} from "solid-bootstrap";
 import {Component, Match, Switch} from "solid-js";
 
@@ -13,10 +14,10 @@ const ConnectButton: Component<ConnectButtonProps> = (props) => {
         <div class="msacn-connectbutton">
             <Switch>
                 <Match when={props.started}>
-                    <Button variant="danger" size="lg" onclick={props.onStop}>Stop</Button>
+                    <Button variant="danger" size="lg" onclick={props.onStop}>{t("connectButton.stop")}</Button>
                 </Match>
                 <Match when={!props.started}>
-                    <Button variant="success" size="lg" onclick={props.onStart}>Start</Button>
+                    <Button variant="success" size="lg" onclick={props.onStart}>{t("connectButton.start")}</Button>
                 </Match>
             </Switch>
         </div>

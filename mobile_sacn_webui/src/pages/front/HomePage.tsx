@@ -1,14 +1,14 @@
-import setPageTitle from "@/common/setPageTitle";
 import LINKS from "@/links";
 import ReceiveLevelsTitle from "@/pages/receive/levels/ReceiveLevelsTitle";
 import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A} from "@solidjs/router";
+import {t} from "i18next";
 import {ListGroup} from "solid-bootstrap";
 import {Component} from "solid-js";
 
 const HomePage: Component = () => {
-    setPageTitle();
+    document.title = t("homePage.pageTitle");
 
     return (
         <>

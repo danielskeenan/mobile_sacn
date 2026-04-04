@@ -6,6 +6,24 @@
       "unknown": "Unknown"
     }
   },
+  "connectButton": {
+    "start": "Start",
+    "stop": "Stop"
+  },
+  "connecting": "Connecting...",
+  "errors": {
+    "404": {
+      "text": "This page does not exist. Check the menu for available pages.",
+      "title": "Page Not Found"
+    }
+  },
+  "homePage": {
+    "pageTitle": "$t(app)"
+  },
+  "levelDisplay": {
+    "full": "FL",
+    "percent": "{{val, number(style: percent, minimumIntegerDigits: 2)}}"
+  },
   "loading": "Loading...",
   "settings": {
     "actions": {
