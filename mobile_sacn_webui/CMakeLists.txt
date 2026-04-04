@@ -75,7 +75,7 @@ if (BUILD_EXEC)
         )
         add_custom_command(
                 TARGET gen_webui_qrc POST_BUILD
-                COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:${TARGET}>" -DQT_DEPLOY_BIN_DIR=.
+                COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:gen_webui_qrc>" -DQT_DEPLOY_BIN_DIR=.
                 -DQT_DEPLOY_LIB_DIR=. -P "${DEPLOY_SCRIPT}"
                 VERBATIM
         )
