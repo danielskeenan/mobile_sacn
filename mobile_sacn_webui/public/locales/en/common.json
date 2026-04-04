@@ -25,7 +25,7 @@
   },
   "levelDisplay": {
     "full": "FL",
-    "percent": "{{val, number(style: percent, minimumIntegerDigits: 2)}}"
+    "percent": "{{val, number(style: percent; minimumIntegerDigits: 2)}}"
   },
   "loading": "Loading...",
   "receiveLevels": {
@@ -52,5 +52,10 @@
       "title": "Level Display Mode"
     },
     "title": "Settings"
+  },
+  "transmitConfig": {
+    "Priority": "Priority",
+    "title": "Config",
+    "universe": "Universe"
   }
 }

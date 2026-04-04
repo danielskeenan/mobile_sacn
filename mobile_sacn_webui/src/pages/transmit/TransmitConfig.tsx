@@ -1,5 +1,6 @@
 import {SACN_PRI_MAX, SACN_PRI_MIN, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common/constants";
 import {handleInputNumberChange} from "@/common/handleInputChange";
+import {t} from "i18next";
 import {Accordion, Form} from "solid-bootstrap";
 import {Component, JSX, ParentProps} from "solid-js";
 import "./TransmitConfig.scss";
@@ -24,12 +25,12 @@ const TransmitConfig: Component<TransmitConfigProps> = (props) => {
     return (
         <Accordion>
             <Accordion.Item eventKey="transmit_config">
-                <Accordion.Header>Config</Accordion.Header>
+                <Accordion.Header>{t("transmitConfig.title")}</Accordion.Header>
                 <Accordion.Body>
                     <Form class="msacn-transmitconfig-form" onsubmit={e => e.preventDefault()}>
                         {/* Universe */}
                         <Form.Group>
-                            <Form.Label>Universe</Form.Label>
+                            <Form.Label>{t("transmitConfig.universe")}</Form.Label>
                             <Form.Control
                                 type="number"
                                 value={props.universe}
@@ -42,7 +43,7 @@ const TransmitConfig: Component<TransmitConfigProps> = (props) => {
 
                         {/* Priority */}
                         <Form.Group>
-                            <Form.Label>Priority</Form.Label>
+                            <Form.Label>{t("transmitConfig.Priority")}</Form.Label>
                             <Form.Control
                                 type="number"
                                 value={props.priority}

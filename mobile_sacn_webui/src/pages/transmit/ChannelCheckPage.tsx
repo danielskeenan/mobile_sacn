@@ -20,6 +20,7 @@ import {createEventListener} from "@solid-primitives/event-listener";
 import {createTimer} from "@solid-primitives/timer";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
+import {t} from "i18next";
 import {Button, Form, Stack} from "solid-bootstrap";
 import {BsCaretLeftFill, BsCaretRightFill} from "solid-icons/bs";
 import {Component, createEffect, createSignal, JSX, Show} from "solid-js";
@@ -205,7 +206,7 @@ const ChannelCheckPage: Component = () => {
                     >
                         <Form.Group class="d-flex flex-column">
                             <div>
-                                <Form.Label class="me-3">Use Per-Address-Priority</Form.Label>
+                                <Form.Label class="me-3">{t("channelCheck:config.usePapCheck")}</Form.Label>
                                 <Form.Check
                                     inline
                                     disabled={transmit()}
@@ -214,8 +215,7 @@ const ChannelCheckPage: Component = () => {
                                 />
                             </div>
                             <Form.Text>
-                                (Sets priority for the currently checked address to the chosen priority ({priority()}).
-                                All other addresses are assigned priority 0 and will be ignored by sACN receivers.)
+                                {t("channelCheck:config.papNote", {currentPriority: priority()})}
                             </Form.Text>
                         </Form.Group>
                     </TransmitConfig>
@@ -224,12 +224,12 @@ const ChannelCheckPage: Component = () => {
 
                     <Stack class="mt-3" gap={3} direction="horizontal">
                         <Form.Group>
-                            <Form.Label>Blink</Form.Label>
+                            <Form.Label>{t("channelCheck:blinkCheck")}</Form.Label>
                             <Form.Check checked={blink() !== false}
                                         onChange={(e) => setBlink(e.currentTarget.checked ? BLINK_INTERVAL : false)}/>
                         </Form.Group>
                         <Form.Group class="flex-grow-1">
-                            <Form.Label>Level</Form.Label>
+                            <Form.Label>{t("channelCheck:levelSlider")}</Form.Label>
                             <LevelFader level={level()} onLevelChange={setLevel}/>
                         </Form.Group>
                     </Stack>

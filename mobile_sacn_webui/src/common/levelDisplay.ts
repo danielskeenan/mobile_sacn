@@ -277,7 +277,7 @@ export const LEVEL_PERCENT_TABLE = [
  *
  * Initialized at first usage as it requires the translator to be available.
  */
-let LEVEL_PERCENT_STR_LOOKUP_TABLE: string[]|undefined;
+let LEVEL_PERCENT_STR_LOOKUP_TABLE: string[] | undefined;
 
 /**
  * Lookup table for mapping percentages to DMX values.
@@ -391,7 +391,8 @@ export function levelDisplayString(level: number, displayMode?: LevelDisplayMode
         return "";
     }
     if (LEVEL_PERCENT_STR_LOOKUP_TABLE === undefined) {
-        LEVEL_PERCENT_STR_LOOKUP_TABLE = LEVEL_PERCENT_TABLE.map(level => t("levelDisplay.percent", {val: level}));
+        // The intl.NumberFormat formatter multiplies by 100 internally.
+        LEVEL_PERCENT_STR_LOOKUP_TABLE = LEVEL_PERCENT_TABLE.map(level => t("levelDisplay.percent", {val: level / 100}));
         LEVEL_PERCENT_STR_LOOKUP_TABLE[255] = t("levelDisplay.full");
     }
     switch (displayMode) {
