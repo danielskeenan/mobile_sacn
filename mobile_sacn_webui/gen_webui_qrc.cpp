@@ -14,7 +14,6 @@
 
 #include <filesystem>
 #include <iostream>
-#include <QDirListing>
 #include <QFile>
 #include <QXmlStreamWriter>
 
@@ -51,8 +50,8 @@ int main(int argc, char *argv[])
         const auto alias = std::filesystem::relative(file.path(), webuiPath);
         const auto path = std::filesystem::relative(file.path(), qrcPath.parent_path());
         writer.writeStartElement("file");
-        writer.writeAttribute("alias", alias.string());
-        writer.writeCharacters(path.string());
+        writer.writeAttribute("alias", QString::fromStdString(alias.string()));
+        writer.writeCharacters(QString::fromStdString(path.string()));
         writer.writeEndElement(); // file
     }
 

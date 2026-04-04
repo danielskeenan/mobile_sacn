@@ -187,7 +187,7 @@ const std::filesystem::path &HttpServer::getWebRoot()
 crow::response HttpServer::serveStaticFile(const std::string &path)
 {
     // Try a static file.
-    const auto resourcePath = QString(":/webui/%1").arg(path);
+    const auto resourcePath = QString(":/webui/%1").arg(QString::fromStdString(path));
     QResource resource(resourcePath);
     if (resource.isValid() && resource.data() != nullptr) {
         // Read contents

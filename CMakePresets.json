@@ -8,6 +8,7 @@
   "configurePresets": [
     {
       "name": "debug",
+      "hidden": true,
       "displayName": "Debug (Generic Base)",
       "description": "Debug build",
       "binaryDir": "${sourceDir}/cmake-build-${presetName}",
@@ -22,6 +23,7 @@
     },
     {
       "name": "release",
+      "hidden": true,
       "displayName": "Release (Generic Base)",
       "description": "Release build",
       "binaryDir": "${sourceDir}/cmake-build-${presetName}",

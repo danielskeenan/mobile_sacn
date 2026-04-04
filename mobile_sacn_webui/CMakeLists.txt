@@ -7,7 +7,7 @@ find_program(npm_PROG ${_NPM_NAME} DOC "Path to NPM (https://www.npmjs.com)" REQ
 set(NODE_MODULES_LOCKFILE "${CMAKE_CURRENT_SOURCE_DIR}/node_modules.lock")
 # Only run npm install if the package lock file has changed.
 file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/package-lock.json" CURRENT_PACKAGE_LOCK_HASH)
-if (NOT "${WEBUI_PACKAGE_LOCK_HASH}" STREQUAL "${CURRENT_PACKAGE_LOCK_HASH}")
+if (NOT "${WEBUI_PACKAGE_LOCK_HASH}" STREQUAL "${CURRENT_PACKAGE_LOCK_HASH}" OR NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/node_modules")
     if (EXISTS "${NODE_MODULES_LOCKFILE}")
         message(STATUS "Waiting for lock on node_modules")
         while (EXISTS "${NODE_MODULES_LOCKFILE}")
@@ -39,29 +39,28 @@ if (BUILD_EXEC)
 
     # Install Javascript deps
     file(GLOB_RECURSE WEBUI_SOURCES LIST_DIRECTORIES false CONFIGURE_DEPENDS
-        public/*
-        src/*
-        index.html
-        package-lock.json
-        tsconfig.json
-        tsconfig.app.json
-        tsconfig.node.json
-        vite.config.ts
+            public/*
+            src/*
+            index.html
+            package-lock.json
+            tsconfig.json
+            tsconfig.app.json
+            tsconfig.node.json
+            vite.config.ts
     )
 
     # Build site
     add_custom_target(mobile_sacn_webui
-        COMMENT "Building Web UI..."
-        COMMAND "${CMAKE_COMMAND}" -E env WEBUI_BUILD_DIR_REL=${WEBUI_BUILD_DIR_REL} "${npm_PROG}" run build
-        SOURCES ${WEBUI_SOURCES}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        DEPENDS mobile_sacn_messages_ts
-        VERBATIM
+            COMMENT "Building Web UI..."
+            COMMAND "${CMAKE_COMMAND}" -E env WEBUI_BUILD_DIR_REL=${WEBUI_BUILD_DIR_REL} "${npm_PROG}" run build
+            SOURCES ${WEBUI_SOURCES}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            DEPENDS mobile_sacn_messages_ts
+            VERBATIM
     )
     # Ensure make clean does what it should.
     set_property(TARGET mobile_sacn_webui APPEND PROPERTY ADDITIONAL_CLEAN_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/node_modules"
-        "${WEBUI_BUILD_DIR}"
+            "${WEBUI_BUILD_DIR}"
     )
 
     # Add as Qt resource.
@@ -88,7 +87,7 @@ if (BUILD_EXEC)
             WORKING_DIRECTORY "${WEBUI_BUILD_DIR}"
             DEPENDS mobile_sacn_webui ${WEBUI_SOURCES}
             VERBATIM
-        )
+    )
     add_library(webui_qrc STATIC "${WEBUI_QRC}")
     set_target_properties(webui_qrc PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(webui_qrc PRIVATE Qt::Core)

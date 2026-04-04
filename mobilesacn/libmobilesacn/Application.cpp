@@ -8,7 +8,6 @@
 
 #include "Application.h"
 
-#include <QDirListing>
 #include <etcpal/cpp/netint.h>
 #include <sacn/cpp/common.h>
 #include <spdlog/spdlog.h>
