@@ -26,6 +26,8 @@ import {BsCaretLeftFill, BsCaretRightFill} from "solid-icons/bs";
 import {Component, createEffect, createSignal, JSX, Show} from "solid-js";
 
 const ChannelCheckPage: Component = () => {
+    document.title = t("channelCheck:pageTitle");
+
     const [appContext] = useAppContext();
 
     // State

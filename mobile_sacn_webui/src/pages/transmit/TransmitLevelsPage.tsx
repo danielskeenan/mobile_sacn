@@ -43,6 +43,8 @@ import {createStore, SetStoreFunction} from "solid-js/store";
 
 
 const TransmitLevelsPage: Component = () => {
+    document.title = t("transmitLevels:pageTitle");
+
     const [appContext] = useAppContext();
 
     // State

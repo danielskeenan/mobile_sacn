@@ -5,7 +5,7 @@ import {BsKeyboard} from "solid-icons/bs";
 const TransmitLevelsTitle: Component = () => {
     return (
         <span>
-            <BsKeyboard/>&nbsp;{t("sendLevels.title")}
+            <BsKeyboard/>&nbsp;{t("transmitLevels.title")}
         </span>
     );
 };

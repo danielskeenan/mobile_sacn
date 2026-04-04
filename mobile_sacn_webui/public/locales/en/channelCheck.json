@@ -9,5 +9,6 @@
   },
   "lastButton": "Last",
   "levelSlider": "Level",
-  "nextButton": "Next"
+  "nextButton": "Next",
+  "pageTitle": "$t(app) - $t(channelCheck.title)"
 }

@@ -104,6 +104,8 @@ function* getSourceListUniverses(sources: Iterable<Source>): Generator<number> {
 }
 
 const ReceiveLevelsPage: Component = () => {
+    document.title = t("receiveLevels:pageTitle");
+
     const [appContext] = useAppContext();
 
     // State

@@ -31,7 +31,7 @@
   "receiveLevels": {
     "title": "View Levels"
   },
-  "sendLevels": {
+  "transmitLevels": {
     "title": "Send Levels"
   },
   "settings": {

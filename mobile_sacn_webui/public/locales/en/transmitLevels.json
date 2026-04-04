@@ -21,5 +21,6 @@
     "plus": "$t(transmitLevels:cmdLine.plus)",
     "thru": "$t(transmitLevels:cmdLine.thru)",
     "title": "Keypad"
-  }
+  },
+  "pageTitle": "$t(app) - $t(transmitLevels.title)"
 }

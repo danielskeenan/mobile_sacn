@@ -7,6 +7,7 @@
     "title": "Grid"
   },
   "openUnivDialog": "Choose Universe...",
+  "pageTitle": "$t(app) - $t(receiveLevels.title)",
   "showPrioritiesCheck": "Show Priorities",
   "sourceList": {
     "empty": "No sources sending this universe.",
