@@ -32,7 +32,7 @@ class LicenseFileFinder:
     """
 
     # List of extensions to give preference to
-    PREFERRED_EXT_REGEX = r"\.(md|markdown|txt|html)\z"
+    PREFERRED_EXT_REGEX = r"\.(md|markdown|txt|html)"
 
     # Regex to match any extension except .spdx or .header
     LICENSE_EXT_REGEX = r"\.(?!spdx|header)[^./]+"
@@ -57,21 +57,21 @@ class LicenseFileFinder:
 
     # List of Regex, score pairs with which to score potential license files
     FILENAME_REGEXES = (
-        (re.compile(f"\\A{LICENSE_REGEX}\\z", re.IGNORECASE), 1.00),  # LICENSE
-        (re.compile(f"\\A{LICENSE_REGEX}{PREFERRED_EXT_REGEX}\\z", re.IGNORECASE), 0.95),  # LICENSE.md
-        (re.compile(f"\\A{COPYING_REGEX}\\z", re.IGNORECASE), 0.90),  # COPYING
-        (re.compile(f"\\A{COPYING_REGEX}{PREFERRED_EXT_REGEX}\\z", re.IGNORECASE), 0.85),  # COPYING.md
-        (re.compile(f"\\A{LICENSE_REGEX}{LICENSE_EXT_REGEX}\\z", re.IGNORECASE), 0.80),  # LICENSE.textile
-        (re.compile(f"\\A{COPYING_REGEX}{ANY_EXT_REGEX}\\z", re.IGNORECASE), 0.75),  # COPYING.textile
-        (re.compile(f"\\A{LICENSE_REGEX}[-_][^.]*{OTHER_EXT_REGEX}?\\z", re.IGNORECASE), 0.70),  # LICENSE-MIT
-        (re.compile(f"\\A{COPYING_REGEX}[-_][^.]*{OTHER_EXT_REGEX}?\\z", re.IGNORECASE), 0.65),  # COPYING-MIT
-        (re.compile(f"\\A\\w+[-_]{LICENSE_REGEX}[^.]*{OTHER_EXT_REGEX}?\\z", re.IGNORECASE), 0.60),  # MIT-LICENSE-MIT
-        (re.compile(f"\\A\\w+[-_]{COPYING_REGEX}[^.]*{OTHER_EXT_REGEX}?\\z", re.IGNORECASE), 0.55),  # MIT-COPYING
+        (re.compile(f"\\A{LICENSE_REGEX}$", re.IGNORECASE), 1.00),  # LICENSE
+        (re.compile(f"\\A{LICENSE_REGEX}{PREFERRED_EXT_REGEX}$", re.IGNORECASE), 0.95),  # LICENSE.md
+        (re.compile(f"\\A{COPYING_REGEX}$", re.IGNORECASE), 0.90),  # COPYING
+        (re.compile(f"\\A{COPYING_REGEX}{PREFERRED_EXT_REGEX}$", re.IGNORECASE), 0.85),  # COPYING.md
+        (re.compile(f"\\A{LICENSE_REGEX}{LICENSE_EXT_REGEX}$", re.IGNORECASE), 0.80),  # LICENSE.textile
+        (re.compile(f"\\A{COPYING_REGEX}{ANY_EXT_REGEX}$", re.IGNORECASE), 0.75),  # COPYING.textile
+        (re.compile(f"\\A{LICENSE_REGEX}[-_][^.]*{OTHER_EXT_REGEX}?$", re.IGNORECASE), 0.70),  # LICENSE-MIT
+        (re.compile(f"\\A{COPYING_REGEX}[-_][^.]*{OTHER_EXT_REGEX}?$", re.IGNORECASE), 0.65),  # COPYING-MIT
+        (re.compile(f"\\A\\w+[-_]{LICENSE_REGEX}[^.]*{OTHER_EXT_REGEX}?$", re.IGNORECASE), 0.60),  # MIT-LICENSE-MIT
+        (re.compile(f"\\A\\w+[-_]{COPYING_REGEX}[^.]*{OTHER_EXT_REGEX}?$", re.IGNORECASE), 0.55),  # MIT-COPYING
         (re.compile(f"\\A{OFL_REGEX}{PREFERRED_EXT_REGEX}", re.IGNORECASE), 0.50),  # OFL.md
         (re.compile(f"\\A{OFL_REGEX}{OTHER_EXT_REGEX}", re.IGNORECASE), 0.45),  # OFL.textile
-        (re.compile(f"\\A{OFL_REGEX}\\z", re.IGNORECASE), 0.40),  # OFL
-        (re.compile(f"\\A{PATENTS_REGEX}\\z", re.IGNORECASE), 0.35),  # PATENTS
-        (re.compile(f"\\A{PATENTS_REGEX}{OTHER_EXT_REGEX}\\z", re.IGNORECASE), 0.30),  # PATENTS.txt
+        (re.compile(f"\\A{OFL_REGEX}$", re.IGNORECASE), 0.40),  # OFL
+        (re.compile(f"\\A{PATENTS_REGEX}$", re.IGNORECASE), 0.35),  # PATENTS
+        (re.compile(f"\\A{PATENTS_REGEX}{OTHER_EXT_REGEX}$", re.IGNORECASE), 0.30),  # PATENTS.txt
     )
 
     @classmethod
