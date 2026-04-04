@@ -38,6 +38,7 @@
     },
     {
       "name": "doc",
+      "displayName": "Documentation Only",
       "inherits": ["linux-release"],
       "cacheVariables": {
         "BUILD_EXEC": false,

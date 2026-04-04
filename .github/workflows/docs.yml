@@ -8,9 +8,10 @@ on:
   workflow_dispatch: ~
 
 env:
-  BUILD_TYPE: Release
   SOURCE_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/build
+  VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/.vcpkg-binary-cache
+  QT_VERSION: 6.10.*
 
 jobs:
   build:
