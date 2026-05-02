@@ -21,6 +21,11 @@ BaseHandler::BaseHandler(QWebSocket *ws, QObject *parent) : QObject(parent), ws_
     connect(ws, &QWebSocket::binaryMessageReceived, this, &BaseHandler::logBinaryMessage);
     connect(ws, &QWebSocket::textMessageReceived, this, &BaseHandler::logTextMessage);
 #endif
+
+    SPDLOG_INFO(
+        "Started {} handler for client {}",
+        ws->requestUrl().path().toStdString(),
+        ws->peerAddress().toString().toStdString());
 }
 
 void BaseHandler::sendBinaryMessage(const QByteArrayView data) const

@@ -205,7 +205,6 @@ void HttpServer::onWsNewConnection()
         ws->deleteLater();
         return;
     }
-    SPDLOG_INFO("Started {} handler for client {}", path, ws->peerAddress().toString().toStdString());
 }
 
 void HttpServer::onWsAcceptError(QAbstractSocket::SocketError socketError)
