@@ -6,7 +6,6 @@ import {LevelFader} from "@/common/components/LevelBar";
 import {DMX_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "@/common/constants";
 import {generate} from "@/common/generate";
 import {LevelDisplayMode} from "@/common/levelDisplay";
-import wsUrl from "@/common/wsUrl";
 import {LevelBuffer} from "@/messages/level-buffer";
 import {PerAddressPriority} from "@/messages/per-address-priority";
 import {Priority} from "@/messages/priority";
@@ -64,7 +63,7 @@ const TransmitLevelsPage: Component = () => {
     const [levels, setLevels] = createStore(Array.from(generate(DMX_MAX, 0)));
 
     // Init Websocket
-    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "TransmitLevels"));
+    const ws = createReconnectingWS(`${appContext.wsRoot}/TransmitLevels`);
     const readyState = createWSState(ws);
 
     // RPC Setters

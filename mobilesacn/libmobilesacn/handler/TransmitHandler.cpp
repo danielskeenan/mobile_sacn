@@ -18,6 +18,8 @@ TransmitHandler::TransmitHandler(QWebSocket *ws, QObject *parent) : BaseHandler(
 {
     univSettings_.universe = 1;
     univSettings_.priority = 100;
+
+    connect(ws, &QWebSocket::binaryMessageReceived, this, &TransmitHandler::onBinaryMessage);
 }
 
 TransmitHandler::~TransmitHandler()

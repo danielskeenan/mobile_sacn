@@ -42,6 +42,9 @@ protected:
     virtual void startTransmitting();
     virtual void stopTransmitting();
     void sendLevelsAndPap();
+
+protected Q_SLOTS:
+    virtual void onBinaryMessage(const QByteArray& data) = 0;
 };
 
 } // namespace mobilesacn::handler

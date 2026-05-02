@@ -26,12 +26,12 @@ public:
     [[nodiscard]] const char *getProtocol() const override { return kProtocol; }
     [[nodiscard]] QString getDisplayName() const override { return tr("Chan Check"); }
 
-public Q_SLOTS:
-    void onBinaryMessage(const QByteArray &message);
-
 protected:
     void onChangePriority(uint8_t priority) override;
     void startTransmitting() override;
+
+protected Q_SLOTS:
+    void onBinaryMessage(const QByteArray &message) override;
 
 private:
     uint16_t address_ = 1;

@@ -5,6 +5,8 @@ add_library(libmobilesacn STATIC
         handler/ChanCheck.h
         handler/TransmitHandler.cpp
         handler/TransmitHandler.h
+        handler/TransmitLevels.cpp
+        handler/TransmitLevels.h
         #        rpc/ChanCheck.h
         #        rpc/ChanCheck.cpp
         #        rpc/ReceiveLevels.h
