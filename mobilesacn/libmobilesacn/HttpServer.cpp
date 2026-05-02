@@ -203,6 +203,7 @@ void HttpServer::onWsNewConnection()
         SPDLOG_WARN("Unsupported websocket path: {}", ws->requestUrl().path().toStdString());
         ws->close();
         ws->deleteLater();
+        return;
     }
     SPDLOG_INFO("Started {} handler for client {}", path, ws->peerAddress().toString().toStdString());
 }

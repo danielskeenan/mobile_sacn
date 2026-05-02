@@ -5,7 +5,6 @@ import ConnectButton from "@/common/components/ConnectButton";
 import Connecting from "@/common/components/Connecting";
 import {LevelFader} from "@/common/components/LevelBar";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "@/common/constants";
-import wsUrl from "@/common/wsUrl";
 import {Address} from "@/messages/address";
 import {ChanCheck} from "@/messages/chan-check";
 import {ChanCheckVal} from "@/messages/chan-check-val";
@@ -56,7 +55,7 @@ const ChannelCheckPage: Component = () => {
     const [blinkLevel, setBlinkLevel] = createSignal(true);
 
     // Init Websocket
-    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "ChanCheck"));
+    const ws = createReconnectingWS(`${appContext.wsRoot}/ChanCheck`);
     const readyState = createWSState(ws);
 
     // RPC Setters

@@ -7,6 +7,7 @@
  */
 
 #include "HandlerFactory.h"
+#include "handler/ChanCheck.h"
 
 namespace mobilesacn {
 
@@ -18,7 +19,7 @@ struct HandlerFactory
 
 // Add handlers here!
 static const QHash<QString, std::function<BaseHandler *(QWebSocket *, QObject *)>> HANDLERS{
-    // {"/ChanCheck", HandlerFactory<handler::ChanCheck>{}},
+    {"/ChanCheck", HandlerFactory<handler::ChanCheck>{}},
     // {"/TransmitLevels", HandlerFactory<handler::TransmitLevels>{}},
     // {"/ReceiveLevels", HandlerFactory<handler::ReceiveLevels>{}},
 };

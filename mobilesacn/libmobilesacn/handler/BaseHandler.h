@@ -27,11 +27,21 @@ class BaseHandler : public QObject
 public:
     explicit BaseHandler(QWebSocket *ws, QObject *parent = nullptr);
 
+    /**
+     * Supported protocol name.
+     */
+    [[nodiscard]] virtual const char *getProtocol() const = 0;
+
+    /**
+     * User-facing display name.
+     */
+    [[nodiscard]] virtual QString getDisplayName() const = 0;
+
 protected:
     [[nodiscard]] QWebSocket *ws() const { return ws_; }
     void sendBinaryMessage(QByteArrayView data) const;
     void sendBinaryMessage(const uint8_t *ptr, qsizetype size) const;
-    void sendTextMessage(const QString& str) const;
+    void sendTextMessage(const QString &str) const;
 
 private:
     QWebSocket *ws_;
