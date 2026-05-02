@@ -38,28 +38,72 @@ if (BUILD_EXEC)
     file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/mobile_sacn.svg" ONLY_IF_DIFFERENT)
 
     # Install Javascript deps
-    file(GLOB_RECURSE WEBUI_SOURCES LIST_DIRECTORIES false CONFIGURE_DEPENDS
-            public/*
-            src/*
+    set(WEBUI_SOURCES
+            i18next.config.ts
             index.html
             package-lock.json
+            public/locales/en/channelCheck.json
+            public/locales/en/common.json
+            public/locales/en/receiveLevels.json
+            public/locales/en/transmitLevels.json
+            src/App.scss
+            src/App.tsx
+            src/assets/mobile_sacn.svg
+            src/assets/styles/_bootstrap.scss
+            src/assets/styles/_colors.scss
+            src/assets/styles/_content.scss
+            src/common/AppContext.tsx
+            src/common/bigIntAbs.ts
+            src/common/cidColor.ts
+            src/common/clamp.ts
+            src/common/components/ConnectButton.scss
+            src/common/components/ConnectButton.tsx
+            src/common/components/Connecting.tsx
+            src/common/components/LevelBar.scss
+            src/common/components/LevelBar.tsx
+            src/common/components/LevelDisplay.scss
+            src/common/components/LevelDisplay.tsx
+            src/common/components/Loading.tsx
+            src/common/constants.ts
+            src/common/generate.ts
+            src/common/getBootstrapColor.ts
+            src/common/handleInputChange.ts
+            src/common/iota.ts
+            src/common/levelDisplay.ts
+            src/common/translator.ts
+            src/common/unique.ts
+            src/common/wsUrl.ts
+            src/errors/404.tsx
+            src/index.tsx
+            src/links.ts
+            src/pages/front/HomePage.tsx
+            src/pages/receive/levels/ReceiveLevelsPage.scss
+            src/pages/receive/levels/ReceiveLevelsPage.tsx
+            src/pages/receive/levels/ReceiveLevelsTitle.tsx
+            src/pages/transmit/ChannelCheckPage.scss
+            src/pages/transmit/ChannelCheckPage.tsx
+            src/pages/transmit/ChannelCheckTitle.tsx
+            src/pages/transmit/TransmitConfig.scss
+            src/pages/transmit/TransmitConfig.tsx
+            src/pages/transmit/TransmitLevelsPage.scss
+            src/pages/transmit/TransmitLevelsPage.tsx
+            src/pages/transmit/TransmitLevelsTitle.tsx
+            src/pages/transmit/cmdline.ts
+            src/routes.ts
             tsconfig.json
-            tsconfig.app.json
-            tsconfig.node.json
             vite.config.ts
     )
 
     # Build site
-    add_custom_target(mobile_sacn_webui
+    add_custom_command(OUTPUT "${WEBUI_BUILD_DIR}/index.html"
             COMMENT "Building Web UI..."
             COMMAND "${CMAKE_COMMAND}" -E env WEBUI_BUILD_DIR_REL=${WEBUI_BUILD_DIR_REL} "${npm_PROG}" run build
-            SOURCES ${WEBUI_SOURCES}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            DEPENDS mobile_sacn_messages_ts
+            DEPENDS ${WEBUI_SOURCES} mobile_sacn_messages_ts
             VERBATIM
     )
     # Ensure make clean does what it should.
-    set_property(TARGET mobile_sacn_webui APPEND PROPERTY ADDITIONAL_CLEAN_FILES
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} APPEND PROPERTY ADDITIONAL_CLEAN_FILES
             "${WEBUI_BUILD_DIR}"
     )
 
@@ -85,7 +129,7 @@ if (BUILD_EXEC)
             OUTPUT "${WEBUI_QRC}"
             COMMAND gen_webui_qrc "${WEBUI_BUILD_DIR}" "${WEBUI_QRC}"
             WORKING_DIRECTORY "${WEBUI_BUILD_DIR}"
-            DEPENDS mobile_sacn_webui ${WEBUI_SOURCES}
+            DEPENDS "${WEBUI_BUILD_DIR}/index.html" ${WEBUI_SOURCES}
             VERBATIM
     )
     add_library(webui_qrc STATIC "${WEBUI_QRC}")

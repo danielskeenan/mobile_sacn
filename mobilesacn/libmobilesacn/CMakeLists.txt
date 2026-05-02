@@ -72,7 +72,7 @@ target_link_libraries(libmobilesacn PRIVATE
         # So we can get QApplication helpers not available in QCoreApplication.
         Qt::Widgets
         ZLIB::ZLIB
-        mobile_sacn_messages
+        mobile_sacn_messages_cpp
         webui_qrc
         sACN
 )
