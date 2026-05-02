@@ -13,21 +13,6 @@ add_library(libmobilesacn STATIC
         handler/TransmitHandler.h
         handler/TransmitLevels.cpp
         handler/TransmitLevels.h
-        #        rpc/ChanCheck.h
-        #        rpc/ChanCheck.cpp
-        #        rpc/ReceiveLevels.h
-        #        rpc/ReceiveLevels.cpp
-        #        rpc/RpcHandler.h
-        #        rpc/RpcHandler.cpp
-        #        rpc/SubscribableMergeReceiver.h
-        #        rpc/SubscribableMergeReceiver.cpp
-        #        rpc/SubscribableNotifyHandler.h
-        #        rpc/SubscribableSourceDetector.h
-        #        rpc/SubscribableSourceDetector.cpp
-        #        rpc/TransmitHandler.h
-        #        rpc/TransmitHandler.cpp
-        #        rpc/TransmitLevels.h
-        #        rpc/TransmitLevels.cpp
         Application.h
         Application.cpp
         Caffeine.cpp
