@@ -9,15 +9,56 @@
 #ifndef MOBILE_SACN_INCLUDE_LIBMOBILESACN_HTTPSERVER_H_
 #define MOBILE_SACN_INCLUDE_LIBMOBILESACN_HTTPSERVER_H_
 
-#include <string>
-#include <filesystem>
-#include <QObject>
-#include <crow/app.h>
-#include <crow/middlewares/cors.h>
 #include <etcpal/cpp/netint.h>
-#include "CrowLogHandler.h"
+#include <filesystem>
+#include <httplib.h>
+#include <string>
+#include <QThread>
+#include <QThreadPool>
+#include <QWebSocketServer>
 
 namespace mobilesacn {
+
+/**
+ * httplib::TaskQueue that uses a QThreadPool.
+ *
+ * This keeps all threads managed by a QThread.
+ */
+class HttpQtTaskQueue : public QObject, public httplib::TaskQueue
+{
+    Q_OBJECT
+
+public:
+    explicit HttpQtTaskQueue(QObject *parent = nullptr);
+    bool enqueue(std::function<void()> fn) override;
+    void shutdown() override;
+
+private:
+    QThreadPool *threadPool_;
+};
+
+/**
+ * Run the HTTP server in its own thread.
+ */
+class HttpServerController : public QThread
+{
+    Q_OBJECT
+
+public:
+    explicit HttpServerController(
+        httplib::Server *server, QWebSocketServer *wsServer, QObject *parent = nullptr);
+
+protected:
+    void run() override;
+
+private:
+    httplib::Server *server_;
+    QWebSocketServer *wsServer_;
+
+    // Route handlers.
+    static void serveStaticFile(const httplib::Request &req, httplib::Response &res);
+};
+
 /**
  * HTTP web server.
  *
@@ -34,8 +75,6 @@ public:
         etcpal::NetintInfo sacn_interface;
     };
 
-    using CrowServer = crow::Crow<crow::CORSHandler>;
-
     /**
      * Create a new HTTP Server. There should only be one of these!
      *
@@ -44,28 +83,27 @@ public:
      * @param options
      * @param parent
      */
-    explicit HttpServer(Options options, QObject* parent = nullptr);
+    explicit HttpServer(Options options, QObject *parent = nullptr);
+    ~HttpServer();
 
     void run();
     void stop();
     [[nodiscard]] std::string getUrl();
 
-    [[nodiscard]] const Options& getOptions() const
-    {
-        return options_;
-    }
+    [[nodiscard]] const Options &getOptions() const { return options_; }
 
 private:
-    static const uint16_t kHttpPort = 5050;
+    static constexpr uint16_t kHttpPort = 5050;
 
     Options options_;
-    CrowServer server_;
-    CrowLogHandler crowLogHandler_;
-    std::future<void> serverHandle_;
+    httplib::Server server_;
+    QWebSocketServer wsServer_;
 
-    static const std::filesystem::path& getWebRoot();
-    static crow::response serveStaticFile(const std::string& path);
+private Q_SLOTS:
+    void onWsNewConnection();
+    void onWsAcceptError(QAbstractSocket::SocketError socketError);
+    void onWsServerError(QWebSocketProtocol::CloseCode closeCode);
 };
-} // mobilesacn
+} // namespace mobilesacn
 
 #endif //MOBILE_SACN_INCLUDE_LIBMOBILESACN_HTTPSERVER_H_

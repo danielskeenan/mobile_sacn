@@ -1,30 +1,32 @@
 add_library(libmobilesacn STATIC
-        rpc/ChanCheck.h
-        rpc/ChanCheck.cpp
-        rpc/ReceiveLevels.h
-        rpc/ReceiveLevels.cpp
-        rpc/RpcHandler.h
-        rpc/RpcHandler.cpp
-        rpc/SubscribableMergeReceiver.h
-        rpc/SubscribableMergeReceiver.cpp
-        rpc/SubscribableNotifyHandler.h
-        rpc/SubscribableSourceDetector.h
-        rpc/SubscribableSourceDetector.cpp
-        rpc/TransmitHandler.h
-        rpc/TransmitHandler.cpp
-        rpc/TransmitLevels.h
-        rpc/TransmitLevels.cpp
+        handler/BaseHandler.cpp
+        handler/BaseHandler.h
+#        rpc/ChanCheck.h
+#        rpc/ChanCheck.cpp
+#        rpc/ReceiveLevels.h
+#        rpc/ReceiveLevels.cpp
+#        rpc/RpcHandler.h
+#        rpc/RpcHandler.cpp
+#        rpc/SubscribableMergeReceiver.h
+#        rpc/SubscribableMergeReceiver.cpp
+#        rpc/SubscribableNotifyHandler.h
+#        rpc/SubscribableSourceDetector.h
+#        rpc/SubscribableSourceDetector.cpp
+#        rpc/TransmitHandler.h
+#        rpc/TransmitHandler.cpp
+#        rpc/TransmitLevels.h
+#        rpc/TransmitLevels.cpp
         Application.h
         Application.cpp
         Caffeine.cpp
         Caffeine.h
         ClientSettings.cpp
         ClientSettings.h
-        CrowLogHandler.h
-        CrowLogHandler.cpp
         EtcPalLogHandler.h
         EtcPalLogHandler.cpp
         Exception.h
+        HandlerFactory.cpp
+        HandlerFactory.h
         HttpServer.h
         HttpServer.cpp
         SacnCidGenerator.h
@@ -57,18 +59,16 @@ FetchContent_Declare(sACN
 )
 FetchContent_MakeAvailable(sACN)
 
-#if  (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-#    target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
-#endif ()
 find_package(Boost COMPONENTS signals2 REQUIRED)
-find_package(Crow REQUIRED)
-find_package(fmt REQUIRED)
-find_package(spdlog REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(httplib CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(libmobilesacn PRIVATE
-        Crow::Crow
         fmt::fmt
+        httplib::httplib
         Qt::Core
+        Qt::WebSockets
         # So we can get QApplication helpers not available in QCoreApplication.
         Qt::Widgets
         ZLIB::ZLIB

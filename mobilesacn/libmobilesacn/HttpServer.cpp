@@ -7,220 +7,215 @@
  */
 
 #include "HttpServer.h"
-#include "rpc/ChanCheck.h"
-#include "rpc/ReceiveLevels.h"
-#include "rpc/TransmitLevels.h"
+#include "ClientSettings.h"
+#include "HandlerFactory.h"
+#include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <mobilesacn_config.h>
-#include <set>
 #include <spdlog/spdlog.h>
+#include <QAbstractSocket>
 #include <QCoreApplication>
 #include <QDir>
 #include <QJsonObject>
+#include <QMetaEnum>
 #include <QMimeDatabase>
 #include <QResource>
 
-#include "ClientSettings.h"
-
 namespace mobilesacn {
 
-static std::set<rpc::WsUserData *> wsUserDataList;
-
-template<class HandlerT, typename CrowT>
-void setupWebsocketRoute(crow::WebSocketRule<CrowT> &rule, HttpServer *parent)
-    requires(std::derived_from<HandlerT, rpc::RpcHandler>)
+HttpServer::HttpServer(Options options, QObject *parent) :
+    QObject(parent), options_(std::move(options)), wsServer_({}, QWebSocketServer::NonSecureMode)
 {
-    const auto route = rule.rule();
-    rule.onopen([route, parent](crow::websocket::connection &ws) {
-            SPDLOG_DEBUG("Creating handler for route {}", route);
-            // Deleted when socket is closed.
-            const auto sacnInterface = parent->getOptions().sacn_interface;
-            auto *userData = new rpc::WsUserData{
-                .clientIp = ws.get_remote_ip(),
-                .protocol = "",
-                .handler = nullptr,
-            };
-            ws.userdata(userData);
-            auto handler = std::shared_ptr<rpc::RpcHandler>(new HandlerT(ws));
-            userData->protocol = handler->getProtocol();
-            userData->handler = std::move(handler);
-            wsUserDataList.insert(userData);
-            userData->handler->handleConnected();
-            SPDLOG_INFO("Started {} handler for client {}", userData->protocol, userData->clientIp);
-        })
-        .onmessage([](crow::websocket::connection &ws, const std::string &message, bool isBinary) {
-            auto userData = static_cast<rpc::WsUserData *>(ws.userdata());
-            if (isBinary) {
-                SPDLOG_DEBUG(
-                    "Received binary message from {}: {} bytes", ws.get_remote_ip(), message.size());
-                userData->handler->handleBinaryMessage(
-                    {reinterpret_cast<const uint8_t *>(message.data()), message.size()});
-            } else {
-                SPDLOG_DEBUG(
-                    "Received text message from {}: {} bytes", ws.get_remote_ip(), message.size());
-                userData->handler->handleTextMessage(message);
-            }
-        })
-        .onerror([](crow::websocket::connection &ws, const std::string &message) {
-            auto userData = static_cast<rpc::WsUserData *>(ws.userdata());
-            SPDLOG_WARN("{} socket error: {}", userData->protocol, message);
-        })
-        .onclose([](crow::websocket::connection &ws,
-                    const std::string &reason,
-                    uint16_t with_status_code) {
-            auto userData = static_cast<rpc::WsUserData *>(ws.userdata());
-            // This handler gets called more than once sometimes for unknown reasons. Guard
-            // against double free crashes in that case.
-            if (userData->handler) {
-                SPDLOG_INFO(
-                    "Closing {} handler for client {}", userData->protocol, userData->clientIp);
-                userData->handler->handleClose();
-            } else {
-                SPDLOG_DEBUG(
-                    "Couldn't call {} close handler because it has been destroyed.",
-                    userData->protocol);
-            }
-            if (wsUserDataList.erase(userData) > 0) {
-                delete userData;
-            } else {
-                SPDLOG_DEBUG("Didn't delete userdata because it was not stored in the cache.");
-            }
-        });
+    connect(&wsServer_, &QWebSocketServer::newConnection, this, &HttpServer::onWsNewConnection);
+    connect(&wsServer_, &QWebSocketServer::acceptError, this, &HttpServer::onWsAcceptError);
+    connect(&wsServer_, &QWebSocketServer::serverError, this, &HttpServer::onWsServerError);
 }
 
-HttpServer::HttpServer(Options options, QObject *parent) :
-    QObject(parent), options_(std::move(options))
+HttpServer::~HttpServer()
 {
-    // Setup HTTP server.
-    crow::logger::setHandler(&crowLogHandler_);
-    server_.bindaddr(options_.backend_address)
-        .port(kHttpPort)
-        .multithreaded()
-        .use_compression(crow::compression::algorithm::GZIP);
-    auto &cors = server_.get_middleware<crow::CORSHandler>();
-    cors.global().methods(crow::HTTPMethod::Get, crow::HTTPMethod::Put).origin("*");
-
-    // Client settings
-    CROW_ROUTE(server_, "/clientsettings")
-        .methods(crow::HTTPMethod::Get, crow::HTTPMethod::Put)([this](const crow::request &req) {
-            crow::response res;
-            res.set_header("Cache-Control", "no-store");
-            if (req.method == crow::HTTPMethod::Get) {
-                ClientSettings settings;
-                auto json = settings.toJson();
-                json["wsRoot"] = QString("ws://%1:%2/ws")
-                                     .arg(QString::fromStdString(server_.bindaddr()))
-                                     .arg(server_.port());
-                res.set_header("Content-Type", "application/json; charset=utf-8");
-                res.code = crow::status::OK;
-                res.body = QJsonDocument(json).toJson(QJsonDocument::Compact).toStdString();
-            } else if (req.method == crow::HTTPMethod::Put) {
-                res.set_header("Content-Type", "text/plain; charset=utf-8");
-                if (req.get_header_value("Content-Type").starts_with("application/json")) {
-                    try {
-                        QJsonParseError err;
-                        const QByteArray data(req.body.data(), req.body.size());
-                        const auto json = QJsonDocument::fromJson(data, &err);
-                        if (json.isNull()) {
-                            throw std::runtime_error("Malformed request body");
-                        }
-                        ClientSettings settings(json);
-                        settings.save();
-                        res.code = crow::status::OK;
-                        res.body = "Settings saved";
-                    } catch (const std::exception &e) {
-                        res.code = crow::status::BAD_REQUEST;
-                        res.body = e.what();
-                    }
-                } else {
-                    res.code = crow::status::UNSUPPORTED_MEDIA_TYPE;
-                    res.body = "Unsupported media type";
-                }
-            }
-            return res;
-        });
-
-    // Websocket handlers.
-    setupWebsocketRoute<rpc::ChanCheck>(CROW_WEBSOCKET_ROUTE(server_, "/ws/ChanCheck"), this);
-    setupWebsocketRoute<rpc::TransmitLevels>(
-        CROW_WEBSOCKET_ROUTE(server_, "/ws/TransmitLevels"), this);
-    setupWebsocketRoute<rpc::ReceiveLevels>(CROW_WEBSOCKET_ROUTE(server_, "/ws/ReceiveLevels"), this);
-
-    // Static content.
-    CROW_ROUTE(server_, "/").methods(crow::HTTPMethod::Get)([]() {
-        return serveStaticFile("index.html");
-    });
-    CROW_ROUTE(server_, "/<path>").methods(crow::HTTPMethod::Get)(&HttpServer::serveStaticFile);
+    stop();
 }
 
 void HttpServer::run()
 {
-    serverHandle_ = server_.run_async();
-    server_.wait_for_server_start();
+    server_.bind_to_port(options_.backend_address, kHttpPort);
+    if (!wsServer_.listen(QHostAddress(QString::fromStdString(options_.backend_address)))) {
+        SPDLOG_ERROR("Failed to start WebSocket server: {}", wsServer_.errorString().toStdString());
+        return;
+    }
+
+    auto controller = new HttpServerController(&server_, &wsServer_, this);
+    connect(
+        controller, &HttpServerController::finished, controller, &HttpServerController::deleteLater);
+    controller->start();
+    server_.wait_until_ready();
+
     SPDLOG_INFO("Server listening on {}", getUrl());
 }
 
 void HttpServer::stop()
 {
-    server_.stop();
-    for (const auto wsUserData : wsUserDataList) {
-        delete wsUserData;
+    if (server_.is_running()) {
+        server_.stop();
+        // Wait for stop.
+        while (server_.is_running()) {
+            QThread::msleep(100);
+        }
     }
-    wsUserDataList.clear();
+
+    if (wsServer_.isListening()) {
+        wsServer_.close();
+    }
+
     SPDLOG_INFO("Server stopped");
 }
 
 std::string HttpServer::getUrl()
 {
-    return fmt::format("http://{}:{}", server_.bindaddr(), server_.port());
+    return fmt::format("http://{}:{}", options_.backend_address, kHttpPort);
 }
 
-const std::filesystem::path &HttpServer::getWebRoot()
+HttpQtTaskQueue::HttpQtTaskQueue(QObject *parent) :
+    QObject(parent), threadPool_(new QThreadPool(this))
 {
-    // static const auto webroot = QDir(QString("%1/../%2")
-    // .arg(qApp->applicationDirPath(), config::kWebPath));
-    static const auto webroot = std::filesystem::canonical(
-        std::filesystem::path(qApp->applicationDirPath().toStdString()) / ".." / config::kWebPath);
-    return webroot;
+    threadPool_->setMaxThreadCount(CPPHTTPLIB_THREAD_POOL_MAX_COUNT);
 }
 
-crow::response HttpServer::serveStaticFile(const std::string &path)
+bool HttpQtTaskQueue::enqueue(std::function<void()> fn)
 {
+    threadPool_->start(std::move(fn));
+    return true;
+}
+
+void HttpQtTaskQueue::shutdown()
+{
+    threadPool_->clear();
+    threadPool_->waitForDone();
+}
+
+HttpServerController::HttpServerController(
+    httplib::Server *server, QWebSocketServer *wsServer, QObject *parent) :
+    QThread(parent), server_(server), wsServer_(wsServer)
+{}
+
+void HttpServerController::run()
+{
+    // Threading.
+    server_->new_task_queue = []() { return new HttpQtTaskQueue; };
+
+    // Logging.
+    server_->set_logger([](const httplib::Request &req, const httplib::Response &res) {
+        SPDLOG_DEBUG(
+            "{time:%Y-%m-%d %H:%M:%S} {addr} \"{method} {path}\" {status} {size}B",
+            fmt::arg("time", std::chrono::system_clock::now()),
+            fmt::arg("addr", req.remote_addr),
+            fmt::arg("method", req.method),
+            fmt::arg("path", req.path),
+            fmt::arg("status", res.status),
+            fmt::arg("size", res.body.size()));
+    });
+
+    // CORS
+    server_->set_post_routing_handler([](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "GET");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+    });
+
+    // Settings
+    server_->Get("/clientsettings", [this](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Cache-Control", "no-store");
+        ClientSettings settings;
+        auto json = settings.toJson();
+        json["wsRoot"] = wsServer_->serverUrl().toString();
+        res.set_content(
+            QJsonDocument(json).toJson(QJsonDocument::Compact).toStdString(), "application/json");
+    });
+    server_->Put("/clientsettings", [](const httplib::Request &req, httplib::Response &res) {
+        if (req.get_header_value("Content-Type").starts_with("application/json")) {
+            try {
+                QJsonParseError err;
+                const QByteArray data(req.body.data(), req.body.size());
+                const auto json = QJsonDocument::fromJson(data, &err);
+                if (json.isNull()) {
+                    res.status = httplib::StatusCode::BadRequest_400;
+                    res.set_content("Malformed request body", "text/plain");
+                    return;
+                }
+                ClientSettings settings(json);
+                settings.save();
+                res.set_content("Settings saved", "text/plain");
+            } catch (const std::exception &e) {
+                res.status = httplib::StatusCode::BadRequest_400;
+                res.set_content(e.what(), "text/plain");
+            }
+        } else {
+            res.status = httplib::StatusCode::UnsupportedMediaType_415;
+            res.set_content("Unsupported media type", "text/plain");
+        }
+    });
+
+    // Catch-all
+    server_->Get(R"(^/(.*)$)", &HttpServerController::serveStaticFile);
+
+    server_->listen_after_bind();
+}
+
+void HttpServerController::serveStaticFile(const httplib::Request &req, httplib::Response &res)
+{
+    auto path = QString::fromStdString(req.matches[1]);
+    if (path.isEmpty()) {
+        // Let client-side routing work, so serve index.html.
+        path = QStringLiteral("index.html");
+    }
+
     // Try a static file.
-    const auto resourcePath = QString(":/webui/%1").arg(QString::fromStdString(path));
+    const auto resourcePath = QString(":/webui/%1").arg(path);
+    // This is more performant than using QFile.
     QResource resource(resourcePath);
     if (resource.isValid() && resource.data() != nullptr) {
-        // Read contents
-        crow::response res;
+#ifdef NDEBUG
+        // Cache in production builds.
+        res.set_header("Cache-Control", "max-age=3600");
+#endif
+
+        // Read contents.
         const auto bytes = resource.uncompressedData();
-        const std::string str(bytes.data(), bytes.size());
-        res.write(str);
 
         // Set response mime type.
         const QMimeDatabase mimeDatabase;
         const auto mime = mimeDatabase.mimeTypeForFileNameAndData(resourcePath, bytes);
-        res.add_header("Content-Type", mime.name().toStdString());
 
-        return res;
-    }
-
-    // Try a directory index.
-    QResource indexResource(QString("%1/index.html").arg(resourcePath));
-    if (indexResource.isValid() && indexResource.data() != nullptr) {
-        crow::response res;
-        res.redirect(fmt::format("/{}/index.html", path));
-        return res;
-    }
-
-    if (QFileInfo(resourcePath).suffix().isEmpty()) {
-        // Let client-side routing work, so serve index.html.
-        return serveStaticFile("index.html");
+        // Send response.
+        res.set_content(bytes.data(), bytes.size(), mime.name().toStdString());
+        return;
     }
 
     // File not found.
-    crow::response res;
-    res.code = 404;
-    return res;
+    res.status = httplib::StatusCode::NotFound_404;
+}
+
+void HttpServer::onWsNewConnection()
+{
+    auto ws = wsServer_.nextPendingConnection();
+    auto handler = createWebHandler(ws, this);
+    const auto path = ws->requestUrl().path().toStdString();
+    if (!handler) {
+        SPDLOG_WARN("Unsupported websocket path: {}", ws->requestUrl().path().toStdString());
+        ws->close();
+        ws->deleteLater();
+    }
+    SPDLOG_INFO("Started {} handler for client {}", path, ws->peerAddress().toString().toStdString());
+}
+
+void HttpServer::onWsAcceptError(QAbstractSocket::SocketError socketError)
+{
+    const auto errEnum = QMetaEnum::fromType<QAbstractSocket::SocketError>();
+    SPDLOG_WARN("Error accepting new Websocket connection: {}", errEnum.valueToKey(socketError));
+}
+
+void HttpServer::onWsServerError(QWebSocketProtocol::CloseCode closeCode)
+{
+    SPDLOG_WARN("Websocket server error: {}", wsServer_.errorString().toStdString());
 }
 
 } // namespace mobilesacn

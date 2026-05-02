@@ -66,9 +66,10 @@ if (BUILD_EXEC)
     # Decide which Qt version to use.
     set(QT_COMPONENTS
             Core
-            Widgets
             Svg
             SvgWidgets
+            WebSockets
+            Widgets
             Xml
     )
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
