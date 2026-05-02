@@ -8,6 +8,7 @@
 
 #include "HandlerFactory.h"
 #include "handler/ChanCheck.h"
+#include "handler/ReceiveLevels.h"
 #include "handler/TransmitLevels.h"
 
 namespace mobilesacn {
@@ -22,7 +23,7 @@ struct HandlerFactory
 static const QHash<QString, std::function<BaseHandler *(QWebSocket *, QObject *)>> HANDLERS{
     {"/ChanCheck", HandlerFactory<handler::ChanCheck>{}},
     {"/TransmitLevels", HandlerFactory<handler::TransmitLevels>{}},
-    // {"/ReceiveLevels", HandlerFactory<handler::ReceiveLevels>{}},
+    {"/ReceiveLevels", HandlerFactory<handler::ReceiveLevels>{}},
 };
 
 BaseHandler *createWebHandler(QWebSocket *ws, QObject *parent)

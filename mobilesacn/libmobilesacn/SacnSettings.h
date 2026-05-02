@@ -9,8 +9,9 @@
 #ifndef SACNSETTINGS_H
 #define SACNSETTINGS_H
 
-#include <vector>
+#include "sacn/common.h"
 #include <etcpal/cpp/inet.h>
+#include <vector>
 
 namespace mobilesacn {
 class SacnSettings;

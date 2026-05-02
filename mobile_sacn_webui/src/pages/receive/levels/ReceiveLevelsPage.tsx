@@ -8,7 +8,6 @@ import {DMX_MAX, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common/constants";
 import {generate} from "@/common/generate";
 import getBootstrapColor from "@/common/getBootstrapColor";
 import unique from "@/common/unique";
-import wsUrl from "@/common/wsUrl";
 import {Flicker} from "@/messages/flicker";
 import {FlickerFinder} from "@/messages/flicker-finder";
 import {LevelBuffer} from "@/messages/level-buffer";
@@ -39,7 +38,8 @@ import {
     Stack,
     Tab,
     Table,
-    Tabs, Tooltip,
+    Tabs,
+    Tooltip,
 } from "solid-bootstrap";
 import {BsList, BsTable} from "solid-icons/bs";
 import {Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
@@ -218,7 +218,7 @@ const ReceiveLevelsPage: Component = () => {
     };
 
     // Init Websocket.
-    const ws = createReconnectingWS(wsUrl(appContext.wsRoot, "ReceiveLevels"));
+    const ws = createReconnectingWS(`${appContext.wsRoot}/ReceiveLevels`);
     const readyState = createWSState(ws);
     createEventListener(ws, "open", (e) => {
         const ws = e.currentTarget;

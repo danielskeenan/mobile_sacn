@@ -3,6 +3,12 @@ add_library(libmobilesacn STATIC
         handler/BaseHandler.h
         handler/ChanCheck.cpp
         handler/ChanCheck.h
+        handler/MergeReceiver.cpp
+        handler/MergeReceiver.h
+        handler/ReceiveLevels.cpp
+        handler/ReceiveLevels.h
+        handler/SourceDetector.cpp
+        handler/SourceDetector.h
         handler/TransmitHandler.cpp
         handler/TransmitHandler.h
         handler/TransmitLevels.cpp
@@ -65,7 +71,6 @@ FetchContent_Declare(sACN
 )
 FetchContent_MakeAvailable(sACN)
 
-find_package(Boost COMPONENTS signals2 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
@@ -83,7 +88,6 @@ target_link_libraries(libmobilesacn PRIVATE
         sACN
 )
 target_link_libraries(libmobilesacn PUBLIC
-        Boost::signals2
         spdlog::spdlog
         EtcPal
 )

@@ -163,7 +163,9 @@ void HttpServerController::run()
 void HttpServerController::serveStaticFile(const httplib::Request &req, httplib::Response &res)
 {
     auto path = QString::fromStdString(req.matches[1]);
-    if (path.isEmpty()) {
+
+    // Match what would otherwise be a request for a directory entry.
+    if (path.isEmpty() || !std::filesystem::path(path.toStdString()).has_extension()) {
         // Let client-side routing work, so serve index.html.
         path = QStringLiteral("index.html");
     }

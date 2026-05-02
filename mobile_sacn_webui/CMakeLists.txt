@@ -1,3 +1,59 @@
+set(WEBUI_SOURCES
+        i18next.config.ts
+        index.html
+        package-lock.json
+        public/locales/en/channelCheck.json
+        public/locales/en/common.json
+        public/locales/en/receiveLevels.json
+        public/locales/en/transmitLevels.json
+        src/App.scss
+        src/App.tsx
+        src/assets/mobile_sacn.svg
+        src/assets/styles/_bootstrap.scss
+        src/assets/styles/_colors.scss
+        src/assets/styles/_content.scss
+        src/common/AppContext.tsx
+        src/common/bigIntAbs.ts
+        src/common/cidColor.ts
+        src/common/clamp.ts
+        src/common/components/ConnectButton.scss
+        src/common/components/ConnectButton.tsx
+        src/common/components/Connecting.tsx
+        src/common/components/LevelBar.scss
+        src/common/components/LevelBar.tsx
+        src/common/components/LevelDisplay.scss
+        src/common/components/LevelDisplay.tsx
+        src/common/components/Loading.tsx
+        src/common/constants.ts
+        src/common/generate.ts
+        src/common/getBootstrapColor.ts
+        src/common/handleInputChange.ts
+        src/common/iota.ts
+        src/common/levelDisplay.ts
+        src/common/translator.ts
+        src/common/unique.ts
+        src/errors/404.tsx
+        src/index.tsx
+        src/links.ts
+        src/pages/front/HomePage.tsx
+        src/pages/receive/levels/ReceiveLevelsPage.scss
+        src/pages/receive/levels/ReceiveLevelsPage.tsx
+        src/pages/receive/levels/ReceiveLevelsTitle.tsx
+        src/pages/transmit/ChannelCheckPage.scss
+        src/pages/transmit/ChannelCheckPage.tsx
+        src/pages/transmit/ChannelCheckTitle.tsx
+        src/pages/transmit/TransmitConfig.scss
+        src/pages/transmit/TransmitConfig.tsx
+        src/pages/transmit/TransmitLevelsPage.scss
+        src/pages/transmit/TransmitLevelsPage.tsx
+        src/pages/transmit/TransmitLevelsTitle.tsx
+        src/pages/transmit/cmdline.ts
+        src/routes.ts
+        tsconfig.json
+        vite.config.ts
+)
+
+# Install Javascript deps
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(_NPM_NAME npm.cmd)
 else ()
@@ -36,63 +92,6 @@ if (BUILD_EXEC)
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/public")
     file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/public/mobile_sacn.svg" ONLY_IF_DIFFERENT)
     file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/mobile_sacn.svg" ONLY_IF_DIFFERENT)
-
-    # Install Javascript deps
-    set(WEBUI_SOURCES
-            i18next.config.ts
-            index.html
-            package-lock.json
-            public/locales/en/channelCheck.json
-            public/locales/en/common.json
-            public/locales/en/receiveLevels.json
-            public/locales/en/transmitLevels.json
-            src/App.scss
-            src/App.tsx
-            src/assets/mobile_sacn.svg
-            src/assets/styles/_bootstrap.scss
-            src/assets/styles/_colors.scss
-            src/assets/styles/_content.scss
-            src/common/AppContext.tsx
-            src/common/bigIntAbs.ts
-            src/common/cidColor.ts
-            src/common/clamp.ts
-            src/common/components/ConnectButton.scss
-            src/common/components/ConnectButton.tsx
-            src/common/components/Connecting.tsx
-            src/common/components/LevelBar.scss
-            src/common/components/LevelBar.tsx
-            src/common/components/LevelDisplay.scss
-            src/common/components/LevelDisplay.tsx
-            src/common/components/Loading.tsx
-            src/common/constants.ts
-            src/common/generate.ts
-            src/common/getBootstrapColor.ts
-            src/common/handleInputChange.ts
-            src/common/iota.ts
-            src/common/levelDisplay.ts
-            src/common/translator.ts
-            src/common/unique.ts
-            src/common/wsUrl.ts
-            src/errors/404.tsx
-            src/index.tsx
-            src/links.ts
-            src/pages/front/HomePage.tsx
-            src/pages/receive/levels/ReceiveLevelsPage.scss
-            src/pages/receive/levels/ReceiveLevelsPage.tsx
-            src/pages/receive/levels/ReceiveLevelsTitle.tsx
-            src/pages/transmit/ChannelCheckPage.scss
-            src/pages/transmit/ChannelCheckPage.tsx
-            src/pages/transmit/ChannelCheckTitle.tsx
-            src/pages/transmit/TransmitConfig.scss
-            src/pages/transmit/TransmitConfig.tsx
-            src/pages/transmit/TransmitLevelsPage.scss
-            src/pages/transmit/TransmitLevelsPage.tsx
-            src/pages/transmit/TransmitLevelsTitle.tsx
-            src/pages/transmit/cmdline.ts
-            src/routes.ts
-            tsconfig.json
-            vite.config.ts
-    )
 
     # Build site
     add_custom_command(OUTPUT "${WEBUI_BUILD_DIR}/index.html"

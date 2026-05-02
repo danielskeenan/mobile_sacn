@@ -8,13 +8,14 @@
 
 #include "Application.h"
 
-#include <etcpal/cpp/netint.h>
-#include <sacn/cpp/common.h>
-#include <spdlog/spdlog.h>
 #include "HttpServer.h"
 #include "SacnCidGenerator.h"
 #include "SacnSettings.h"
+#include "handler/SourceDetector.h"
 #include "mobilesacn_config.h"
+#include <etcpal/cpp/netint.h>
+#include <sacn/cpp/common.h>
+#include <spdlog/spdlog.h>
 
 void initResources()
 {
@@ -23,8 +24,7 @@ void initResources()
 
 namespace mobilesacn {
 
-Application::Application(QObject* parent)
-    : QObject(parent)
+Application::Application(QObject *parent) : QObject(parent)
 {
     initResources();
 
@@ -51,7 +51,7 @@ Application::~Application()
     etcPalLogger_.Shutdown();
 }
 
-void Application::run(const Options& options)
+void Application::run(const Options &options)
 {
     // Tell the CID generator about the sACN interface's MAC Address.
     auto sacnNetInterface = etcpal::netint::GetInterfaceWithIp(
@@ -80,14 +80,17 @@ void Application::run(const Options& options)
             .backend_address = options.backend_address,
             .sacn_interface = *sacnNetInterface,
         },
-        this
-    );
+        this);
 
     httpServer_->run();
+
+    // Setup sACN Source Detector
+    handler::SourceDetector::get()->startup();
 }
 
 void Application::stop()
 {
+    handler::SourceDetector::get()->shutdown();
     if (httpServer_) {
         httpServer_->stop();
         httpServer_->deleteLater();
@@ -103,4 +106,4 @@ std::string Application::getWebUrl() const
     return "";
 }
 
-} // mobilesacn
+} // namespace mobilesacn
