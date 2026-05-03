@@ -30,14 +30,7 @@ jobs:
       #######################
       # SETUP
       #######################
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
-      - name: Set CMake Parallel level
-        run: |
-          echo "CMAKE_BUILD_PARALLEL_LEVEL=${{ steps.cpu-cores.outputs.count }}" >> ${GITHUB_ENV}
-          echo "CTEST_PARALLEL_LEVEL=1" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git .vcpkg
@@ -46,14 +39,14 @@ jobs:
       - name: Create vcpkg binary cache
         run: mkdir -p "${VCPKG_DEFAULT_BINARY_CACHE}"
       - name: Restore vcpkg binary cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-binary-cache-
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
           cache: pip
@@ -72,7 +65,7 @@ jobs:
           sudo apt-get -y install libcurl4-openssl-dev uuid-dev pandoc libgl1-mesa-dev qt6-base-dev qt6-svg-dev qt6-websockets-dev
       - name: Setup MSVC (Windows)
         if: ${{runner.os == 'Windows'}}
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
       - name: Install Qt
@@ -86,7 +79,7 @@ jobs:
           cache: true
           modules: qtwebsockets
       - name: Cache web ui deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{github.workspace}}/mobile_sacn_webui/node_modules
           key: ${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
@@ -115,13 +108,13 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cpack -B "${BUILD_DIR}/packages"
       - name: Upload failed package artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ failure() }}
         with:
           name: failed_package_${{runner.os}}
           path: ${{env.BUILD_DIR}}/packages
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: packages_${{runner.os}}_${{runner.arch}}
           path: ${{env.BUILD_DIR}}/packages/*.*
@@ -140,7 +133,7 @@ jobs:
         with:
           path: repo
       - name: Get built packages
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
         id: download
         with:
           pattern: packages_*
@@ -184,7 +177,7 @@ jobs:
         run: |
           echo "APT_DEBS_PATH=${APT_REPO_LOCAL_PATH}/pool" >> ${GITHUB_ENV}
           echo "APT_META_PATH=${APT_REPO_LOCAL_PATH}/dists/stable/main/binary-$(dpkg --print-architecture)" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           path: repo
       - name: Get built packages
