@@ -14,15 +14,20 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLabel>
 #include <QMimeType>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QTextBrowser>
 #include <QUrlQuery>
+#include <QVBoxLayout>
 #include <QVersionNumber>
 #include <QtConcurrentRun>
+
+#include <qdialogbuttonbox.h>
 
 #define UPDATER_CHECK_VERSION "0.0.0"
 
@@ -140,6 +145,8 @@ void Updater::checkForUpdate()
         }
 
         Release release;
+        release.version = releaseVersion.toString();
+        SPDLOG_INFO("Update is available to {}", release.version.toStdString());
 
         // Name
         const auto &name = doc["name"];
@@ -221,6 +228,39 @@ void Updater::checkForUpdate()
             Q_EMIT(updateAvailable(release));
         });
     });
+}
+
+UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) : QDialog(parent)
+{
+    setWindowTitle(tr("Software Update"));
+    resize(640, 480);
+
+    // Title
+    auto layout = new QVBoxLayout(this);
+    auto title = new QLabel(tr("A software update is available:"), this);
+    layout->addWidget(title);
+
+    // Version info
+    auto versionLayout = new QHBoxLayout;
+    auto currentVersion
+        = new QLabel(tr("Current Version: %1").arg(qApp->applicationVersion()), this);
+    versionLayout->addWidget(currentVersion);
+    auto newVersion = new QLabel(tr("New Version: %1").arg(release.version), this);
+    versionLayout->addWidget(newVersion);
+    versionLayout->addStretch();
+    layout->addLayout(versionLayout);
+
+    // Release notes
+    auto releaseNotes = new QTextBrowser(this);
+    releaseNotes->setOpenExternalLinks(true);
+    releaseNotes->setHtml(release.releaseNotes);
+    layout->addWidget(releaseNotes);
+
+    // Actions
+    auto buttonBox = new QDialogButtonBox(this);
+    buttonBox->addButton(QDialogButtonBox::Close);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &UpdateDialog::close);
+    layout->addWidget(buttonBox);
 }
 
 } // namespace mobilesacn

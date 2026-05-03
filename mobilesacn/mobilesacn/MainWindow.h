@@ -63,6 +63,7 @@ private Q_SLOTS:
     void appStopped();
     void currentWebUiIfaceChanged(int row);
     void currentSacnIfaceChanged(int row);
+    void updateAvailable(const Updater::Release& release);
 };
 } // namespace mobilesacn
 

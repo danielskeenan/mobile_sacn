@@ -10,6 +10,7 @@
 #define MOBILESACN_MOBILESACN_UPDATER_H
 
 #include <QDateTime>
+#include <QDialog>
 #include <QFuture>
 #include <QNetworkAccessManager>
 #include <QUrl>
@@ -29,6 +30,7 @@ public:
     struct Release
     {
         QString name;
+        QString version;
         QDateTime publishedAt;
         QUrl url;
         /** HTML release notes */
@@ -45,6 +47,16 @@ Q_SIGNALS:
 
 private:
     QNetworkAccessManager *nam_;
+};
+
+/**
+ * Present an available update.
+ */
+class UpdateDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit UpdateDialog(const Updater::Release &release, QWidget *parent = nullptr);
 };
 
 } // namespace mobilesacn

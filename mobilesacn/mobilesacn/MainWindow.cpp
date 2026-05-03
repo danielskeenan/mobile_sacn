@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     spdlog::default_logger()->sinks().push_back(widget_log_sink);
 
     // Check for updates.
+    connect(updater_, &Updater::updateAvailable, this, &MainWindow::updateAvailable);
     updater_->checkForUpdate();
 }
 
@@ -208,6 +209,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     Settings::SetMainWindowGeometry(saveGeometry());
     Settings::Sync();
     event->accept();
+}
+
+void MainWindow::updateAvailable(const Updater::Release &release)
+{
+    auto *dialog = new UpdateDialog(release, this);
+    connect(dialog, &UpdateDialog::finished, dialog, &UpdateDialog::deleteLater);
+    dialog->setModal(true);
+    dialog->show();
 }
 
 } // namespace mobilesacn
