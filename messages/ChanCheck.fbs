@@ -7,13 +7,18 @@ include "Address.fbs";
 
 namespace mobilesacn.message;
 
+table Blink {
+    blink:bool;
+}
+
 union ChanCheckVal {
     universe:Universe,
     priority:Priority,
     perAddressPriority:PerAddressPriority,
     transmit:Transmit,
     level:Level,
-    address:Address
+    address:Address,
+    blink:Blink,
 }
 
 table ChanCheck {

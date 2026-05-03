@@ -6,6 +6,7 @@ import Connecting from "@/common/components/Connecting";
 import {LevelFader} from "@/common/components/LevelBar";
 import {DMX_DEFAULT, DMX_MAX, DMX_MIN, LEVEL_MAX, SACN_PRI_DEFAULT, SACN_UNIV_DEFAULT} from "@/common/constants";
 import {Address} from "@/messages/address";
+import {Blink} from "@/messages/blink";
 import {ChanCheck} from "@/messages/chan-check";
 import {ChanCheckVal} from "@/messages/chan-check-val";
 import {Level} from "@/messages/level";
@@ -16,7 +17,6 @@ import {Universe} from "@/messages/universe";
 import ChannelCheckTitle from "@/pages/transmit/ChannelCheckTitle";
 import TransmitConfig from "@/pages/transmit/TransmitConfig";
 import {createEventListener} from "@solid-primitives/event-listener";
-import {createTimer} from "@solid-primitives/timer";
 import {createReconnectingWS, createWSState} from "@solid-primitives/websocket";
 import {Builder as fbsBuilder} from "flatbuffers/js/builder";
 import {t} from "i18next";
@@ -51,8 +51,7 @@ const ChannelCheckPage: Component = () => {
         setAddress(address() - 1);
     };
     const [level, setLevel] = createSignal(LEVEL_MAX);
-    const [blink, setBlink] = createSignal<number | false>(false);
-    const [blinkLevel, setBlinkLevel] = createSignal(true);
+    const [blink, setBlink] = createSignal(false);
 
     // Init Websocket
     const ws = createReconnectingWS(`${appContext.wsRoot}/ChanCheck`);
@@ -164,26 +163,30 @@ const ChannelCheckPage: Component = () => {
         ws.send(data);
     };
     createEffect(() => {
-        setBlinkLevel(true);
         sendLevel(level());
     });
 
-    // Blink setup
-    const BLINK_INTERVAL = 1000;
-    const blinkTimeout = () => {
-        setBlinkLevel(!blinkLevel());
-        sendLevel(blinkLevel() ? level() : 0);
+    const sendBlink = (val: ReturnType<typeof blink>) => {
+        if (ws.readyState != WebSocket.OPEN) {
+            return;
+        }
+        const builder = new fbsBuilder();
+        const msgBlink = Blink.createBlink(builder, val);
+        ChanCheck.startChanCheck(builder);
+        ChanCheck.addValType(builder, ChanCheckVal.blink);
+        ChanCheck.addVal(builder, msgBlink);
+        const msgChanCheck = ChanCheck.endChanCheck(builder);
+        builder.finish(msgChanCheck);
+        const data = builder.asUint8Array();
+        ws.send(data);
     };
     createEffect(() => {
-        if (!blink()) {
-            setBlinkLevel(false);
-            sendLevel(level());
-        }
-        createTimer(blinkTimeout, blink, setInterval);
+        sendBlink(blink());
     });
 
     // Sync settings
     createEventListener(ws, "open", () => {
+        sendBlink(blink());
         sendLevel(level());
         sendAddress(address());
         sendUniverse(universe());
@@ -226,8 +229,8 @@ const ChannelCheckPage: Component = () => {
                     <Stack class="mt-3" gap={3} direction="horizontal">
                         <Form.Group>
                             <Form.Label>{t("channelCheck:blinkCheck")}</Form.Label>
-                            <Form.Check checked={blink() !== false}
-                                        onChange={(e) => setBlink(e.currentTarget.checked ? BLINK_INTERVAL : false)}/>
+                            <Form.Check checked={blink()}
+                                        onChange={(e) => setBlink(e.currentTarget.checked)}/>
                         </Form.Group>
                         <Form.Group class="flex-grow-1">
                             <Form.Label>{t("channelCheck:levelSlider")}</Form.Label>

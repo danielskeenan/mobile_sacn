@@ -11,8 +11,13 @@
 
 namespace mobilesacn::handler {
 
-ChanCheck::ChanCheck(QWebSocket *ws, QObject *parent) : TransmitHandler(ws, parent)
+ChanCheck::ChanCheck(QWebSocket *ws, QObject *parent) :
+    TransmitHandler(ws, parent), blinker_(new QTimer(this))
 {
+    blinker_->setInterval(1000);
+    blinker_->setTimerType(Qt::PreciseTimer);
+    connect(blinker_, &QTimer::timeout, this, &ChanCheck::blink);
+
     updateLevelBuf();
     updatePapBuf();
 }
@@ -32,6 +37,8 @@ void ChanCheck::onBinaryMessage(const QByteArray &message)
         onChangeAddress(msg->val_as_address()->address());
     } else if (msg->val_type() == message::ChanCheckVal::level) {
         onChangeLevel(msg->val_as_level()->level());
+    } else if (msg->val_type() == message::ChanCheckVal::blink) {
+        onChangeBlink(msg->val_as_blink()->blink());
     }
 }
 
@@ -62,6 +69,26 @@ void ChanCheck::onChangeLevel(const uint8_t useLevel)
 {
     level_ = useLevel;
     updateLevelBuf();
+    sendLevelsAndPap();
+}
+
+void ChanCheck::onChangeBlink(const bool blink)
+{
+    if (blink) {
+        blinker_->start();
+    } else {
+        blinker_->stop();
+    }
+}
+
+void ChanCheck::blink()
+{
+    auto &currentLevel = levelBuf_[address_ - 1];
+    if (currentLevel > 0) {
+        currentLevel = 0;
+    } else {
+        currentLevel = level_;
+    }
     sendLevelsAndPap();
 }
 

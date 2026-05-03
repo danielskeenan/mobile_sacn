@@ -10,6 +10,7 @@
 #define MOBILESACN_LIBMOBILESACN_HANDLER_CHANCHECK_H
 
 #include "TransmitHandler.h"
+#include <QTimer>
 
 namespace mobilesacn::handler {
 
@@ -36,11 +37,16 @@ protected Q_SLOTS:
 private:
     uint16_t address_ = 1;
     uint8_t level_ = 0;
+    QTimer* blinker_;
 
     void onChangeAddress(uint16_t useAddress);
     void onChangeLevel(uint8_t useLevel);
+    void onChangeBlink(bool blink);
     void updateLevelBuf();
     void updatePapBuf();
+
+private Q_SLOTS:
+    void blink();
 };
 
 } // namespace mobilesacn::handler
