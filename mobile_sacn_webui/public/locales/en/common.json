@@ -31,9 +31,6 @@
   "receiveLevels": {
     "title": "View Levels"
   },
-  "transmitLevels": {
-    "title": "Send Levels"
-  },
   "settings": {
     "actions": {
       "cancel": "Cancel",
@@ -57,5 +54,8 @@
     "Priority": "Priority",
     "title": "Config",
     "universe": "Universe"
+  },
+  "transmitLevels": {
+    "title": "Send Levels"
   }
 }

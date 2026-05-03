@@ -133,6 +133,9 @@ const ReceiveLevelsPage: Component = () => {
     const [showPriorities, setShowPriorities] = createSignal(true);
     const [flickerFinder, setFlickerFinder] = createSignal(false);
     const [flickers, setFlickers] = createSignal<(number | null)[]>(emptyFlickerBuffer());
+    const [showFlickerDialog, setShowFlickerDialog] = createSignal(false);
+    const openFlickerDialog = () => setShowFlickerDialog(true);
+    const closeFlickerDialog = () => setShowFlickerDialog(false);
     const [showUnivDialog, setShowUnivDialog] = createSignal(false);
     const openUnivDialog = () => setShowUnivDialog(true);
     const closeUnivDialog = () => setShowUnivDialog(false);
@@ -347,6 +350,10 @@ const ReceiveLevelsPage: Component = () => {
                                     checked={flickerFinder()}
                                     onChange={() => setFlickerFinder(!flickerFinder())}
                                 />
+                                <Button size="sm" variant="secondary" onClick={openFlickerDialog}>
+                                    {t("receiveLevels:flickerFinderShowLegend", {defaultValue: "Show Legend"})}
+                                </Button>
+
                             </Stack>
 
                             <Tabs
@@ -388,6 +395,11 @@ const ReceiveLevelsPage: Component = () => {
                     <Portal>
                         <Modal show={showUnivDialog()} onHide={closeUnivDialog}>
                             <UnivDialog onChangeUniverse={setUniverse} onClose={closeUnivDialog}/>
+                        </Modal>
+                    </Portal>
+                    <Portal>
+                        <Modal show={showFlickerDialog()} onHide={closeFlickerDialog}>
+                            <FlickerDialog onClose={closeFlickerDialog}/>
                         </Modal>
                     </Portal>
                 </>
@@ -627,6 +639,79 @@ const ViewBars: Component<LevelsViewProps> = (props) => {
                 )}
             </Index>
         </Stack>
+    );
+};
+
+interface FlickerDialogProps {
+    onClose: () => void;
+}
+
+const FlickerDialog: Component<FlickerDialogProps> = (props) => {
+    const [appContext] = useAppContext();
+    const colors = createMemo(() => {
+        return {
+            noChange: appContext.activeColorScheme == ColorScheme.Dark ? DEFAULT_SOURCE.color.dark : DEFAULT_SOURCE.color.light,
+            higher: appContext.activeColorScheme == ColorScheme.Dark ? RAISE_COLOR.dark : RAISE_COLOR.light,
+            lower: appContext.activeColorScheme == ColorScheme.Dark ? LOWER_COLOR.dark : LOWER_COLOR.light,
+            same: appContext.activeColorScheme == ColorScheme.Dark ? SAME_COLOR.dark : SAME_COLOR.light,
+        };
+    });
+
+    return (
+        <>
+            <Modal.Header>
+                {t("receiveLevels:flickerDialog.title", {defaultValue: "Flicker Finder Legend"})}
+            </Modal.Header>
+            <Modal.Body>
+                <Table>
+                    <thead>
+                    <tr>
+                        <th>{t("receiveLevels:flickerDialog.heading.color", {defaultValue: "Color"})}</th>
+                        <th>{t("receiveLevels:flickerDialog.heading.description", {defaultValue: "Description"})}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th style={{"background-color": colors().noChange.display()}}>
+                            {t("receiveLevels:flickerDialog.body.noChange.color", {defaultValue: "Clear"})}
+                        </th>
+                        <td>
+                            {t("receiveLevels:flickerDialog.body.noChange.description", {defaultValue: "Level has not changed at all since Flicker Finder was activated."})}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style={{"background-color": colors().higher.display()}}>
+                            {t("receiveLevels:flickerDialog.body.higher.color", {defaultValue: "Blue"})}
+                        </th>
+                        <td>
+                            {t("receiveLevels:flickerDialog.body.higher.description", {defaultValue: "Level is higher than when Flicker Finder was activated."})}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style={{"background-color": colors().lower.display()}}>
+                            {t("receiveLevels:flickerDialog.body.lower.color", {defaultValue: "Green"})}
+                        </th>
+                        <td>
+                            {t("receiveLevels:flickerDialog.body.lower.description", {defaultValue: "Level is lower than when Flicker Finder was activated."})}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style={{"background-color": colors().same.display()}}>
+                            {t("receiveLevels:flickerDialog.body.same.color", {defaultValue: "Gray"})}
+                        </th>
+                        <td>
+                            {t("receiveLevels:flickerDialog.body.same.description", {defaultValue: "Level has changed since Flicker Finder was activated, but is now the same as its original value."})}
+                        </td>
+                    </tr>
+                    </tbody>
+                </Table>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={props.onClose}>
+                    {t("receiveLevels:flickerDialog.close", {defaultValue: "Close"})}
+                </Button>
+            </Modal.Footer>
+        </>
     );
 };
 

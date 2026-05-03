@@ -2,7 +2,34 @@
   "bars": {
     "title": "Bars"
   },
+  "flickerDialog": {
+    "body": {
+      "higher": {
+        "color": "Blue",
+        "description": "Level is higher than when Flicker Finder was activated."
+      },
+      "lower": {
+        "color": "Green",
+        "description": "Level is lower than when Flicker Finder was activated."
+      },
+      "noChange": {
+        "color": "Clear",
+        "description": "Level has not changed at all since Flicker Finder was activated."
+      },
+      "same": {
+        "color": "Gray",
+        "description": "Level has changed since Flicker Finder was activated, but is now the same as its original value."
+      }
+    },
+    "close": "Close",
+    "heading": {
+      "color": "Color",
+      "description": "Description"
+    },
+    "title": "Flicker Finder Legend"
+  },
   "flickerFinderCheck": "Flicker Finder",
+  "flickerFinderShowLegend": "Show Legend",
   "grid": {
     "title": "Grid"
   },
