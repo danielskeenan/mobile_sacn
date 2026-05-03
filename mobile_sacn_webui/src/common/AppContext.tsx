@@ -1,7 +1,7 @@
 import {LevelDisplayMode} from "@/common/levelDisplay";
 import {createEventListener} from "@solid-primitives/event-listener";
-import {createContext, createEffect, ParentComponent, useContext} from "solid-js";
-import {createStore, SetStoreFunction, Store} from "solid-js/store";
+import {createContext, createEffect, type ParentComponent, useContext} from "solid-js";
+import {createStore, type SetStoreFunction, type Store} from "solid-js/store";
 
 export enum ColorScheme {
     Light = "light",

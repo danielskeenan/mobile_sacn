@@ -1,7 +1,7 @@
 import "./ConnectButton.scss";
 import {t} from "i18next";
-import {Button, ButtonProps} from "solid-bootstrap";
-import {Component, Match, Switch} from "solid-js";
+import {Button, type ButtonProps} from "solid-bootstrap";
+import {type Component, Match, Switch} from "solid-js";
 
 interface ConnectButtonProps extends ButtonProps {
     started: boolean;

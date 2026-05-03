@@ -1,5 +1,5 @@
 import {t} from "i18next";
-import {Component} from "solid-js";
+import type {Component} from "solid-js";
 import {BsList} from "solid-icons/bs";
 
 const ReceiveLevelsTitle: Component = () => {

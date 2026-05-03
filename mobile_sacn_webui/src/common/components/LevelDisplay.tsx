@@ -1,7 +1,7 @@
 import "./LevelDisplay.scss";
 import {useAppContext} from "@/common/AppContext";
 import {LevelDisplayMode, levelDisplayString} from "@/common/levelDisplay";
-import {Component, mergeProps} from "solid-js";
+import {type Component, mergeProps} from "solid-js";
 
 interface LevelDisplayProps {
     level: number;

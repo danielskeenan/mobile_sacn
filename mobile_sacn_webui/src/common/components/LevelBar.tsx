@@ -3,7 +3,7 @@ import {LevelDisplay, PriorityDisplay} from "@/common/components/LevelDisplay";
 import {LEVEL_MAX, LEVEL_MIN} from "@/common/constants";
 import Color from "colorjs.io";
 import {Form, Stack} from "solid-bootstrap";
-import {Component, createMemo, Show} from "solid-js";
+import {type Component, createMemo, Show} from "solid-js";
 
 interface LevelControlProps {
     label?: string;

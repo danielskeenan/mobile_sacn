@@ -1,5 +1,5 @@
 import "./App.scss";
-import {ColorScheme, IAppContext, useAppContext} from "@/common/AppContext";
+import {ColorScheme, type IAppContext, useAppContext} from "@/common/AppContext";
 import {LevelDisplayMode} from "@/common/levelDisplay";
 import createTranslator from "@/common/translator";
 import LINKS from "@/links";

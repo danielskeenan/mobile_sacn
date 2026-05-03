@@ -49,7 +49,9 @@ set(WEBUI_SOURCES
         src/pages/transmit/TransmitLevelsTitle.tsx
         src/pages/transmit/cmdline.ts
         src/routes.ts
+        tsconfig.app.json
         tsconfig.json
+        tsconfig.node.json
         vite.config.ts
 )
 

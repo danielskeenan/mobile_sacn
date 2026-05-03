@@ -37,8 +37,8 @@ import {Builder as fbsBuilder} from "flatbuffers/js/builder";
 import {t} from "i18next";
 import {Button, Card, Form, ListGroup, Tab, Tabs} from "solid-bootstrap";
 import {BsKeyboard, BsSliders} from "solid-icons/bs";
-import {Component, createEffect, createMemo, createSignal, For, Index, Show} from "solid-js";
-import {createStore, SetStoreFunction} from "solid-js/store";
+import {type Component, createEffect, createMemo, createSignal, For, Index, Show} from "solid-js";
+import {createStore, type SetStoreFunction} from "solid-js/store";
 
 
 const TransmitLevelsPage: Component = () => {
@@ -78,7 +78,7 @@ const TransmitLevelsPage: Component = () => {
         TransmitLevels.addVal(builder, msgTransmit);
         const msgTransmitLevels = TransmitLevels.endTransmitLevels(builder);
         builder.finish(msgTransmitLevels);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -96,7 +96,7 @@ const TransmitLevelsPage: Component = () => {
         TransmitLevels.addVal(builder, msgPriority);
         const msgTransmitLevels = TransmitLevels.endTransmitLevels(builder);
         builder.finish(msgTransmitLevels);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -114,7 +114,7 @@ const TransmitLevelsPage: Component = () => {
         TransmitLevels.addVal(builder, msgPap);
         const msgTransmitLevels = TransmitLevels.endTransmitLevels(builder);
         builder.finish(msgTransmitLevels);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -132,7 +132,7 @@ const TransmitLevelsPage: Component = () => {
         TransmitLevels.addVal(builder, msgUniverse);
         const msgTransmitLevels = TransmitLevels.endTransmitLevels(builder);
         builder.finish(msgTransmitLevels);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -150,7 +150,7 @@ const TransmitLevelsPage: Component = () => {
         TransmitLevels.addVal(builder, msgLevels);
         const msgTransmitLevels = TransmitLevels.endTransmitLevels(builder);
         builder.finish(msgTransmitLevels);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {

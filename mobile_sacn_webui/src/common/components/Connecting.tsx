@@ -2,7 +2,7 @@ import {createTimeoutLoop} from "@solid-primitives/timer";
 import {t} from "i18next";
 import {Alert} from "solid-bootstrap";
 import {BsWifi, BsWifi1, BsWifi2} from "solid-icons/bs";
-import {Component, createSignal} from "solid-js";
+import {type Component, createSignal} from "solid-js";
 
 const ANIMATION = [
     <BsWifi1/>,

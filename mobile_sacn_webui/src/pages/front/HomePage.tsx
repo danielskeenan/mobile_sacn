@@ -5,7 +5,7 @@ import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A} from "@solidjs/router";
 import {t} from "i18next";
 import {ListGroup} from "solid-bootstrap";
-import {Component} from "solid-js";
+import type {Component} from "solid-js";
 
 const HomePage: Component = () => {
     document.title = t("homePage.pageTitle");

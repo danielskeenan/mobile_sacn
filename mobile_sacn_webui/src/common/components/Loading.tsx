@@ -1,5 +1,5 @@
 import {t} from "i18next";
-import {Component} from "solid-js";
+import type {Component} from "solid-js";
 import {Alert, Spinner} from "solid-bootstrap";
 
 const Loading: Component = () => {

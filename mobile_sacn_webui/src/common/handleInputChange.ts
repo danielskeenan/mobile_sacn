@@ -1,5 +1,4 @@
 import clamp from "@/common/clamp";
-import {JSX} from "solid-js";
 
 /**
  * Check and handle a number input change event.
@@ -12,10 +11,11 @@ import {JSX} from "solid-js";
  * @param currentValue The value before the event was fired.
  * @param setter Signal setter.
  */
-export function handleInputNumberChange(e: Parameters<JSX.ChangeEventHandler<HTMLInputElement, Event>>[0], min: number, max: number, currentValue: number, setter: (val: number) => void) {
-    const newVal = clamp(e.currentTarget.valueAsNumber, min, max);
+export function handleInputNumberChange(e: Event, min: number, max: number, currentValue: number, setter: (val: number) => void) {
+    const currentTarget = e.currentTarget as HTMLInputElement;
+    const newVal = clamp(currentTarget.valueAsNumber, min, max);
     if (newVal === undefined) {
-        e.currentTarget.valueAsNumber = currentValue;
+        currentTarget.valueAsNumber = currentValue;
     } else if (newVal != currentValue) {
         setter(newVal);
     }

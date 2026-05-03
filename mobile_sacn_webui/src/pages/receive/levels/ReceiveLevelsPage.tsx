@@ -1,6 +1,6 @@
 import {ColorScheme, useAppContext} from "@/common/AppContext";
 import bigIntAbs from "@/common/bigIntAbs";
-import colorForCID, {CidColor} from "@/common/cidColor";
+import colorForCID, {type CidColor} from "@/common/cidColor";
 import Connecting from "@/common/components/Connecting";
 import {LevelBar} from "@/common/components/LevelBar";
 import {LevelDisplay, PriorityDisplay} from "@/common/components/LevelDisplay";
@@ -42,7 +42,7 @@ import {
     Tooltip,
 } from "solid-bootstrap";
 import {BsList, BsTable} from "solid-icons/bs";
-import {Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
+import {type Component, createEffect, createMemo, createSignal, createUniqueId, For, Index, Show} from "solid-js";
 import "./ReceiveLevelsPage.scss";
 import {Portal} from "solid-js/web";
 
@@ -267,7 +267,7 @@ const ReceiveLevelsPage: Component = () => {
         ReceiveLevelsReq.addVal(builder, msgUniverse);
         const msgReceiveLevelsReq = ReceiveLevelsReq.endReceiveLevelsReq(builder);
         builder.finish(msgReceiveLevelsReq);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -291,7 +291,7 @@ const ReceiveLevelsPage: Component = () => {
         ReceiveLevelsReq.addVal(builder, msgFlickerFinder);
         const msgReceiveLevelsReq = ReceiveLevelsReq.endReceiveLevelsReq(builder);
         builder.finish(msgReceiveLevelsReq);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {

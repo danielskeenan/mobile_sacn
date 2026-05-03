@@ -2,7 +2,7 @@ import clamp from "@/common/clamp";
 import {DMX_MAX, DMX_MIN, LEVEL_MAX, LEVEL_MIN} from "@/common/constants";
 import {LEVEL_PERCENT_TABLE, LevelDisplayMode, PERCENT_LEVEL_TABLE} from "@/common/levelDisplay";
 import {t} from "i18next";
-import {SetStoreFunction} from "solid-js/store";
+import type {SetStoreFunction} from "solid-js/store";
 
 export enum CmdLineTokenType {
     NUMBER,

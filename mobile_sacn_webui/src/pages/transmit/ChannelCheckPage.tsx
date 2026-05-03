@@ -22,7 +22,7 @@ import {Builder as fbsBuilder} from "flatbuffers/js/builder";
 import {t} from "i18next";
 import {Button, Form, Stack} from "solid-bootstrap";
 import {BsCaretLeftFill, BsCaretRightFill} from "solid-icons/bs";
-import {Component, createEffect, createSignal, JSX, Show} from "solid-js";
+import {type Component, createEffect, createSignal, Show} from "solid-js";
 
 const ChannelCheckPage: Component = () => {
     document.title = t("channelCheck:pageTitle");
@@ -69,7 +69,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgTransmit);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -87,7 +87,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgPriority);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -105,7 +105,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgPap);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -123,7 +123,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgUniverse);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -141,7 +141,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgAddress);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -159,7 +159,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgLevel);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -177,7 +177,7 @@ const ChannelCheckPage: Component = () => {
         ChanCheck.addVal(builder, msgBlink);
         const msgChanCheck = ChanCheck.endChanCheck(builder);
         builder.finish(msgChanCheck);
-        const data = builder.asUint8Array();
+        const data = builder.asUint8Array() as Uint8Array<ArrayBuffer>;
         ws.send(data);
     };
     createEffect(() => {
@@ -263,8 +263,9 @@ interface BigDisplayProps {
 }
 
 const BigDisplay: Component<BigDisplayProps> = (props) => {
-    const onChange: JSX.ChangeEventHandler<HTMLInputElement, Event> = (e) => {
-        let newValue = clamp(e.currentTarget.valueAsNumber, DMX_MIN, DMX_MAX);
+    const onChange = (e: Event) => {
+        const currentTarget = e.currentTarget as HTMLInputElement;
+        let newValue = clamp(currentTarget.valueAsNumber, DMX_MIN, DMX_MAX);
         if (newValue === undefined) {
             newValue = 0;
         }

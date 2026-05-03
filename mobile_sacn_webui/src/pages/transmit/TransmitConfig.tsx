@@ -2,7 +2,7 @@ import {SACN_PRI_MAX, SACN_PRI_MIN, SACN_UNIV_MAX, SACN_UNIV_MIN} from "@/common
 import {handleInputNumberChange} from "@/common/handleInputChange";
 import {t} from "i18next";
 import {Accordion, Form} from "solid-bootstrap";
-import {Component, JSX, ParentProps} from "solid-js";
+import {type Component, type ParentProps} from "solid-js";
 import "./TransmitConfig.scss";
 
 interface TransmitConfigProps extends ParentProps {
@@ -14,11 +14,11 @@ interface TransmitConfigProps extends ParentProps {
 }
 
 const TransmitConfig: Component<TransmitConfigProps> = (props) => {
-    const onUniverseChange: JSX.ChangeEventHandler<HTMLInputElement, Event> = (e) => {
+    const onUniverseChange = (e: Event) => {
         handleInputNumberChange(e, SACN_UNIV_MIN, SACN_UNIV_MAX, props.universe, props.onChangeUniverse);
     };
 
-    const onPriorityChange: JSX.ChangeEventHandler<HTMLInputElement, Event> = (e) => {
+    const onPriorityChange = (e: Event) => {
         handleInputNumberChange(e, SACN_PRI_MIN, SACN_PRI_MAX, props.priority, props.onChangePriority);
     };
 
