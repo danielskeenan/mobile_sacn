@@ -9,6 +9,7 @@
 #ifndef MOBILESACN_LIBMOBILESACN_HANDLER_MERGERECEIVER_H
 #define MOBILESACN_LIBMOBILESACN_HANDLER_MERGERECEIVER_H
 
+#include <mutex>
 #include <sacn/cpp/merge_receiver.h>
 #include <sacn/merge_receiver.h>
 #include <QObject>

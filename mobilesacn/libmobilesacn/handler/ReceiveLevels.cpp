@@ -12,6 +12,7 @@
 #include "mobilesacn_messages/ReceiveLevelsReq.h"
 #include "mobilesacn_messages/ReceiveLevelsResp.h"
 #include <mutex>
+#include <ranges>
 #include <spdlog/spdlog.h>
 
 namespace mobilesacn::handler {

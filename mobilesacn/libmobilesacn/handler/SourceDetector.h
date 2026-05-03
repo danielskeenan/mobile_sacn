@@ -9,6 +9,7 @@
 #ifndef MOBILESACN_LIBMOBILESACN_HANDLER_SOURCEDETECTOR_H
 #define MOBILESACN_LIBMOBILESACN_HANDLER_SOURCEDETECTOR_H
 
+#include <mutex>
 #include <sacn/cpp/common.h>
 #include <sacn/cpp/source_detector.h>
 #include <QObject>

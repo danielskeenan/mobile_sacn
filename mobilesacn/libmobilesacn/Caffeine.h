@@ -25,7 +25,7 @@ public:
 
 private:
     bool active_ = false;
-#ifdef PLATFORM_LINUX
+#ifdef OS_LINUX
     int inhibitHandle_ = -1;
 #endif
 };

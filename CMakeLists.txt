@@ -51,15 +51,12 @@ if (BUILD_EXEC)
     include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
     # This is more portable across compilers compared to other methods
-    message(STATUS "Detected system as ${CMAKE_SYSTEM_NAME}")
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        add_compile_definitions(PLATFORM_LINUX)
-    elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        add_compile_definitions(PLATFORM_WINDOWS)
+    string(TOUPPER "${CMAKE_SYSTEM_NAME}" OS_DEF)
+    add_compile_definitions("OS_${OS_DEF}")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         add_compile_definitions(NOMINMAX)
-        add_compile_definitions(_WIN32_WINNT=0x0601)
-    elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        add_compile_definitions(PLATFORM_MACOS)
+        # Target Windows 10 (https://learn.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt)
+        add_compile_definitions("WINVER=0x0A00" "_WIN32_WINNT=0x0A00")
     endif ()
 
     # Decide which Qt version to use.

@@ -7,9 +7,9 @@
  */
 
 #include "MergeReceiver.h"
-
 #include "mobilesacn/libmobilesacn/SacnSettings.h"
 #include <memory>
+#include <ranges>
 #include <spdlog/spdlog.h>
 #include <QSharedPointer>
 
