@@ -23,7 +23,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
-#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTextBrowser>
 #include <QUrlQuery>
@@ -35,7 +34,7 @@
 #endif
 
 // UNCOMMENT TO FORCE AN UPDATE
-#define UPDATER_CHECK_VERSION "0.0.0"
+// #define UPDATER_CHECK_VERSION "0.0.0"
 
 #ifndef UPDATER_CHECK_VERSION
 #define UPDATER_CHECK_VERSION mobilesacn::config::kProjectVersion
@@ -307,8 +306,6 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
 void UpdateDialog::installUpdate()
 {
     auto tempDir = new QTemporaryDir;
-    // Can't autoremove as the installer needs to exist after this program closes.
-    tempDir->setAutoRemove(false);
     if (!tempDir->isValid()) {
         SPDLOG_ERROR("Could not create download location.");
         delete tempDir;
@@ -322,11 +319,18 @@ void UpdateDialog::installUpdate()
         return;
     }
 
+    // Can't autoremove as the installer needs to exist after this program closes.
+    tempDir->setAutoRemove(false);
+
     auto *progress = new QProgressDialog(this);
     progress->setLabelText(tr("Downloading update..."));
 
     auto resp = nam_->get(QNetworkRequest(release_.downloadUrl));
-    connect(progress, &QProgressDialog::canceled, [this, resp, progress]() { resp->abort(); });
+    connect(progress, &QProgressDialog::canceled, [this, resp, tempDir]() {
+        resp->abort();
+        tempDir->remove();
+        delete tempDir;
+    });
     connect(
         resp, &QNetworkReply::downloadProgress, [progress](qint64 bytesReceived, qint64 bytesTotal) {
             progress->setMaximum(bytesTotal);
