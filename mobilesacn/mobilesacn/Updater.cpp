@@ -34,6 +34,9 @@
 #include <msi.h>
 #endif
 
+// UNCOMMENT TO FORCE AN UPDATE
+#define UPDATER_CHECK_VERSION "0.0.0"
+
 #ifndef UPDATER_CHECK_VERSION
 #define UPDATER_CHECK_VERSION mobilesacn::config::kProjectVersion
 #endif
@@ -103,7 +106,7 @@ QString preferredPackage(const QStringList &filenames)
     filenameRegexes.emplace_back(QStringLiteral("-Linux\\.tar\\.gz$"));
 #endif
 #ifdef OS_WINDOWS
-    // Get MSI product code (changes each release) from upgrade code (always the same).
+    // Get MSI product code (which changes each release) from upgrade code (always the same).
     // If we can find the product code, the program was installed with an MSI.
     std::wstring productCode(MAX_GUID_CHARS, L'\0');
     // https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msienumrelatedproductsw
@@ -255,7 +258,10 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
 
     // Title
     auto layout = new QVBoxLayout(this);
-    auto title = new QLabel(tr("A software update is available:"), this);
+    auto title = new QLabel(
+        tr("<big><strong>A new version of %1 is available!</strong></big>")
+            .arg(qApp->applicationDisplayName()),
+        this);
     layout->addWidget(title);
 
     // Version info
@@ -270,6 +276,10 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
     versionLayout->addWidget(releaseDate);
     versionLayout->addStretch();
     layout->addLayout(versionLayout);
+
+    // Release notes label
+    auto releaseNotesLabel = new QLabel(tr("Release Notes:"), this);
+    layout->addWidget(releaseNotesLabel);
 
     // Release notes
     auto releaseNotes = new QTextBrowser(this);
