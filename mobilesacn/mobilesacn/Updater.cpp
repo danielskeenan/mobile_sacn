@@ -29,9 +29,10 @@
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QVersionNumber>
-#include <QtConcurrentRun>
-
-#define UPDATER_CHECK_VERSION "0.0.0"
+#ifdef OS_WINDOWS
+#include <Windows.h>
+#include <msi.h>
+#endif
 
 #ifndef UPDATER_CHECK_VERSION
 #define UPDATER_CHECK_VERSION mobilesacn::config::kProjectVersion
@@ -100,6 +101,19 @@ QString preferredPackage(const QStringList &filenames)
     }
 
     filenameRegexes.emplace_back(QStringLiteral("-Linux\\.tar\\.gz$"));
+#endif
+#ifdef OS_WINDOWS
+    // Get MSI product code (changes each release) from upgrade code (always the same).
+    // If we can find the product code, the program was installed with an MSI.
+    std::wstring productCode(MAX_GUID_CHARS, L'\0');
+    // https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msienumrelatedproductsw
+    auto ret = MsiEnumRelatedProducts(config::kProjectMsiUpgradeCode, 0, 0, productCode.data());
+    if (ret == ERROR_SUCCESS) {
+        // Software was installed with an MSI.
+        filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
+    }
+
+    filenameRegexes.emplace_back(QStringLiteral("-Windows\\.zip$"));
 #endif
 
     // Find first matching filename.

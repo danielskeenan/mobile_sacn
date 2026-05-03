@@ -9,6 +9,7 @@ set(PROJECT_AUTHOR "Dan Keenan")
 set(PROJECT_ORGANIZATION_NAME "dankeenan")
 set(PROJECT_ORGANIZATION_DOMAIN "dankeenan.org")
 string(TIMESTAMP PROJECT_BUILD_TIMESTAMP "%s" UTC)
+set(PROJECT_MSI_UPGRADE_CODE "A41ADB0F-BFDC-56C2-971C-517ACC3EB249")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
@@ -62,7 +63,6 @@ if (BUILD_EXEC)
     # Decide which Qt version to use.
     set(QT_COMPONENTS
             Core
-            Concurrent
             Network
             Svg
             SvgWidgets

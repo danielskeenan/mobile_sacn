@@ -15,7 +15,6 @@ include(${PROJECT_SOURCE_DIR}/cmake/qsettingscontainer.cmake)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         libmobilesacn
         unofficial::nayuki-qr-code-generator::nayuki-qr-code-generator
-        Qt::Concurrent
         Qt::Network
         Qt::Svg
         Qt::SvgWidgets
@@ -29,6 +28,8 @@ endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
     target_sources(${PROJECT_NAME} PRIVATE mobilesacn.rc)
+    # Needed for updater.
+    target_link_libraries(${PROJECT_NAME} PRIVATE msi.dll)
 endif ()
 
 
