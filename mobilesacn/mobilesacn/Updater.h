@@ -13,6 +13,7 @@
 #include <QDialog>
 #include <QFuture>
 #include <QNetworkAccessManager>
+#include <QProgressDialog>
 #include <QUrl>
 
 namespace mobilesacn {
@@ -35,6 +36,7 @@ public:
         QUrl url;
         /** HTML release notes */
         QString releaseNotes;
+        QString downloadFilename;
         QUrl downloadUrl;
     };
 
@@ -57,6 +59,13 @@ class UpdateDialog : public QDialog
     Q_OBJECT
 public:
     explicit UpdateDialog(const Updater::Release &release, QWidget *parent = nullptr);
+
+private:
+    Updater::Release release_;
+    QNetworkAccessManager *nam_;
+
+private Q_SLOTS:
+    void installUpdate();
 };
 
 } // namespace mobilesacn

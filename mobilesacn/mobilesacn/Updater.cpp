@@ -10,24 +10,26 @@
 #include "mobilesacn_config.h"
 #include <spdlog/spdlog.h>
 #include <QApplication>
+#include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QLabel>
+#include <QMessageBox>
 #include <QMimeType>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 #include <QTextBrowser>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QVersionNumber>
 #include <QtConcurrentRun>
-
-#include <qdialogbuttonbox.h>
 
 #define UPDATER_CHECK_VERSION "0.0.0"
 
@@ -198,6 +200,7 @@ void Updater::checkForUpdate()
         }
         const auto filename = preferredPackage(assetUrls.keys());
         if (!filename.isEmpty()) {
+            release.downloadFilename = filename;
             release.downloadUrl = assetUrls[filename];
         }
 
@@ -230,7 +233,8 @@ void Updater::checkForUpdate()
     });
 }
 
-UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) : QDialog(parent)
+UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
+    QDialog(parent), release_(release), nam_(new QNetworkAccessManager(this))
 {
     setWindowTitle(tr("Software Update"));
     resize(640, 480);
@@ -247,6 +251,9 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) : Q
     versionLayout->addWidget(currentVersion);
     auto newVersion = new QLabel(tr("New Version: %1").arg(release.version), this);
     versionLayout->addWidget(newVersion);
+    auto releaseDate = new QLabel(
+        tr("Released: %1").arg(QLocale().toString(release.publishedAt, QLocale::ShortFormat)), this);
+    versionLayout->addWidget(releaseDate);
     versionLayout->addStretch();
     layout->addLayout(versionLayout);
 
@@ -256,11 +263,88 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) : Q
     releaseNotes->setHtml(release.releaseNotes);
     layout->addWidget(releaseNotes);
 
+    // More details
+    auto moreDetails = new QLabel(
+        tr("<a href=\"%1\">More Details...</a>").arg(release.url.toString()));
+    moreDetails->setOpenExternalLinks(true);
+    layout->addWidget(moreDetails);
+
     // Actions
     auto buttonBox = new QDialogButtonBox(this);
+    if (!release.downloadUrl.isEmpty()) {
+        buttonBox->addButton(tr("Install"), QDialogButtonBox::AcceptRole);
+    }
     buttonBox->addButton(QDialogButtonBox::Close);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &UpdateDialog::installUpdate);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &UpdateDialog::close);
     layout->addWidget(buttonBox);
+}
+
+void UpdateDialog::installUpdate()
+{
+    auto tempDir = new QTemporaryDir;
+    // Can't autoremove as the installer needs to exist after this program closes.
+    tempDir->setAutoRemove(false);
+    if (!tempDir->isValid()) {
+        SPDLOG_ERROR("Could not create download location.");
+        delete tempDir;
+        return;
+    }
+
+    auto download = new QFile(tempDir->filePath(release_.downloadFilename), this);
+    if (!download->open(QFile::WriteOnly)) {
+        SPDLOG_ERROR("Error opening file for writing.");
+        delete tempDir;
+        return;
+    }
+
+    auto *progress = new QProgressDialog(this);
+    progress->setLabelText(tr("Downloading update..."));
+
+    auto resp = nam_->get(QNetworkRequest(release_.downloadUrl));
+    connect(progress, &QProgressDialog::canceled, [this, resp, progress]() { resp->abort(); });
+    connect(
+        resp, &QNetworkReply::downloadProgress, [progress](qint64 bytesReceived, qint64 bytesTotal) {
+            progress->setMaximum(bytesTotal);
+            progress->setValue(bytesReceived);
+        });
+    connect(resp, &QNetworkReply::readyRead, [download, resp]() {
+        QByteArray buf(1024, 0);
+        qint64 readCount;
+        while ((readCount = resp->read(buf.data(), buf.size())) > 0) {
+            download->write(buf.data(), readCount);
+        }
+    });
+    connect(resp, &QNetworkReply::finished, [this, download, resp, tempDir]() {
+        resp->deleteLater();
+        download->close();
+        download->deleteLater();
+
+        if (resp->error()) {
+            tempDir->remove();
+            delete tempDir;
+            if (resp->error() == QNetworkReply::OperationCanceledError) {
+                // User cancelled.
+                SPDLOG_INFO("Cancelled update.");
+                return;
+            }
+
+            SPDLOG_ERROR("Error downloading update: {}", resp->errorString().toStdString());
+            QMessageBox::critical(this, tr("Error downloading file"), resp->errorString());
+            return;
+        }
+
+        QUrl url;
+        url.setScheme("file");
+        url.setPath(download->fileName());
+        if (QDesktopServices::openUrl(url)) {
+            qApp->quit();
+        } else {
+            QMessageBox::critical(
+                this, tr("Error opening file"), tr("The downloaded file could not be opened."));
+        }
+        delete tempDir;
+    });
 }
 
 } // namespace mobilesacn
