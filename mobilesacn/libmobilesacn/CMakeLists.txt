@@ -56,7 +56,6 @@ FetchContent_Declare(sACN
 )
 FetchContent_MakeAvailable(sACN)
 
-find_package(ZLIB REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
@@ -67,7 +66,6 @@ target_link_libraries(libmobilesacn PRIVATE
         Qt::WebSockets
         # So we can get QApplication helpers not available in QCoreApplication.
         Qt::Widgets
-        ZLIB::ZLIB
         mobile_sacn_messages_cpp
         webui_qrc
         sACN

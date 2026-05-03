@@ -41,15 +41,6 @@ install(TARGETS ${PROJECT_NAME}
 install(FILES "$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>"
         TYPE BIN
 )
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # This is a very ugly kludge because TARGET_RUNTIME_DLLS does not pick up ZLib.
-    find_package(ZLIB REQUIRED)
-    get_target_property(ZLIB_INC_DIR ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
-    install(
-            FILES "${ZLIB_INC_DIR}/../$<$<CONFIG:Debug>:debug/>bin/zlib$<$<CONFIG:Debug>:d>1.dll"
-            TYPE BIN
-    )
-endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     find_package(Qt6 COMPONENTS DBus REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::DBus)
@@ -69,4 +60,10 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
             NO_UNSUPPORTED_PLATFORM_ERROR
     )
     install(SCRIPT ${DEPLOY_SCRIPT})
+    add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:${PROJECT_NAME}>" -DQT_DEPLOY_BIN_DIR=.
+            -DQT_DEPLOY_LIB_DIR=. -P "${DEPLOY_SCRIPT}"
+            VERBATIM
+    )
 endif ()
