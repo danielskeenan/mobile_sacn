@@ -9,11 +9,13 @@
 #include "MainWindow.h"
 #include "NetIntModel.h"
 #include "Settings.h"
+#include "Updater.h"
 #include "mobilesacn/libmobilesacn/Caffeine.h"
 #include "mobilesacn_config.h"
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFormLayout>
+#include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
 #include <QStandardPaths>
@@ -21,7 +23,8 @@
 
 namespace mobilesacn {
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), app_(new Application(this))
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent), app_(new Application(this)), updater_(new Updater(this))
 {
     initUi();
     currentWebUiIfaceChanged(widgets_.webuiIfaceSelect->currentIndex());
@@ -31,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), app_(new Applicat
     auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex>>(widgets_.logViewer);
     widget_log_sink->set_level(spdlog::level::info);
     spdlog::default_logger()->sinks().push_back(widget_log_sink);
+
+    // Check for updates.
+    updater_->checkForUpdate();
 }
 
 void MainWindow::initUi()
@@ -137,7 +143,7 @@ void MainWindow::initUi()
 
 void MainWindow::startApp()
 {
-    app_->run(appOptions);
+    app_->run(appOptions_);
     disconnect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::startApp);
     connect(widgets_.startButton, &QPushButton::clicked, this, &MainWindow::stopApp);
     appStarted();
@@ -187,13 +193,13 @@ void MainWindow::appStopped()
 void MainWindow::currentWebUiIfaceChanged(int row)
 {
     const auto &iface = widgets_.webuiIfaceSelectModel->GetNetIntInfo(row);
-    appOptions.backend_address = iface.addr().ToString();
+    appOptions_.backend_address = iface.addr().ToString();
 }
 
 void MainWindow::currentSacnIfaceChanged(int row)
 {
     const auto &iface = widgets_.sacnIfaceSelectModel->GetNetIntInfo(row);
-    appOptions.sacn_address = iface.addr().ToString();
+    appOptions_.sacn_address = iface.addr().ToString();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

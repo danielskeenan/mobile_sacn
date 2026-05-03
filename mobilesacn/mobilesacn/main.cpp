@@ -13,7 +13,6 @@
 #endif
 #include "mobilesacn_config.h"
 #include "MainWindow.h"
-#include "updater/updater.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include "log_files.h"
@@ -125,14 +124,10 @@ int main(int argc, char* argv[])
     MainWindow main_window;
     main_window.show();
 
-    init_updater();
-
     const auto ret = QApplication::exec();
 
     // Deinit etcpal.
     etcpal_deinit(kEtcPalFeatures);
-
-    cleanup_updater();
 
 #ifdef SENTRY_DSN
   sentry_close();

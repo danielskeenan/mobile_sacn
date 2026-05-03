@@ -62,6 +62,8 @@ if (BUILD_EXEC)
     # Decide which Qt version to use.
     set(QT_COMPONENTS
             Core
+            Concurrent
+            Network
             Svg
             SvgWidgets
             WebSockets

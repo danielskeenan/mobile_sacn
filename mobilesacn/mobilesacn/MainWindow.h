@@ -17,6 +17,8 @@
 #include <QMainWindow>
 #include <QPushButton>
 
+#include "Updater.h"
+
 namespace mobilesacn {
 class NetIntListModel;
 
@@ -44,7 +46,8 @@ private:
     };
     Widgets widgets_;
     Application *app_ = nullptr;
-    Application::Options appOptions;
+    Application::Options appOptions_;
+    Updater *updater_ = nullptr;
 
     void initUi();
 

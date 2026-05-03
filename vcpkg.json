@@ -12,10 +12,6 @@
     "name" : "nayuki-qr-code-generator",
     "version>=" : "1.8.0"
   }, {
-    "name" : "winsparkle",
-    "version>=" : "0.8.1",
-    "platform" : "windows"
-  }, {
     "name" : "fmt",
     "version>=" : "12.1.0"
   }, {
