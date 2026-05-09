@@ -48,14 +48,7 @@ else ()
     )
 endif ()
 
-include(FetchContent)
-FetchContent_Declare(sACN
-        GIT_REPOSITORY "https://github.com/ETCLabs/sACN.git"
-        GIT_TAG "v3.1.0.2"
-        EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(sACN)
-
+find_package(sACN REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
