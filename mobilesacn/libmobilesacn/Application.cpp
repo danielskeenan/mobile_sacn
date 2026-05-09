@@ -51,7 +51,7 @@ Application::~Application()
     etcPalLogger_.Shutdown();
 }
 
-void Application::run(const Options &options)
+void Application::start(const Options &options)
 {
     // Tell the CID generator about the sACN interface's MAC Address.
     auto sacnNetInterface = etcpal::netint::GetInterfaceWithIp(
@@ -88,6 +88,8 @@ void Application::run(const Options &options)
 
     // Setup sACN Source Detector
     handler::SourceDetector::get()->startup();
+
+    Q_EMIT(started());
 }
 
 void Application::stop()
@@ -98,6 +100,7 @@ void Application::stop()
         httpServer_->deleteLater();
         httpServer_ = nullptr;
     }
+    Q_EMIT(stopped());
 }
 
 std::string Application::getWebUrl() const

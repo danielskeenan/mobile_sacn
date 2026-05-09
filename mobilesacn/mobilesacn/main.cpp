@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     // Clear all settings if program is launched while holding [Shift].
     if (app.queryKeyboardModifiers() == Qt::ShiftModifier) {
         if (ReallyClearSettings(app)) {
-            Settings::Clear();
+            Settings::clear();
         }
     }
 

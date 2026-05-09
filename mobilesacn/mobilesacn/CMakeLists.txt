@@ -1,10 +1,11 @@
-add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
+qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         ${PROJECT_SOURCE_DIR}/resources/resources.qrc
         main.cpp
         ClientTableModel.cpp
         ClientTableModel.h
         MainWindow.cpp
         MainWindow.h
+        MainWindow.ui
         NetIntModel.cpp
         NetIntModel.h
         QrCode.cpp

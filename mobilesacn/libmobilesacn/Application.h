@@ -37,11 +37,14 @@ public:
     explicit Application(QObject *parent = nullptr);
     ~Application() override;
 
-    void run(const Options &options);
+    void start(const Options &options);
     void stop();
+    bool isRunning() const { return httpServer_ != nullptr; }
     [[nodiscard]] std::string getWebUrl() const;
 
 Q_SIGNALS:
+    void started();
+    void stopped();
     void handlerStarted(const QString &displayName, const QHostAddress &clientAddress);
     void handlerStopped(const QString &displayName, const QHostAddress &clientAddress);
 

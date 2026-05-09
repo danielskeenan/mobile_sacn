@@ -13,11 +13,12 @@
 #include "QrCode.h"
 #include "Updater.h"
 #include "mobilesacn/libmobilesacn/Application.h"
-#include <QCheckBox>
 #include <QComboBox>
 #include <QMainWindow>
-#include <QPushButton>
-#include <QTableView>
+
+namespace Ui {
+class MainWindow;
+}
 
 namespace mobilesacn {
 class NetIntListModel;
@@ -33,37 +34,29 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
-    struct Widgets
-    {
-        QComboBox *webuiIfaceSelect = nullptr;
-        NetIntListModel *webuiIfaceSelectModel = nullptr;
-        QComboBox *sacnIfaceSelect = nullptr;
-        NetIntListModel *sacnIfaceSelectModel = nullptr;
-        QPushButton *startButton = nullptr;
-        QrCode *qrCode = nullptr;
-        QCheckBox *suppressSleep = nullptr;
-        QTableView *clientTable = nullptr;
-    };
-    Widgets widgets_;
+    Ui::MainWindow *ui_;
     Application *app_ = nullptr;
     Application::Options appOptions_;
     Updater *updater_ = nullptr;
+    NetIntListModel *netIntModel_;
     ClientTableModel *clientModel_;
 
-    void initUi();
+    void setNetIntComboBox(
+        QComboBox *cmb,
+        const std::function<QString()> &netIntNameGetter,
+        const std::function<void(const QString &)> &netIntNameSetter);
 
 protected Q_SLOTS:
     void closeEvent(QCloseEvent *event) override;
 
 private Q_SLOTS:
-    void startApp();
-    void stopApp();
-    void help();
+    void on_btnStart_clicked();
+    void on_btnHelp_clicked();
     void suppressSleepChanged(bool suppress);
     void appStarted();
     void appStopped();
-    void currentWebUiIfaceChanged(int row);
-    void currentSacnIfaceChanged(int row);
+    void on_cmbWebUiIface_currentIndexChanged(int row);
+    void on_cmbSacnIface_currentIndexChanged(int row);
     void updateAvailable(const Updater::Release &release);
 };
 } // namespace mobilesacn

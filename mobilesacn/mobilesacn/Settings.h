@@ -89,10 +89,10 @@ class Settings
     Q_DISABLE_COPY_MOVE(Settings)
 public:
     /** Clear all settings */
-    static void Clear() { QSettings().clear(); }
+    static void clear() { QSettings().clear(); }
 
     /** Sync settings to/from storage */
-    static void Sync() { QSettings().sync(); }
+    static void sync() { QSettings().sync(); }
 
     MSACN_SETTING(QByteArray, MainWindowGeometry, {})
 
