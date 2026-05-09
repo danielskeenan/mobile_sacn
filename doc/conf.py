@@ -34,9 +34,9 @@ extensions = [
 
 # Myst configuration
 myst_enable_extensions = [
-    "gfm_autolink",
+    "attrs_inline",
     "deflist",
-    "alert",
+    "substitution",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -71,8 +71,9 @@ del defs
 #
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
+html_css_files = ['msacn-doc.css', 'bootstrap-icons.min.css']
 html_title = f'{build_info["display_name"]} v{release}'
-html_logo = 'logo.svg'
+html_logo = '../resources/logo.svg'
 html_favicon = '../resources/logo.ico'
 html_copy_source = False
 html_domain_indices = False

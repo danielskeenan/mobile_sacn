@@ -6,4 +6,13 @@
     - If your network has WiFi, select the same interface for both options.
 2. Click "Start" and use your mobile device's camera to scan the QR code and open the web UI.
 
-![Screenshot of host application](img/screenshots/base_started.png)
+```{image} img/screenshots/base_started_light.png
+:alt: Screenshot of host application
+:class: only-light
+:align: center
+```
+```{image} img/screenshots/base_started_dark.png
+:alt: Screenshot of host application
+:class: only-dark
+:align: center
+```

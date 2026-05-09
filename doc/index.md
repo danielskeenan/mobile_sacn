@@ -7,7 +7,6 @@
    
 getting-started
 usage/*
-wifi_hotspot
 3rd_party
 ```
 

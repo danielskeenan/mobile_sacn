@@ -1,8 +1,12 @@
 set(DOC_SOURCES
+        _static/bootstrap-icons.min.css
+        _static/fonts/bootstrap-icons.woff
+        _static/fonts/bootstrap-icons.woff2
+        _static/msacn-doc.css
+        conf.py
         getting-started.md
-        img/screenshots/base_started.png
-        img/screenshots/hotspot_right.svg
-        img/screenshots/hotspot_wrong.svg
+        img/screenshots/base_started_dark.png
+        img/screenshots/base_started_light.png
         index.md
         requirements.txt
         usage/chancheck/index.rst
@@ -16,14 +20,13 @@ set(DOC_SOURCES
         usage/control/screenshots/config.png
         usage/control/screenshots/control_faders.png
         usage/control/screenshots/control_keypad.png
-        usage/index.rst
-        usage/nav_screenshot.png
+        usage/index.md
+        usage/nav_screenshot_dark.png
+        usage/nav_screenshot_light.png
         usage/view_levels/index.rst
         usage/view_levels/screenshots/univ_discovery.png
         usage/view_levels/screenshots/viewlevels_grid.png
         usage/view_levels/screenshots/viewlevels_list.png
-        wifi_hotspot.rst
-        conf.py
 )
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
@@ -50,6 +53,7 @@ execute_process(
         COMMAND "${Python3_EXECUTABLE}" -m pip install -U -r "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
         COMMAND_ERROR_IS_FATAL ANY
 )
+set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS requirements.txt)
 
 # Create build info to send to Sphinx
 set(SPHINX_BUILD_INFO "{ }")

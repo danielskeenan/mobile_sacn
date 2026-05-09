@@ -1,0 +1,29 @@
+.navbar-brand .logo__image {
+    max-width: 100px;
+}
+
+/* Buttons */
+article .btn {
+    vertical-align: baseline;
+}
+
+article .btn img {
+    height: 1em;
+}
+
+/* .btn-none exists to support the logo used as a button. */
+article .btn-none {
+    padding: inherit;
+}
+
+article .btn-none img {
+    height: calc(1em + var(--bs-btn-padding-y) * 2);
+}
+
+/* Screenshots */
+img.screenshot {
+    border: var(--bs-border-width) solid var(--pst-color-border);
+    border-radius: var(--bs-border-radius);
+    padding: .25rem;
+    max-width: 100%;
+}

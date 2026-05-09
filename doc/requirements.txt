@@ -1,5 +1,4 @@
-Sphinx ~= 8.0
-libsass ~= 0.23
-myst-parser ~= 4.0
+Sphinx ~= 9.1
+myst-parser ~= 5.0
 natsort ~= 8.4
 sphinx-book-theme ~= 1.1
