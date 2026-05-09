@@ -40,7 +40,7 @@ public:
     void start(const Options &options);
     void stop();
     bool isRunning() const { return httpServer_ != nullptr; }
-    [[nodiscard]] std::string getWebUrl() const;
+    [[nodiscard]] QString getWebUrl() const;
 
 Q_SIGNALS:
     void started();

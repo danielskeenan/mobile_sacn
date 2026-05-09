@@ -103,12 +103,12 @@ void Application::stop()
     Q_EMIT(stopped());
 }
 
-std::string Application::getWebUrl() const
+QString Application::getWebUrl() const
 {
     if (httpServer_) {
-        return httpServer_->getUrl();
+        return QString::fromStdString(httpServer_->getUrl());
     }
-    return "";
+    return {};
 }
 
 } // namespace mobilesacn
