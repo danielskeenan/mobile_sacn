@@ -30,7 +30,7 @@ BaseHandler::BaseHandler(QWebSocket *ws, QObject *parent) : QObject(parent), ws_
 
 void BaseHandler::sendBinaryMessage(const QByteArrayView data) const
 {
-    SPDLOG_DEBUG(
+    SPDLOG_TRACE(
         "Sending binary message to {}: {} bytes",
         ws_->peerAddress().toString().toStdString(),
         data.size());
@@ -45,7 +45,7 @@ void BaseHandler::sendBinaryMessage(const uint8_t *const ptr, const qsizetype si
 
 void BaseHandler::sendTextMessage(const QString &str) const
 {
-    SPDLOG_DEBUG(
+    SPDLOG_TRACE(
         "Sending text message to {}: {} chars",
         ws_->peerAddress().toString().toStdString(),
         str.size());
@@ -63,7 +63,7 @@ void BaseHandler::onDisconnected()
 
 void BaseHandler::logBinaryMessage(const QByteArray &message)
 {
-    SPDLOG_DEBUG(
+    SPDLOG_TRACE(
         "Received binary message from {}: {} bytes",
         ws_->peerAddress().toString().toStdString(),
         message.size());
@@ -71,7 +71,7 @@ void BaseHandler::logBinaryMessage(const QByteArray &message)
 
 void BaseHandler::logTextMessage(const QString &message)
 {
-    SPDLOG_DEBUG(
+    SPDLOG_TRACE(
         "Received text message from {}: {} bytes",
         ws_->peerAddress().toString().toStdString(),
         message.size());
