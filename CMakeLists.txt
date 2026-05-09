@@ -65,7 +65,6 @@ if (BUILD_EXEC)
             Core
             Network
             Svg
-            SvgWidgets
             WebSockets
             Widgets
             Xml

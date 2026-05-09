@@ -17,6 +17,8 @@
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QPainter>
+#include <qrcodegen.hpp>
 
 namespace mobilesacn {
 
@@ -76,6 +78,36 @@ void MainWindow::setNetIntComboBox(
     }
 }
 
+void MainWindow::setQrCode(const std::string &contents)
+{
+    if (contents.empty()) {
+        ui_->lblQrCode->clear();
+        return;
+    }
+
+    // Generate QR Code.
+    const auto qrCode
+        = qrcodegen::QrCode::encodeText(contents.c_str(), qrcodegen::QrCode::Ecc::HIGH);
+    QImage img(qrCode.getSize(), qrCode.getSize(), QImage::Format_Mono);
+    img.fill(1);
+    {
+        QPainter painter(&img);
+        painter.setPen(Qt::black);
+        for (int x = 0; x < qrCode.getSize(); ++x) {
+            for (int y = 0; y < qrCode.getSize(); ++y) {
+                if (qrCode.getModule(x, y)) {
+                    painter.drawPoint(x, y);
+                }
+            }
+        }
+    }
+
+    // Assign to the label.
+    ui_->lblQrCode->setPixmap(
+        QPixmap::fromImage(img)
+            .scaledToWidth(ui_->lblQrCode->maximumHeight(), Qt::FastTransformation));
+}
+
 void MainWindow::on_btnStart_clicked()
 {
     if (app_->isRunning()) {
@@ -92,7 +124,7 @@ void MainWindow::on_btnHelp_clicked()
     QDesktopServices::openUrl(QUrl(helpPath, QUrl::TolerantMode));
 }
 
-void MainWindow::suppressSleepChanged(bool suppress)
+void MainWindow::on_chkSupressSleep_toggled(bool suppress)
 {
     auto *caffeine = Caffeine::get();
     caffeine->setActive(suppress);
@@ -102,7 +134,7 @@ void MainWindow::appStarted()
 {
     ui_->btnStart->setText(tr("Stop"));
     ui_->lblUrl->setText(QStringLiteral("<a href=\"%1\">%1</a>").arg(app_->getWebUrl()));
-    // widgets_.qrCode->setContents(app_->getWebUrl());
+    setQrCode(app_->getWebUrl());
 
     // Update settings.
     const auto webUiNetIntRow = ui_->cmbWebUiIface->currentIndex();
@@ -117,7 +149,7 @@ void MainWindow::appStopped()
 {
     ui_->btnStart->setText(tr("Start"));
     ui_->lblUrl->clear();
-    // widgets_.qrCode->clear();
+    setQrCode({});
 }
 
 void MainWindow::on_cmbWebUiIface_currentIndexChanged(int row)

@@ -10,7 +10,6 @@
 #define MOBILE_SACN_SRC_MOBILESACN_MAINWINDOW_H_
 
 #include "ClientTableModel.h"
-#include "QrCode.h"
 #include "Updater.h"
 #include "mobilesacn/libmobilesacn/Application.h"
 #include <QComboBox>
@@ -45,6 +44,7 @@ private:
         QComboBox *cmb,
         const std::function<QString()> &netIntNameGetter,
         const std::function<void(const QString &)> &netIntNameSetter);
+    void setQrCode(const std::string &contents);
 
 protected Q_SLOTS:
     void closeEvent(QCloseEvent *event) override;
@@ -52,7 +52,7 @@ protected Q_SLOTS:
 private Q_SLOTS:
     void on_btnStart_clicked();
     void on_btnHelp_clicked();
-    void suppressSleepChanged(bool suppress);
+    void on_chkSupressSleep_toggled(bool suppress);
     void appStarted();
     void appStopped();
     void on_cmbWebUiIface_currentIndexChanged(int row);

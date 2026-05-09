@@ -71,7 +71,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="chkSupressSleep">
           <property name="text">
            <string>Suppress sleep</string>
           </property>
@@ -97,9 +97,6 @@
             <width>16777215</width>
             <height>200</height>
            </size>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignCenter</set>

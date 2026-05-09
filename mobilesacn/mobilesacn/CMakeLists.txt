@@ -8,8 +8,6 @@ qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         MainWindow.ui
         NetIntModel.cpp
         NetIntModel.h
-        QrCode.cpp
-        QrCode.h
         Updater.cpp
         Updater.h
         log_files.cpp
@@ -22,7 +20,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         unofficial::nayuki-qr-code-generator::nayuki-qr-code-generator
         Qt::Network
         Qt::Svg
-        Qt::SvgWidgets
         Qt::Widgets
 )
 if (TARGET ${PROJECT_NAME}_doc)
