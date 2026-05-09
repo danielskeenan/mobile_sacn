@@ -58,6 +58,7 @@ void BaseHandler::onDisconnected()
         "Closing {} handler for client {}",
         ws_->requestUrl().path().toStdString(),
         ws_->peerAddress().toString().toStdString());
+    Q_EMIT(stopped(getDisplayName(), ws_->peerAddress()));
     deleteLater();
 }
 

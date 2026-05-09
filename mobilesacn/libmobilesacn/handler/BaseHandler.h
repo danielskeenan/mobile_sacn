@@ -37,6 +37,9 @@ public:
      */
     [[nodiscard]] virtual QString getDisplayName() const = 0;
 
+Q_SIGNALS:
+    void stopped(const QString &displayName, const QHostAddress &clientAddress);
+
 protected:
     [[nodiscard]] QWebSocket *ws() const { return ws_; }
     void sendBinaryMessage(QByteArrayView data) const;

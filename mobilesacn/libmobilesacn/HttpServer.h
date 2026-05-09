@@ -92,6 +92,10 @@ public:
 
     [[nodiscard]] const Options &getOptions() const { return options_; }
 
+Q_SIGNALS:
+    void handlerStarted(const QString &displayName, const QHostAddress &clientAddress);
+    void handlerStopped(const QString &displayName, const QHostAddress &clientAddress);
+
 private:
     static constexpr uint16_t kHttpPort = 5050;
 

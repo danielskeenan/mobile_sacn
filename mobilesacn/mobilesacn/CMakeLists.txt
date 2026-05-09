@@ -1,13 +1,18 @@
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         ${PROJECT_SOURCE_DIR}/resources/resources.qrc
         main.cpp
-        log_files.cpp
-        LogViewer.cpp
+        ClientTableModel.cpp
+        ClientTableModel.h
         MainWindow.cpp
+        MainWindow.h
         NetIntModel.cpp
+        NetIntModel.h
         QrCode.cpp
+        QrCode.h
         Updater.cpp
         Updater.h
+        log_files.cpp
+        log_files.h
 )
 
 find_package(unofficial-nayuki-qr-code-generator CONFIG REQUIRED)

@@ -207,6 +207,8 @@ void HttpServer::onWsNewConnection()
         ws->deleteLater();
         return;
     }
+    connect(handler, &BaseHandler::stopped, this, &HttpServer::handlerStopped);
+    Q_EMIT(handlerStarted(handler->getDisplayName(), ws->peerAddress()));
 }
 
 void HttpServer::onWsAcceptError(QAbstractSocket::SocketError socketError)

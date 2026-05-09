@@ -81,6 +81,8 @@ void Application::run(const Options &options)
             .sacn_interface = *sacnNetInterface,
         },
         this);
+    connect(httpServer_, &HttpServer::handlerStarted, this, &Application::handlerStarted);
+    connect(httpServer_, &HttpServer::handlerStopped, this, &Application::handlerStopped);
 
     httpServer_->run();
 

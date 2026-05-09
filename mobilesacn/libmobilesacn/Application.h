@@ -12,10 +12,10 @@
 #define CROW_DISABLE_STATIC_DIR
 
 #include "EtcPalLogHandler.h"
+#include <filesystem>
 #include <memory>
 #include <string>
-#include <filesystem>
-#include <string>
+#include <QHostAddress>
 #include <QObject>
 
 namespace mobilesacn {
@@ -24,26 +24,32 @@ class HttpServer;
 /**
  * Application instance.
  */
-class Application : public QObject {
-  Q_OBJECT
-  public:
-    struct Options {
-      std::string backend_address;
-      std::string sacn_address;
+class Application : public QObject
+{
+    Q_OBJECT
+public:
+    struct Options
+    {
+        std::string backend_address;
+        std::string sacn_address;
     };
 
-    explicit Application(QObject* parent = nullptr);
+    explicit Application(QObject *parent = nullptr);
     ~Application() override;
 
     void run(const Options &options);
     void stop();
     [[nodiscard]] std::string getWebUrl() const;
 
-  private:
+Q_SIGNALS:
+    void handlerStarted(const QString &displayName, const QHostAddress &clientAddress);
+    void handlerStopped(const QString &displayName, const QHostAddress &clientAddress);
+
+private:
     etcpal::Logger etcPalLogger_;
     EtcPalLogHandler etcPalLogHandler_;
-    HttpServer* httpServer_ = nullptr;
+    HttpServer *httpServer_ = nullptr;
 };
-} // mobilesacn
+} // namespace mobilesacn
 
 #endif //MOBILE_SACN_APPLICATION_H

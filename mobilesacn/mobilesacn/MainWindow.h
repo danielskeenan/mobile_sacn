@@ -9,15 +9,15 @@
 #ifndef MOBILE_SACN_SRC_MOBILESACN_MAINWINDOW_H_
 #define MOBILE_SACN_SRC_MOBILESACN_MAINWINDOW_H_
 
-#include "LogViewer.h"
+#include "ClientTableModel.h"
 #include "QrCode.h"
+#include "Updater.h"
 #include "mobilesacn/libmobilesacn/Application.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QMainWindow>
 #include <QPushButton>
-
-#include "Updater.h"
+#include <QTableView>
 
 namespace mobilesacn {
 class NetIntListModel;
@@ -42,12 +42,13 @@ private:
         QPushButton *startButton = nullptr;
         QrCode *qrCode = nullptr;
         QCheckBox *suppressSleep = nullptr;
-        LogViewer *logViewer = nullptr;
+        QTableView *clientTable = nullptr;
     };
     Widgets widgets_;
     Application *app_ = nullptr;
     Application::Options appOptions_;
     Updater *updater_ = nullptr;
+    ClientTableModel *clientModel_;
 
     void initUi();
 
@@ -63,7 +64,7 @@ private Q_SLOTS:
     void appStopped();
     void currentWebUiIfaceChanged(int row);
     void currentSacnIfaceChanged(int row);
-    void updateAvailable(const Updater::Release& release);
+    void updateAvailable(const Updater::Release &release);
 };
 } // namespace mobilesacn
 

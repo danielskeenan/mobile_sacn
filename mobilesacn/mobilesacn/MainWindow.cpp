@@ -13,6 +13,7 @@
 #include "mobilesacn/libmobilesacn/Caffeine.h"
 #include "mobilesacn_config.h"
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFormLayout>
 #include <QMessageBox>
@@ -29,11 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
     initUi();
     currentWebUiIfaceChanged(widgets_.webuiIfaceSelect->currentIndex());
     currentSacnIfaceChanged(widgets_.sacnIfaceSelect->currentIndex());
-
-    // Tell spdlog to log to this window.
-    auto widget_log_sink = std::make_shared<WidgetLogSink<std::mutex>>(widgets_.logViewer);
-    widget_log_sink->set_level(spdlog::level::info);
-    spdlog::default_logger()->sinks().push_back(widget_log_sink);
 
     // Check for updates.
     connect(updater_, &Updater::updateAvailable, this, &MainWindow::updateAvailable);
@@ -135,9 +131,12 @@ void MainWindow::initUi()
     qrLayout->addWidget(widgets_.qrCode);
     sidebarLayout->addStretch();
 
-    // Log viewer
-    widgets_.logViewer = new LogViewer(this);
-    layout->addWidget(widgets_.logViewer);
+    // Client table
+    widgets_.clientTable = new QTableView(this);
+    clientModel_ = new ClientTableModel(app_, this);
+    widgets_.clientTable->setModel(clientModel_);
+    widgets_.clientTable->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    layout->addWidget(widgets_.clientTable);
 
     appStopped();
 }
