@@ -16,7 +16,7 @@ with open('build_info.json') as f:
 # -- Project information -----------------------------------------------------
 
 project = build_info['name']
-copyright = '{year}, {author}'.format(year=date.today().year, author=build_info['author'])
+copyright = f'{date.today().year}, {build_info["author"]}'
 author = build_info['author']
 # The full version, including alpha/beta/rc tags
 version = build_info['version']
@@ -29,15 +29,14 @@ release = version
 # ones.
 sys.path.append(str(Path('./_ext').absolute()))
 extensions = [
-    'sphinx-ext-button',
-    'sphinx-ext-sass',
     'myst_parser',
 ]
-sass_files = [
-    '_style/style.scss'
-]
-sass_include_paths = [
-    str(Path('../mobile_sacn_webui/node_modules').absolute())
+
+# Myst configuration
+myst_enable_extensions = [
+    "gfm_autolink",
+    "deflist",
+    "alert",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -59,7 +58,7 @@ defs = []
 
 # Substitutions
 substitutions = {}
-defs.extend(['.. |{}| {}'.format(k, v) for k, v in substitutions.items()])
+defs.extend([f'.. |{k}| {v}' for k, v in substitutions.items()])
 del substitutions
 
 rst_prolog = '\n\n'.join(defs)
@@ -72,7 +71,7 @@ del defs
 #
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
-html_title = '{name} v{version}'.format(name=build_info['display_name'], version=release)
+html_title = f'{build_info["display_name"]} v{release}'
 html_logo = 'logo.svg'
 html_favicon = '../resources/logo.ico'
 html_copy_source = False
@@ -106,4 +105,4 @@ latex_show_urls = 'inline'
 
 # These are automatically set when the docs are generated using CMake.
 qthelp_basename = build_info['name']
-qthelp_namespace = 'org.dankeenan.{}'.format(build_info['name'])
+qthelp_namespace = f'org.dankeenan.{build_info["name"]}'

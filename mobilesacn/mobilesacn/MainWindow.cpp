@@ -78,16 +78,16 @@ void MainWindow::setNetIntComboBox(
     }
 }
 
-void MainWindow::setQrCode(const std::string &contents)
+void MainWindow::setQrCode(const QString &contents)
 {
-    if (contents.empty()) {
+    if (contents.isEmpty()) {
         ui_->lblQrCode->clear();
         return;
     }
 
     // Generate QR Code.
     const auto qrCode
-        = qrcodegen::QrCode::encodeText(contents.c_str(), qrcodegen::QrCode::Ecc::HIGH);
+        = qrcodegen::QrCode::encodeText(contents.toStdString().c_str(), qrcodegen::QrCode::Ecc::HIGH);
     QImage img(qrCode.getSize(), qrCode.getSize(), QImage::Format_Mono);
     img.fill(1);
     {

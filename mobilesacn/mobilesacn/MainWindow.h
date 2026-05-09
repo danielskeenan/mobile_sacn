@@ -44,7 +44,7 @@ private:
         QComboBox *cmb,
         const std::function<QString()> &netIntNameGetter,
         const std::function<void(const QString &)> &netIntNameSetter);
-    void setQrCode(const std::string &contents);
+    void setQrCode(const QString &contents);
 
 protected Q_SLOTS:
     void closeEvent(QCloseEvent *event) override;

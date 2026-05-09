@@ -1,3 +1,31 @@
+set(DOC_SOURCES
+        getting-started.md
+        img/screenshots/base_started.png
+        img/screenshots/hotspot_right.svg
+        img/screenshots/hotspot_wrong.svg
+        index.md
+        requirements.txt
+        usage/chancheck/index.rst
+        usage/chancheck/screenshots/addr_notransmit.png
+        usage/chancheck/screenshots/addr_transmit.png
+        usage/chancheck/screenshots/chancheck.png
+        usage/chancheck/screenshots/config.png
+        usage/chancheck/screenshots/level.png
+        usage/control/index.rst
+        usage/control/index.rst
+        usage/control/screenshots/config.png
+        usage/control/screenshots/control_faders.png
+        usage/control/screenshots/control_keypad.png
+        usage/index.rst
+        usage/nav_screenshot.png
+        usage/view_levels/index.rst
+        usage/view_levels/screenshots/univ_discovery.png
+        usage/view_levels/screenshots/viewlevels_grid.png
+        usage/view_levels/screenshots/viewlevels_list.png
+        wifi_hotspot.rst
+        conf.py
+)
+
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 # Create venv
@@ -39,21 +67,9 @@ find_program(SPHINX_BUILD sphinx-build
         REQUIRED
 )
 
-# HTML Docs
-file(GLOB_RECURSE DOC_SOURCES LIST_DIRECTORIES false CONFIGURE_DEPENDS
-        _ext/*
-        _static/*
-        _style/*
-        img/*
-        licenses/*
-        usage/*
-        *.rst
-        conf.py
-        logo.svg
-)
 # 3rd party license page.
 file(GLOB LOCAL_SBOMS LIST_DIRECTORIES false CONFIGURE_DEPENDS
-    licenses/*.spdx.json
+        licenses/*.spdx.json
 )
 add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party.md"
         COMMAND "${Python3_EXECUTABLE}"
