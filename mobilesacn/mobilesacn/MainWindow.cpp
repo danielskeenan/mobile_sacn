@@ -38,9 +38,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initUi()
 {
-    if (!restoreGeometry(Settings::GetMainWindowGeometry())) {
+    if (!restoreGeometry(Settings::getMainWindowGeometry())) {
         resize(1024, 600);
-        Settings::SetMainWindowGeometry(saveGeometry());
+        Settings::setMainWindowGeometry(saveGeometry());
     }
 
     auto central = new QWidget(this);
@@ -57,7 +57,7 @@ void MainWindow::initUi()
     widgets_.webuiIfaceSelect = new QComboBox(this);
     widgets_.webuiIfaceSelectModel = new NetIntListModel(widgets_.webuiIfaceSelect);
     widgets_.webuiIfaceSelect->setModel(widgets_.webuiIfaceSelectModel);
-    const QString &lastWebUiIfaceName = Settings::GetLastWebUiInterfaceName();
+    const QString &lastWebUiIfaceName = Settings::getLastWebUiInterfaceName();
     if (lastWebUiIfaceName.isEmpty()) {
         const auto defautIfaceRow = widgets_.webuiIfaceSelectModel->GetDefaultRow();
         widgets_.webuiIfaceSelect->setCurrentIndex(defautIfaceRow);
@@ -65,7 +65,7 @@ void MainWindow::initUi()
             = widgets_.webuiIfaceSelectModel
                   ->data(widgets_.webuiIfaceSelectModel->index(defautIfaceRow, 0, {}), Qt::DisplayRole)
                   .toString();
-        Settings::SetLastWebUiInterfaceName(defaultIfaceName);
+        Settings::setLastWebUiInterfaceName(defaultIfaceName);
     } else {
         widgets_.webuiIfaceSelect->setCurrentIndex(
             widgets_.webuiIfaceSelectModel->GetRowForInterfaceName(
@@ -82,7 +82,7 @@ void MainWindow::initUi()
     widgets_.sacnIfaceSelect = new QComboBox(this);
     widgets_.sacnIfaceSelectModel = new NetIntListModel(widgets_.sacnIfaceSelect);
     widgets_.sacnIfaceSelect->setModel(widgets_.sacnIfaceSelectModel);
-    const QString &lastSacnInterfaceName = Settings::GetLastSacnInterfaceName();
+    const QString &lastSacnInterfaceName = Settings::getLastSacnInterfaceName();
     if (lastSacnInterfaceName.isEmpty()) {
         const auto defautIfaceRow = widgets_.sacnIfaceSelectModel->GetDefaultRow();
         widgets_.sacnIfaceSelect->setCurrentIndex(defautIfaceRow);
@@ -90,7 +90,7 @@ void MainWindow::initUi()
             = widgets_.webuiIfaceSelectModel
                   ->data(widgets_.webuiIfaceSelectModel->index(defautIfaceRow, 0, {}), Qt::DisplayRole)
                   .toString();
-        Settings::SetLastSacnInterfaceName(defaultIfaceName);
+        Settings::setLastSacnInterfaceName(defaultIfaceName);
     } else {
         widgets_.sacnIfaceSelect->setCurrentIndex(
             widgets_.sacnIfaceSelectModel->GetRowForInterfaceName(
@@ -178,10 +178,10 @@ void MainWindow::appStarted()
     // Update settings.
     const auto webuiIfaceRow = widgets_.webuiIfaceSelect->currentIndex();
     const auto webuiIface = widgets_.webuiIfaceSelectModel->GetNetIntInfo(webuiIfaceRow);
-    Settings::SetLastWebUiInterfaceName(QString::fromStdString(webuiIface.friendly_name()));
+    Settings::setLastWebUiInterfaceName(QString::fromStdString(webuiIface.friendly_name()));
     const auto sacnIfaceRow = widgets_.sacnIfaceSelect->currentIndex();
     const auto sacnIface = widgets_.sacnIfaceSelectModel->GetNetIntInfo(sacnIfaceRow);
-    Settings::SetLastSacnInterfaceName(QString::fromStdString(sacnIface.friendly_name()));
+    Settings::setLastSacnInterfaceName(QString::fromStdString(sacnIface.friendly_name()));
 }
 
 void MainWindow::appStopped()
@@ -205,7 +205,7 @@ void MainWindow::currentSacnIfaceChanged(int row)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     stopApp();
-    Settings::SetMainWindowGeometry(saveGeometry());
+    Settings::setMainWindowGeometry(saveGeometry());
     Settings::Sync();
     event->accept();
 }

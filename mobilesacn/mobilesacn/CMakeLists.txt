@@ -16,7 +16,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 )
 
 find_package(unofficial-nayuki-qr-code-generator CONFIG REQUIRED)
-include(${PROJECT_SOURCE_DIR}/cmake/qsettingscontainer.cmake)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         libmobilesacn
         unofficial::nayuki-qr-code-generator::nayuki-qr-code-generator
@@ -24,7 +23,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt::Svg
         Qt::SvgWidgets
         Qt::Widgets
-        QSettingsContainer
 )
 if (TARGET ${PROJECT_NAME}_doc)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_doc)
