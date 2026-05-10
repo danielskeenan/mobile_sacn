@@ -9,12 +9,17 @@ set(DOC_SOURCES
         img/screenshots/base_started_light.png
         index.md
         requirements.txt
-        usage/chancheck/index.rst
-        usage/chancheck/screenshots/addr_notransmit.png
-        usage/chancheck/screenshots/addr_transmit.png
-        usage/chancheck/screenshots/chancheck.png
-        usage/chancheck/screenshots/config.png
-        usage/chancheck/screenshots/level.png
+        usage/chancheck/index.md
+        usage/chancheck/screenshots/addr_notransmit_dark.png
+        usage/chancheck/screenshots/addr_notransmit_light.png
+        usage/chancheck/screenshots/addr_transmit_dark.png
+        usage/chancheck/screenshots/addr_transmit_light.png
+        usage/chancheck/screenshots/chancheck_dark.png
+        usage/chancheck/screenshots/chancheck_light.png
+        usage/chancheck/screenshots/config_dark.png
+        usage/chancheck/screenshots/config_light.png
+        usage/chancheck/screenshots/level_dark.png
+        usage/chancheck/screenshots/level_light.png
         usage/control/index.rst
         usage/control/index.rst
         usage/control/screenshots/config.png
