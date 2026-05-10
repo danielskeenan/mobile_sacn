@@ -1,3 +1,29 @@
+<style>
+/* Raise */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-cyan);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-blue);
+}
+
+/* Lower */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-teal);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-green);
+}
+
+/* Same */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-500);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-700);
+}
+</style>
+
 # View Levels
 
 View Levels mode shows all sACN levels on the network and their merge result.
@@ -91,8 +117,28 @@ above the priority.
 
 ## Flicker Finder
 
-When "Flicker Finder" is checked, the display changes to show level differences relative to when the checkbox was 
+When "Flicker Finder" is checked, the display changes to show level differences relative to when the checkbox was
 checked.
+
+Changes are marked with specific colors:
+
+```{list-table}
+:header-rows: 1
+:stub-columns: 1
+:widths: auto
+:class: table table-flickerfinder
+
+- - Color
+  - Description
+- - Clear
+  - Level has not changed at all since Flicker Finder was activated.
+- - Blue
+  - Level is higher than when Flicker Finder was activated.
+- - Green
+  - Level is lower than when Flicker Finder was activated.
+- - Gray
+  - Level has changed since Flicker Finder was activated, but is now the same as its original value.
+```
 
 ```{figure} screenshots/flickerfinder_list_light.png
 :alt: Screenshot of Flicker Finder
@@ -114,23 +160,4 @@ returned to its original value.
 
 In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but 
 returned to its original value.
-```
-
-Changes are marked with specific colors:
-
-```{list-table}
-:header-rows: 1
-:widths: auto
-:class: table
-
-- - Color
-  - Description
-- - Clear
-  - Level has not changed at all since Flicker Finder was activated.
-- - Blue
-  - Level is higher than when Flicker Finder was activated.
-- - Green
-  - Level is lower than when Flicker Finder was activated.
-- - Gray
-  - Level has changed since Flicker Finder was activated, but is now the same as its original value.
 ```
