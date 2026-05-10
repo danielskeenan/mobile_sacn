@@ -147,21 +147,21 @@ Some example command lines (assuming the level display mode is set to Percent):
   [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets address 1 to full.
 - [1]{.btn .btn-sm .btn-light} [Thru]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light}
   [At]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light}
-  [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 3, 4, and 5 to 50.
+  [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 3, 4, and 5 to 50%.
 - [1]{.btn .btn-sm .btn-light} [+]{.btn .btn-sm .btn-light} [3]{.btn .btn-sm .btn-light} [At]{.btn .btn-sm .btn-light}
   [5]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets addresses 1 and 3 to
-  50.
+  50%.
 - [1]{.btn .btn-sm .btn-light} [Thru]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light} [-]{.btn .btn-sm .btn-light}
   [3]{.btn .btn-sm .btn-light} [At]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light}
-  [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 4, and 5 to 50.
+  [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 4, and 5 to 50%.
 - [1]{.btn .btn-sm .btn-light} [Thru]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light} [+]{.btn .btn-sm .btn-light}
   [1]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light} [At]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light}
-- [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 3, 4, 5, and 10 to 50.
+  [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets addresses 1, 2, 3, 4, 5, and 10 to 50%.
 - [1]{.btn .btn-sm .btn-light} [At]{.btn .btn-sm .btn-light} [+]{.btn .btn-sm .btn-light} [1]{.btn .btn-sm .btn-light}
-  [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets address 1 to 10 points above its current level.
+  [0]{.btn .btn-sm .btn-light} [Enter]{.btn .btn-sm .btn-light} sets address 1 to 10% above its current level.
 - [1]{.btn .btn-sm .btn-light} [At]{.btn .btn-sm .btn-light} [-]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light}
-  [Enter]{.btn .btn-sm .btn-light} sets address 1 to 5 points below its current level.
+  [Enter]{.btn .btn-sm .btn-light} sets address 1 to 5% below its current level.
 - [1]{.btn .btn-sm .btn-light} [Thru]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light}
   [At]{.btn .btn-sm .btn-light} [1]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light}
   [Thru]{.btn .btn-sm .btn-light} [5]{.btn .btn-sm .btn-light} [0]{.btn .btn-sm .btn-light}
-  [Enter]{.btn .btn-sm .btn-light} sets address 1 to 10, 2 to 20, 3 to 30, 4 to 40, and 5 to 50.
+  [Enter]{.btn .btn-sm .btn-light} sets address 1 to 10%, 2 to 20%, 3 to 30%, 4 to 40%, and 5 to 50%.
