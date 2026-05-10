@@ -30,10 +30,15 @@ set(DOC_SOURCES
         usage/index.md
         usage/nav_screenshot_dark.png
         usage/nav_screenshot_light.png
-        usage/view_levels/index.rst
-        usage/view_levels/screenshots/univ_discovery.png
-        usage/view_levels/screenshots/viewlevels_grid.png
-        usage/view_levels/screenshots/viewlevels_list.png
+        usage/view_levels/index.md
+        usage/view_levels/screenshots/flickerfinder_list_dark.png
+        usage/view_levels/screenshots/flickerfinder_list_light.png
+        usage/view_levels/screenshots/univ_discovery_dark.png
+        usage/view_levels/screenshots/univ_discovery_light.png
+        usage/view_levels/screenshots/viewlevels_grid_dark.png
+        usage/view_levels/screenshots/viewlevels_grid_light.png
+        usage/view_levels/screenshots/viewlevels_list_dark.png
+        usage/view_levels/screenshots/viewlevels_list_light.png
 )
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
