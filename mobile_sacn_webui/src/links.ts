@@ -1,5 +1,6 @@
 const LINKS = {
     front_home: "/",
+    doc: "/doc",
 
     transmit_chancheck: "/transmit/chancheck",
     transmit_levels: "/transmit/levels",

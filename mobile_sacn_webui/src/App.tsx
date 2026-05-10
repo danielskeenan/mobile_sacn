@@ -9,7 +9,7 @@ import TransmitLevelsTitle from "@/pages/transmit/TransmitLevelsTitle";
 import {A} from "@solidjs/router";
 import {t} from "i18next";
 import {Alert, Button, Container, Form, Modal, Nav, Navbar} from "solid-bootstrap";
-import {BsGearFill} from "solid-icons/bs";
+import {BsGearFill, BsQuestionCircle} from "solid-icons/bs";
 import {type Component, createEffect, createResource, createSignal, Match, Show, Suspense, Switch} from "solid-js";
 import {produce} from "solid-js/store";
 import {Portal} from "solid-js/web";
@@ -157,6 +157,10 @@ const App: Component<{ children: Element }> = (props) => {
 
                                     <Nav.Link onClick={openSettingsDialog}>
                                         <BsGearFill/>&nbsp;{t("settings.title")}
+                                    </Nav.Link>
+
+                                    <Nav.Link href={LINKS.doc} target="_blank">
+                                        <BsQuestionCircle/>&nbsp;{t("help", {defaultValue: "Help"})}
                                     </Nav.Link>
                                 </Nav>
                             </Navbar.Collapse>

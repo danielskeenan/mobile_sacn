@@ -9,6 +9,7 @@
 #include "HttpServer.h"
 #include "ClientSettings.h"
 #include "HandlerFactory.h"
+#include "mobilesacn_config.h"
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
@@ -162,7 +163,33 @@ void HttpServerController::run()
 
 void HttpServerController::serveStaticFile(const httplib::Request &req, httplib::Response &res)
 {
-    auto path = QString::fromStdString(req.matches[1]);
+    // Remove directory traversal
+    std::filesystem::path reqFilePath(req.matches[1].str());
+    reqFilePath = [&reqFilePath]() {
+        std::filesystem::path sanitized;
+        for (const auto &part : reqFilePath) {
+            if (part != "..") {
+                sanitized /= part;
+            }
+        }
+        return sanitized;
+    }();
+
+    auto path = QString::fromStdString(reqFilePath.string());
+
+    // Static files
+    const auto webRoot = std::filesystem::path(qApp->applicationDirPath().toStdString()) / ".."
+                         / config::kWebPath;
+    auto staticFilePath = webRoot / reqFilePath;
+    if (std::filesystem::is_directory(staticFilePath)
+        && std::filesystem::is_regular_file(staticFilePath / "index.html")) {
+        res.set_redirect((reqFilePath / "index.html").string());
+        return;
+    }
+    if (std::filesystem::is_regular_file(staticFilePath)) {
+        res.set_file_content(staticFilePath.string());
+        return;
+    }
 
     // Match what would otherwise be a request for a directory entry.
     if (path.isEmpty() || !std::filesystem::path(path.toStdString()).has_extension()) {
@@ -170,7 +197,7 @@ void HttpServerController::serveStaticFile(const httplib::Request &req, httplib:
         path = QStringLiteral("index.html");
     }
 
-    // Try a static file.
+    // Try a resource.
     const auto resourcePath = QString(":/webui/%1").arg(path);
     // This is more performant than using QFile.
     QResource resource(resourcePath);
