@@ -5,6 +5,8 @@
       system. The WiFi interface will handle the web UI and the wired interface will run sACN.
     - If your network has WiFi, select the same interface for both options.
 2. Click "Start" and use your mobile device's camera to scan the QR code and open the web UI.
+3. Connected mobile devices will appear in the list on the right with their IP Address and currently loaded function.
+   If the same device has multiple pages open, each page will be listed.
 
 ```{image} img/screenshots/base_started_light.png
 :alt: Screenshot of host application
