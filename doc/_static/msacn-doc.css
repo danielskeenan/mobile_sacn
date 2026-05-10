@@ -20,6 +20,18 @@ article .btn-none img {
     height: calc(1em + var(--bs-btn-padding-y) * 2);
 }
 
+article .btn-tab {
+    color: var(--pst-color-text-base);
+    border-color: var(--bs-border-color);
+    margin-bottom: calc(-1 * var(--bs-border-width));
+    border: var(--bs-border-width) solid;
+    border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
+}
+
+article .btn-tab:hover {
+    border-color: var(--pst-secondary-bg);
+}
+
 /* Screenshots */
 img.screenshot {
     border: var(--bs-border-width) solid var(--pst-color-border);

@@ -20,11 +20,13 @@ set(DOC_SOURCES
         usage/chancheck/screenshots/config_light.png
         usage/chancheck/screenshots/level_dark.png
         usage/chancheck/screenshots/level_light.png
-        usage/control/index.rst
-        usage/control/index.rst
-        usage/control/screenshots/config.png
-        usage/control/screenshots/control_faders.png
-        usage/control/screenshots/control_keypad.png
+        usage/control/index.md
+        usage/control/screenshots/config_dark.png
+        usage/control/screenshots/config_light.png
+        usage/control/screenshots/control_faders_dark.png
+        usage/control/screenshots/control_faders_light.png
+        usage/control/screenshots/control_keypad_dark.png
+        usage/control/screenshots/control_keypad_light.png
         usage/index.md
         usage/nav_screenshot_dark.png
         usage/nav_screenshot_light.png
