@@ -51,18 +51,11 @@ jobs:
           python-version: '3.x'
           cache: pip
           cache-dependency-path: doc/requirements.txt
-      - name: Install System Packages (macOS)
-        if: ${{runner.os == 'macOS'}}
-        run: brew install pandoc
-      - name: Install System Packages (Windows)
-        if: ${{runner.os == 'Windows'}}
-        run: |
-          choco install pandoc -y --ia=ALLUSERS=1
       - name: Install System Packages (Linux)
         if: ${{runner.os == 'Linux'}}
         run: |
           sudo apt-get update
-          sudo apt-get -y install libcurl4-openssl-dev uuid-dev pandoc libgl1-mesa-dev qt6-base-dev qt6-svg-dev qt6-websockets-dev
+          sudo apt-get -y install libcurl4-openssl-dev uuid-dev libgl1-mesa-dev qt6-base-dev qt6-svg-dev qt6-websockets-dev
       - name: Setup MSVC (Windows)
         if: ${{runner.os == 'Windows'}}
         uses: TheMrMilchmann/setup-msvc-dev@v4
