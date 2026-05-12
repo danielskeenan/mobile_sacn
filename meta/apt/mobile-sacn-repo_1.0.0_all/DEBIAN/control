@@ -1,9 +1,0 @@
-Package: mobile-sacn-repo
-Version: 1.0.0
-Maintainer: Dan Keenan <dk@dankeenan.org>
-Depends: gpg
-Architecture: all
-Priority: optional
-Section: misc
-Homepage: https://mobilesacn.dankeenan.org
-Description: Mobile sACN Apt Repository

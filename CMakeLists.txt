@@ -93,6 +93,6 @@ if (BUILD_EXEC)
 
     option(BUILD_PACKAGE "Create packages, installers, etc." Off)
     if (BUILD_PACKAGE)
-        include(cmake/install.cmake)
+        add_subdirectory(install)
     endif ()
 endif ()
