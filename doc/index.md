@@ -9,6 +9,3 @@ getting-started
 usage/*
 3rd_party
 ```
-
-*THIS IS PRERELEASE SOFTWARE STILL UNDERGOING DEVELOPMENT!*  Expect occasional problems. If the program behaves badly,
-please report an issue [here](https://github.com/danielskeenan/mobile_sacn/issues>).

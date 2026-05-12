@@ -79,7 +79,6 @@ html_favicon = '../resources/logo.ico'
 html_copy_source = False
 html_domain_indices = False
 html_show_sourcelink = False
-html_show_sphinx = False
 html_show_copyright = False
 html_theme_options = {
     'navigation_with_keys': False,
