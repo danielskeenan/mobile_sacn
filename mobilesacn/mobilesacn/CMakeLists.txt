@@ -33,6 +33,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE msi.dll)
 endif ()
 
+if (BUILD_DOC)
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_doc)
+endif ()
+
 
 # Installation
 install(TARGETS ${PROJECT_NAME}
