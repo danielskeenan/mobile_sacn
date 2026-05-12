@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 3/25/22
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef MOBILE_SACN_ETCPALLOGHANDLER_H

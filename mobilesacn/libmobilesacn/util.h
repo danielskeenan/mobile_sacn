@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 9/14/24
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef UTIL_H

@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 4/9/22
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef MOBILE_SACN_SRC_MOBILESACN_MAINWINDOW_H_

@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 5/2/26
- * @copyright GPL-3.0
+ * @copyright Apache-2.0
  */
 
 #include "BaseHandler.h"

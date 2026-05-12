@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 11/30/25
- * @copyright GPL-3.0
+ * @copyright Apache-2.0
  */
 
 #include "Caffeine.h"

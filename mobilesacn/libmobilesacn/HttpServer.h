@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 4/3/22
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef MOBILE_SACN_INCLUDE_LIBMOBILESACN_HTTPSERVER_H_

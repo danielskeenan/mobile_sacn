@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 8/27/24
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef SACNCIDGENERATOR_H

@@ -10,7 +10,7 @@
     "serve": "vite preview",
     "lupdate": "i18next-cli extract"
   },
-  "license": "GPL-3.0-or-later",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",

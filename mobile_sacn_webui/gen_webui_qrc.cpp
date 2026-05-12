@@ -9,7 +9,7 @@
  *
  * @author Dan Keenan
  * @date 3/14/26
- * @copyright GPL-3.0
+ * @copyright Apache-2.0
  */
 
 #include <filesystem>

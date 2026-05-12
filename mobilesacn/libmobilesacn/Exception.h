@@ -3,7 +3,7 @@
  *
  * @author Dan Keenan
  * @date 3/27/22
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #ifndef MOBILE_SACN_INCLUDE_LIBMOBILESACN_EXCEPTION_H_
