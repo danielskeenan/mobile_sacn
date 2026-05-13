@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
