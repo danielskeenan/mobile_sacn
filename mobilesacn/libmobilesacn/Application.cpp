@@ -17,17 +17,10 @@
 #include <sacn/cpp/common.h>
 #include <spdlog/spdlog.h>
 
-void initResources()
-{
-    Q_INIT_RESOURCE(webui);
-}
-
 namespace mobilesacn {
 
 Application::Application(QObject *parent) : QObject(parent)
 {
-    initResources();
-
     // Init EtcPal.
     etcPalLogger_.SetSyslogAppName(config::kProjectName);
     if (!etcPalLogger_.Startup(etcPalLogHandler_)) {

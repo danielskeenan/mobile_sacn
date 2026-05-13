@@ -60,13 +60,13 @@ target_link_libraries(libmobilesacn PRIVATE
         # So we can get QApplication helpers not available in QCoreApplication.
         Qt::Widgets
         mobile_sacn_messages_cpp
-        webui_qrc
         sACN
 )
 target_link_libraries(libmobilesacn PUBLIC
         spdlog::spdlog
         EtcPal
 )
+add_dependencies(libmobilesacn mobile_sacn_webui)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(libmobilesacn PUBLIC ${CMAKE_DL_LIBS})
 endif ()

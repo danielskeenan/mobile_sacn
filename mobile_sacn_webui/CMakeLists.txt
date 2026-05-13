@@ -103,37 +103,20 @@ if (BUILD_EXEC)
             DEPENDS ${WEBUI_SOURCES} mobile_sacn_messages_ts
             VERBATIM
     )
+    add_custom_target(mobile_sacn_webui DEPENDS "${WEBUI_BUILD_DIR}/index.html")
     # Ensure make clean does what it should.
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} APPEND PROPERTY ADDITIONAL_CLEAN_FILES
             "${WEBUI_BUILD_DIR}"
     )
 
-    # Add as Qt resource.
-    find_package(Qt6 COMPONENTS Core REQUIRED)
-    add_executable(gen_webui_qrc gen_webui_qrc.cpp)
-    target_link_libraries(gen_webui_qrc PRIVATE Qt::Core)
-    if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        qt_generate_deploy_app_script(
-                TARGET gen_webui_qrc
-                OUTPUT_SCRIPT DEPLOY_SCRIPT
-                NO_UNSUPPORTED_PLATFORM_ERROR
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # Need extra logic to ensure it ends up inside the app bundle.
+        add_custom_command(TARGET mobile_sacn_webui POST_BUILD
+                COMMAND "${CMAKE_COMMAND}"
+                -E copy_directory "${WEBUI_BUILD_DIR}/"
+                \"$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/${PROJECT_WEBUI_PATH}\"
         )
-        add_custom_command(
-                TARGET gen_webui_qrc POST_BUILD
-                COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:gen_webui_qrc>" -DQT_DEPLOY_BIN_DIR=.
-                -DQT_DEPLOY_LIB_DIR=. -P "${DEPLOY_SCRIPT}"
-                VERBATIM
-        )
+    else ()
+        install(DIRECTORY "${WEBUI_BUILD_DIR}/" DESTINATION "${PROJECT_WEBUI_PATH}")
     endif ()
-    set(WEBUI_QRC "${CMAKE_CURRENT_BINARY_DIR}/webui.qrc")
-    add_custom_command(
-            OUTPUT "${WEBUI_QRC}"
-            COMMAND gen_webui_qrc "${WEBUI_BUILD_DIR}" "${WEBUI_QRC}"
-            WORKING_DIRECTORY "${WEBUI_BUILD_DIR}"
-            DEPENDS "${WEBUI_BUILD_DIR}/index.html" ${WEBUI_SOURCES}
-            VERBATIM
-    )
-    add_library(webui_qrc STATIC "${WEBUI_QRC}")
-    set_target_properties(webui_qrc PROPERTIES LINKER_LANGUAGE CXX)
-    target_link_libraries(webui_qrc PRIVATE Qt::Core)
 endif ()

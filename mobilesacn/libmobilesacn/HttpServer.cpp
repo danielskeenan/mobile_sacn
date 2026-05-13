@@ -175,47 +175,29 @@ void HttpServerController::serveStaticFile(const httplib::Request &req, httplib:
         return sanitized;
     }();
 
-    auto path = QString::fromStdString(reqFilePath.string());
-
     // Static files
     const auto webRoot = std::filesystem::path(qApp->applicationDirPath().toStdString()) / ".."
                          / config::kWebPath;
     auto staticFilePath = webRoot / reqFilePath;
-    if (std::filesystem::is_directory(staticFilePath)
+    if (!reqFilePath.empty() && std::filesystem::is_directory(staticFilePath)
         && std::filesystem::is_regular_file(staticFilePath / "index.html")) {
+        // Redirect to the index for real directories.
         res.set_redirect((reqFilePath / "index.html").string());
-        return;
-    }
-    if (std::filesystem::is_regular_file(staticFilePath)) {
-        res.set_file_content(staticFilePath.string());
         return;
     }
 
     // Match what would otherwise be a request for a directory entry.
-    if (path.isEmpty() || !std::filesystem::path(path.toStdString()).has_extension()) {
+    if (reqFilePath.empty() || !std::filesystem::path(reqFilePath).has_extension()) {
         // Let client-side routing work, so serve index.html.
-        path = QStringLiteral("index.html");
+        staticFilePath = webRoot / "index.html";
     }
 
-    // Try a resource.
-    const auto resourcePath = QString(":/webui/%1").arg(path);
-    // This is more performant than using QFile.
-    QResource resource(resourcePath);
-    if (resource.isValid() && resource.data() != nullptr) {
+    if (std::filesystem::is_regular_file(staticFilePath)) {
 #ifdef NDEBUG
         // Cache in production builds.
         res.set_header("Cache-Control", "max-age=3600");
 #endif
-
-        // Read contents.
-        const auto bytes = resource.uncompressedData();
-
-        // Set response mime type.
-        const QMimeDatabase mimeDatabase;
-        const auto mime = mimeDatabase.mimeTypeForFileNameAndData(resourcePath, bytes);
-
-        // Send response.
-        res.set_content(bytes.data(), bytes.size(), mime.name().toStdString());
+        res.set_file_content(staticFilePath.string());
         return;
     }
 
