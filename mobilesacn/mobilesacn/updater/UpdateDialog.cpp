@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
