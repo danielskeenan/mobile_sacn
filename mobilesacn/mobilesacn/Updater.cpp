@@ -98,14 +98,38 @@ QString preferredPackage(const QStringList &filenames)
     filenameRegexes.emplace_back(QStringLiteral("-Linux\\.tar\\.gz$"));
 #endif
 #ifdef OS_WINDOWS
+    const std::filesystem::path appPath(qApp->applicationFilePath().toStdString());
+
     // Get MSI product code (which changes each release) from upgrade code (always the same).
-    // If we can find the product code, the program was installed with an MSI.
     std::wstring productCode(MAX_GUID_CHARS, L'\0');
-    // https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msienumrelatedproductsw
-    auto ret = MsiEnumRelatedProducts(config::kProjectMsiUpgradeCode, 0, 0, productCode.data());
-    if (ret == ERROR_SUCCESS) {
-        // Software was installed with an MSI.
-        filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
+    for (DWORD productIx = 0;; ++productIx) {
+        auto ret = MsiEnumRelatedProducts(
+            config::kProjectMsiUpgradeCode, 0, productIx, productCode.data());
+        if (ret != ERROR_SUCCESS) {
+            break;
+        }
+        // Check to see we are running from this product.
+        std::wstring componentId(MAX_GUID_CHARS, L'\0');
+        for (DWORD componentIx = 0;; ++componentIx) {
+            ret = MsiEnumComponents(componentIx, componentId.data());
+            if (ret != ERROR_SUCCESS) {
+                break;
+            }
+            DWORD pathBufSize = 0;
+            const auto installState
+                = MsiGetComponentPath(productCode.data(), componentId.data(), nullptr, &pathBufSize);
+            if (installState != INSTALLSTATE_LOCAL) {
+                continue;
+            }
+            std::wstring pathBuf(pathBufSize, L'\0');
+            ++pathBufSize;
+            MsiGetComponentPath(productCode.data(), componentId.data(), pathBuf.data(), &pathBufSize);
+            if (std::filesystem::equivalent(appPath, std::filesystem::path(pathBuf))) {
+                // This program came from an MSI.
+                filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
+                break;
+            }
+        }
     }
 
     filenameRegexes.emplace_back(QStringLiteral("-Windows\\.zip$"));
