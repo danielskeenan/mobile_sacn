@@ -10,14 +10,27 @@
 #define MOBILESACN_MOBILESACN_UPDATER_UPDATER_H
 
 #include "Release.h"
-#include <QDateTime>
-#include <QDialog>
-#include <QFuture>
 #include <QNetworkAccessManager>
-#include <QProgressDialog>
-#include <QUrl>
+#include <QThread>
 
 namespace mobilesacn {
+
+class UpdateChecker : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit UpdateChecker(QObject *parent = nullptr);
+
+public Q_SLOTS:
+    void checkForUpdates();
+
+Q_SIGNALS:
+    void updateAvailable(const Release &release);
+
+private:
+    QNetworkAccessManager *nam_;
+};
 
 /**
  * Find updates from GitHub releases.
@@ -27,14 +40,18 @@ class Updater : public QObject
     Q_OBJECT
 public:
     explicit Updater(QObject *parent = nullptr);
+    ~Updater();
 
-    void checkForUpdate();
+public Q_SLOTS:
+    void checkForUpdates();
 
 Q_SIGNALS:
+    /** @internal Runs UpdateChecker::checkForUpdates from another thread. */
+    void doCheckForUpdates();
     void updateAvailable(const Release &release);
 
 private:
-    QNetworkAccessManager *nam_;
+    QThread updateCheckerThread_;
 };
 
 } // namespace mobilesacn

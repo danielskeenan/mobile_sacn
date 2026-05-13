@@ -124,10 +124,18 @@ QString preferredPackage(const QStringList &filenames)
             std::wstring pathBuf(pathBufSize, L'\0');
             ++pathBufSize;
             MsiGetComponentPath(productCode.data(), componentId.data(), pathBuf.data(), &pathBufSize);
-            if (std::filesystem::equivalent(appPath, std::filesystem::path(pathBuf))) {
-                // This program came from an MSI.
-                filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
-                break;
+            try {
+                const std::filesystem::path componentPath(pathBuf);
+                if (std::filesystem::equivalent(appPath, std::filesystem::path(pathBuf))) {
+                    // This program came from an MSI.
+                    filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
+                    break;
+                }
+            } catch (const std::exception &) {
+                // MsiGetComponentPath() may return non-paths which will make the std::filesystem::path ctor throw.
+                // That exception is implementation-defined so need the broad catch here.
+                // Since an invalid path certainly is not equal to our app path, skip it and continue.
+                continue;
             }
         }
     }
@@ -147,9 +155,11 @@ QString preferredPackage(const QStringList &filenames)
     return {};
 }
 
-Updater::Updater(QObject *parent) : QObject(parent), nam_(new QNetworkAccessManager(this)) {}
+UpdateChecker::UpdateChecker(QObject *parent) :
+    QObject(parent), nam_(new QNetworkAccessManager(this))
+{}
 
-void Updater::checkForUpdate()
+void UpdateChecker::checkForUpdates()
 {
     SPDLOG_INFO("Checking for software updates...");
     auto req = ghReq(QStringLiteral("/repos/%1/releases/latest").arg(kGitHubRepo));
@@ -264,6 +274,29 @@ void Updater::checkForUpdate()
             Q_EMIT(updateAvailable(release));
         });
     });
+}
+
+Updater::Updater(QObject *parent) : QObject(parent)
+{
+    qRegisterMetaType<Release>();
+
+    auto *updateChecker = new UpdateChecker;
+    updateChecker->moveToThread(&updateCheckerThread_);
+    connect(&updateCheckerThread_, &QThread::finished, updateChecker, &UpdateChecker::deleteLater);
+    connect(this, &Updater::doCheckForUpdates, updateChecker, &UpdateChecker::checkForUpdates);
+    connect(updateChecker, &UpdateChecker::updateAvailable, this, &Updater::updateAvailable);
+    updateCheckerThread_.start();
+}
+
+Updater::~Updater()
+{
+    updateCheckerThread_.quit();
+    updateCheckerThread_.wait();
+}
+
+void Updater::checkForUpdates()
+{
+    Q_EMIT(doCheckForUpdates());
 }
 
 } // namespace mobilesacn

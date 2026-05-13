@@ -13,12 +13,12 @@
 #include "mobilesacn_config.h"
 #include "ui_MainWindow.h"
 #include "updater/UpdateDialog.h"
-#include "updater/Updater.h"
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QPainter>
+#include <QTimer>
 #include <qrcodegen.hpp>
 
 namespace mobilesacn {
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Check for updates.
     connect(updater_, &Updater::updateAvailable, this, &MainWindow::updateAvailable);
-    updater_->checkForUpdate();
+    updater_->checkForUpdates();
 
     // sACN Net Int
     ui_->cmbSacnIface->setModel(netIntModel_);
