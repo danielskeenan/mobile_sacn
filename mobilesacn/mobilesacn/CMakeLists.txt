@@ -15,6 +15,9 @@ qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         updater/UpdateDialog.h
         updater/Updater.cpp
         updater/Updater.h
+        updater/preferred_package.cpp
+        updater/preferred_package.h
+        updater/preferred_package_${CMAKE_SYSTEM_NAME}.cpp
 )
 
 find_package(unofficial-nayuki-qr-code-generator CONFIG REQUIRED)
