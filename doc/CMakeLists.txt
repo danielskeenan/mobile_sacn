@@ -1,4 +1,5 @@
 set(DOC_SOURCES
+        3rd_party.md
         _static/bootstrap-icons.min.css
         _static/fonts/bootstrap-icons.woff
         _static/fonts/bootstrap-icons.woff2

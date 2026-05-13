@@ -64,6 +64,7 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
             TARGET ${PROJECT_NAME}
             OUTPUT_SCRIPT DEPLOY_SCRIPT
             NO_UNSUPPORTED_PLATFORM_ERROR
+            NO_COMPILER_RUNTIME
     )
     install(SCRIPT ${DEPLOY_SCRIPT})
     add_custom_command(
