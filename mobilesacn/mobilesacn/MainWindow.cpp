@@ -9,10 +9,11 @@
 #include "MainWindow.h"
 #include "NetIntModel.h"
 #include "Settings.h"
-#include "Updater.h"
 #include "mobilesacn/libmobilesacn/Caffeine.h"
 #include "mobilesacn_config.h"
 #include "ui_MainWindow.h"
+#include "updater/UpdateDialog.h"
+#include "updater/Updater.h"
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -172,7 +173,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::updateAvailable(const Updater::Release &release)
+void MainWindow::updateAvailable(const Release &release)
 {
     auto *dialog = new UpdateDialog(release, this);
     connect(dialog, &UpdateDialog::finished, dialog, &UpdateDialog::deleteLater);

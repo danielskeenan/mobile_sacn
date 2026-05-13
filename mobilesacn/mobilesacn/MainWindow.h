@@ -10,8 +10,9 @@
 #define MOBILE_SACN_SRC_MOBILESACN_MAINWINDOW_H_
 
 #include "ClientTableModel.h"
-#include "Updater.h"
 #include "mobilesacn/libmobilesacn/Application.h"
+#include "updater/Release.h"
+#include "updater/Updater.h"
 #include <QComboBox>
 #include <QMainWindow>
 
@@ -57,7 +58,7 @@ private Q_SLOTS:
     void appStopped();
     void on_cmbWebUiIface_currentIndexChanged(int row);
     void on_cmbSacnIface_currentIndexChanged(int row);
-    void updateAvailable(const Updater::Release &release);
+    void updateAvailable(const Release &release);
 };
 } // namespace mobilesacn
 

@@ -1,6 +1,5 @@
 qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         ${PROJECT_SOURCE_DIR}/resources/resources.qrc
-        main.cpp
         ClientTableModel.cpp
         ClientTableModel.h
         MainWindow.cpp
@@ -8,10 +7,14 @@ qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         MainWindow.ui
         NetIntModel.cpp
         NetIntModel.h
-        Updater.cpp
-        Updater.h
         log_files.cpp
         log_files.h
+        main.cpp
+        updater/Release.h
+        updater/UpdateDialog.cpp
+        updater/UpdateDialog.h
+        updater/Updater.cpp
+        updater/Updater.h
 )
 
 find_package(unofficial-nayuki-qr-code-generator CONFIG REQUIRED)
