@@ -11,7 +11,6 @@
 #include <spdlog/spdlog.h>
 #include <QApplication>
 #include <QDesktopServices>
-#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -23,18 +22,14 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
-#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTextBrowser>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QVersionNumber>
-
-// UNCOMMENT TO FORCE AN UPDATE
-// #define UPDATER_CHECK_VERSION "0.0.0"
-
-#ifndef UPDATER_CHECK_VERSION
-#define UPDATER_CHECK_VERSION mobilesacn::config::kProjectVersion
+#ifdef OS_WINDOWS
+#include <Windows.h>
+#include <msi.h>
 #endif
 
 namespace mobilesacn {
@@ -101,6 +96,19 @@ QString preferredPackage(const QStringList &filenames)
 
     filenameRegexes.emplace_back(QStringLiteral("-Linux\\.tar\\.gz$"));
 #endif
+#ifdef OS_WINDOWS
+    // Get MSI product code (which changes each release) from upgrade code (always the same).
+    // If we can find the product code, the program was installed with an MSI.
+    std::wstring productCode(MAX_GUID_CHARS, L'\0');
+    // https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msienumrelatedproductsw
+    auto ret = MsiEnumRelatedProducts(config::kProjectMsiUpgradeCode, 0, 0, productCode.data());
+    if (ret == ERROR_SUCCESS) {
+        // Software was installed with an MSI.
+        filenameRegexes.emplace_back(QStringLiteral("-Windows\\.msi$"));
+    }
+
+    filenameRegexes.emplace_back(QStringLiteral("-Windows\\.zip$"));
+#endif
 
     // Find first matching filename.
     for (const auto &re : filenameRegexes) {
@@ -141,7 +149,7 @@ void Updater::checkForUpdate()
             return;
         }
         const auto releaseVersion = QVersionNumber::fromString(tagName.toString().mid(1));
-        if (QVersionNumber::fromString(UPDATER_CHECK_VERSION) >= releaseVersion) {
+        if (QVersionNumber::fromString(qApp->applicationVersion()) >= releaseVersion) {
             SPDLOG_INFO("No updates available.");
             return;
         }
@@ -241,7 +249,10 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
 
     // Title
     auto layout = new QVBoxLayout(this);
-    auto title = new QLabel(tr("A software update is available:"), this);
+    auto title = new QLabel(
+        tr("<big><strong>A new version of %1 is available!</strong></big>")
+            .arg(qApp->applicationDisplayName()),
+        this);
     layout->addWidget(title);
 
     // Version info
@@ -256,6 +267,10 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
     versionLayout->addWidget(releaseDate);
     versionLayout->addStretch();
     layout->addLayout(versionLayout);
+
+    // Release notes label
+    auto releaseNotesLabel = new QLabel(tr("Release Notes:"), this);
+    layout->addWidget(releaseNotesLabel);
 
     // Release notes
     auto releaseNotes = new QTextBrowser(this);
@@ -283,8 +298,6 @@ UpdateDialog::UpdateDialog(const Updater::Release &release, QWidget *parent) :
 void UpdateDialog::installUpdate()
 {
     auto tempDir = new QTemporaryDir;
-    // Can't autoremove as the installer needs to exist after this program closes.
-    tempDir->setAutoRemove(false);
     if (!tempDir->isValid()) {
         SPDLOG_ERROR("Could not create download location.");
         delete tempDir;
@@ -298,11 +311,18 @@ void UpdateDialog::installUpdate()
         return;
     }
 
+    // Can't autoremove as the installer needs to exist after this program closes.
+    tempDir->setAutoRemove(false);
+
     auto *progress = new QProgressDialog(this);
     progress->setLabelText(tr("Downloading update..."));
 
     auto resp = nam_->get(QNetworkRequest(release_.downloadUrl));
-    connect(progress, &QProgressDialog::canceled, [this, resp, progress]() { resp->abort(); });
+    connect(progress, &QProgressDialog::canceled, [this, resp, tempDir]() {
+        resp->abort();
+        tempDir->remove();
+        delete tempDir;
+    });
     connect(
         resp, &QNetworkReply::downloadProgress, [progress](qint64 bytesReceived, qint64 bytesTotal) {
             progress->setMaximum(bytesTotal);
