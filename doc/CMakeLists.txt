@@ -118,3 +118,13 @@ install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
         DESTINATION "${PROJECT_WEBUI_PATH}/doc"
 )
+
+# Archive for packaging
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_doc.zip"
+        COMMAND "${CMAKE_COMMAND}" -E tar c
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_doc.zip"
+        --format=zip
+        "${CMAKE_CURRENT_BINARY_DIR}/html"
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/html/index.html"
+)
+add_custom_target(${PROJECT_NAME}_doc_archive DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_doc.zip")
