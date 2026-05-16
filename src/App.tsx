@@ -6,8 +6,17 @@ import {BsGithub} from "solid-icons/bs";
 import "./App.scss";
 import LINKS from "@/links.ts";
 import {A} from "@solidjs/router";
+import {createEventListener} from "@solid-primitives/event-listener";
 
 const App: ParentComponent = (props) => {
+    // Color mode updates
+    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateBsTheme = () => {
+        document.documentElement.dataset.bsTheme = prefersDarkMode.matches ? "dark" : "light";
+    };
+    createEventListener(prefersDarkMode, "change", updateBsTheme);
+    updateBsTheme();
+
     return (
         <MetaProvider>
             <Title>Mobile sACN</Title>
@@ -31,7 +40,7 @@ const App: ParentComponent = (props) => {
             <Suspense>{props.children}</Suspense>
 
             <footer>
-                <Navbar bg="light" class="msacn-navbar-bottom">
+                <Navbar class="msacn-navbar-bottom">
                     <Container>
                         <div class="msacn-github-link">
                             <a href="https://github.com/danielskeenan/mobile_sacn" target="_blank">

@@ -1,18 +1,24 @@
-@import "assets/styles/bootstrap";
+@import "@/assets/styles/bootstrap";
 
 .msacn-navbar-top {
+  @extend .bg-body-secondary;
+
   margin-bottom: map-get($spacers, 4);
 
   .navbar-brand {
     margin: auto;
 
     img {
-      display: inline-block;
+      max-height: 1em;
+      max-width: 1em;
+      vertical-align: baseline;
     }
   }
 }
 
 .msacn-navbar-bottom {
+  @extend .bg-body;
+
   .msacn-github-link {
     flex: 1 1 auto;
 

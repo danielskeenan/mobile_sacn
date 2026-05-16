@@ -1,5 +1,5 @@
 import {Title} from "@solidjs/meta";
-import {Button, Col, Container, Figure, Row} from "solid-bootstrap";
+import {Button, Card, Col, Container, Figure, Row} from "solid-bootstrap";
 import Jumbotron from "@/components/Jumbotron";
 import logo from "@/assets/mobile_sacn.svg";
 import "./Home.scss";
@@ -16,7 +16,7 @@ const Home: Component = () => {
             <Title>Mobile sACN</Title>
             <Container>
                 <Row>
-                    <Jumbotron bg="light">
+                    <Jumbotron bg="body-secondary">
                         <h1 class="display-5">
                             <img src={logo} alt="" class="msacn-logo"/>&nbsp;Mobile sACN
                         </h1>
@@ -43,32 +43,34 @@ const Home: Component = () => {
 
                 <Row class="screenshots">
                     <Col>
-                        <Figure>
-                            <Figure.Image src={chanCheckImg} alt="Screenshot of channel check mode"/>
-                            <Figure.Caption>
+                        <Card>
+                            <Card.Header>Channel Check</Card.Header>
+                            <Card.Img variant="top" src={chanCheckImg} alt="Screenshot of channel check mode"/>
+                            <Card.Body>
                                 Run through addresses in any universe. Use per-address-priority to avoid affecting
-                                ranges
-                                you're not interested in.
-                            </Figure.Caption>
-                        </Figure>
+                                ranges you're not interested in.
+                            </Card.Body>
+                        </Card>
                     </Col>
                     <Col>
-                        <Figure>
-                            <Figure.Image src={controlImg}
-                                          alt="Screenshot of live control mode's keypad interface"/>
-                            <Figure.Caption>
+                        <Card>
+                            <Card.Header>Send Levels</Card.Header>
+                            <Card.Img variant="top" src={controlImg}
+                                      alt="Screenshot of live control mode's keypad interface"/>
+                            <Card.Body>
                                 Adjust multiple channels in one universe using faders or a simple command-line
                                 interface.
-                            </Figure.Caption>
-                        </Figure>
+                            </Card.Body>
+                        </Card>
                     </Col>
                     <Col>
-                        <Figure>
-                            <Figure.Image src={viewLevelsImg} alt="Screenshot of view levels mode"/>
-                            <Figure.Caption>
+                        <Card>
+                            <Card.Header>View Levels</Card.Header>
+                            <Card.Img variant="top" src={viewLevelsImg} alt="Screenshot of view levels mode"/>
+                            <Card.Body>
                                 View active levels from multiple sources.
-                            </Figure.Caption>
-                        </Figure>
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
             </Container>
