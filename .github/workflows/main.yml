@@ -190,17 +190,11 @@ jobs:
           pattern: packages_*
           path: packages
           merge-multiple: true
-      - name: Determine channel
-        id: channel
-        uses: dkershner6/switch-case-action@v1
-        with:
-          default: "dev"
-          conditionals-with-values: |
-            ${{ startsWith(github.ref_name, 'v') }} => main
       - name: Release (dev build)
         uses: softprops/action-gh-release@v3
         with:
-          prerelease: ${{ steps.channel.outputs.value != 'main' }}
+          # Manually mark release versions as such when writing release notes.
+          prerelease: true
           draft: true
           tag_name: ${{ github.ref_name }}
           fail_on_unmatched_files: true
