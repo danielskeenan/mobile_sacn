@@ -43,6 +43,20 @@ if (BUILD_DOC)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_doc)
 endif ()
 
+if (SENTRY_DSN)
+    find_package(sentry CONFIG REQUIRED)
+    target_sources(${PROJECT_NAME} PRIVATE SentryLogSink.h)
+    target_link_libraries(${PROJECT_NAME} PRIVATE sentry::sentry)
+
+    # Install crashpad_handler alongside this executable.
+    set(CRASHPAD_HANDLER_FILENAME "${PROJECT_NAME}_crashhandler${CMAKE_EXECUTABLE_SUFFIX}")
+    install(PROGRAMS "$<TARGET_FILE:sentry_crashpad::crashpad_handler>" TYPE BIN RENAME "${CRASHPAD_HANDLER_FILENAME}")
+
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+            "SENTRY_DSN=\"${SENTRY_DSN}\""
+            "CRASHPAD_HANDLER_FILENAME=\"${CRASHPAD_HANDLER_FILENAME}\""
+    )
+endif ()
 
 # Installation
 install(TARGETS ${PROJECT_NAME}

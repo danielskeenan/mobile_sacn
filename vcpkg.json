@@ -17,5 +17,8 @@
   }, {
     "name" : "cpp-httplib",
     "version>=" : "0.43.1"
+  }, {
+    "name" : "sentry-native",
+    "version>=" : "0.14.2"
   } ]
 }

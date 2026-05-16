@@ -47,6 +47,9 @@ void setup_sentry()
 #ifdef SENTRY_DSN
     // Set options.
     sentry_options_t *options = sentry_options_new();
+    const auto handler_path = std::filesystem::path(qApp->applicationDirPath().toStdString())
+                              / CRASHPAD_HANDLER_FILENAME;
+    sentry_options_set_handler_path(options, handler_path.c_str());
     const auto db_path
         = std::filesystem::path(
               QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString())
@@ -62,16 +65,6 @@ void setup_sentry()
 
     sentry_init(options);
 
-    // User id.
-    auto user_id = Settings::GetUserId();
-    if (user_id.isEmpty()) {
-        user_id = QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
-        Settings::SetUserId(user_id);
-    }
-    sentry_value_t user = sentry_value_new_object();
-    sentry_value_set_by_key(user, "id", sentry_value_new_string(user_id.toStdString().c_str()));
-    sentry_set_user(user);
-
     // App context.
     sentry_value_t context_app = sentry_value_new_object();
     const auto now
@@ -83,7 +76,7 @@ void setup_sentry()
         context_app, "app_version", sentry_value_new_string(config::kProjectVersion));
     const auto build_timestamp_str = fmt::to_string(config::kProjectBuildTimestamp);
     sentry_value_set_by_key(
-        context_app, "app_build", sentry_value_new_string(build_timestamp_str.c_str()));
+        context_app, "app_build_timestamp", sentry_value_new_string(build_timestamp_str.c_str()));
     sentry_set_context("app", context_app);
 #endif
 }

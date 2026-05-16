@@ -41,6 +41,8 @@ find_package(Python3 COMPONENTS Interpreter)
 
 option(BUILD_EXEC "Build the executable program.  You probably want to do this." ON)
 option(BUILD_DOC "Build documentation (Requires Python)" ${Python3_FOUND})
+option(BUILD_PACKAGE "Create packages, installers, etc." Off)
+set(SENTRY_DSN "" CACHE STRING "Sentry.io DSN")
 
 if (BUILD_EXEC OR BUILD_DOC)
     # Doc needs the Web UI to search for 3rd party software.
@@ -92,7 +94,6 @@ if (BUILD_EXEC)
         #        add_subdirectory(test)
     endif ()
 
-    option(BUILD_PACKAGE "Create packages, installers, etc." Off)
     if (BUILD_PACKAGE)
         add_subdirectory(install)
     endif ()
