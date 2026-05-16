@@ -8,6 +8,7 @@ import controlImg from "@/assets/control_keypad_dark.png";
 import viewLevelsImg from "@/assets/viewlevels_grid_dark.png";
 import {type Component} from "solid-js";
 import {A} from "@solidjs/router";
+import LINKS from "@/links.ts";
 
 const Home: Component = () => {
     return (
@@ -28,11 +29,11 @@ const Home: Component = () => {
 
                         <ul class="list-inline">
                             <li class="list-inline-item">
-                                <Button variant="success" as={A} href="/download">Download</Button>
+                                <Button variant="success" as={A} href={LINKS.download}>Download</Button>
                             </li>
 
                             <li class="list-inline-item">
-                                <Button variant="primary" as="a" href="/doc/index.html" target="_self">
+                                <Button variant="primary" as="a" href={LINKS.doc} target="_blank">
                                     User Manual
                                 </Button>
                             </li>
