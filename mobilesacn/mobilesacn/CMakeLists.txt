@@ -44,6 +44,7 @@ if (BUILD_DOC)
 endif ()
 
 if (SENTRY_DSN)
+    message(STATUS "Building with Sentry.io integration. To disable, unset the SENTRY_DSN cache variable.")
     find_package(sentry CONFIG REQUIRED)
     target_sources(${PROJECT_NAME} PRIVATE SentryLogSink.h)
     target_link_libraries(${PROJECT_NAME} PRIVATE sentry::sentry)
@@ -56,6 +57,8 @@ if (SENTRY_DSN)
             "SENTRY_DSN=\"${SENTRY_DSN}\""
             "CRASHPAD_HANDLER_FILENAME=\"${CRASHPAD_HANDLER_FILENAME}\""
     )
+else ()
+    message(STATUS "Building without Sentry.io integration. To enable, the SENTRY_DSN cache variable.")
 endif ()
 
 # Installation
