@@ -1,0 +1,25 @@
+.msacn-logo {
+  max-height: 1em;
+  max-width: 1em;
+  vertical-align: baseline;
+}
+
+.screenshots {
+  justify-content: space-around;
+
+  figure {
+    display: flex;
+    flex-direction: column;
+
+    img {
+      margin-left: auto;
+      margin-right: auto;
+      min-width: 20rem;
+      width: 20rem;
+    }
+
+    figcaption {
+      text-align: justify;
+    }
+  }
+}

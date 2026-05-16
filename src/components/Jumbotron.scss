@@ -1,0 +1,12 @@
+@import "../assets/styles/bootstrap";
+
+.jumbotron {
+  @include border-radius($border-radius-lg);
+  padding: map-get($spacers, 5);
+  margin-bottom: map-get($spacers, 4);
+
+  & > .container, & > .container-fluid {
+    padding-top: map-get($spacers, 5);
+    padding-bottom: map-get($spacers, 5);
+  }
+}
