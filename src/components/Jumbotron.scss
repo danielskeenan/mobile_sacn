@@ -1,4 +1,4 @@
-@import "../assets/styles/bootstrap";
+@import "@/assets/styles/bootstrap";
 
 .jumbotron {
   @include border-radius($border-radius-lg);
