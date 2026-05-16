@@ -1,0 +1,8 @@
+img.screenshot {
+  max-width: 375px;
+  max-height: max-content; }
+
+.btn img {
+  height: 1em; }
+  .btn img.line-height {
+    vertical-align: text-bottom; }
