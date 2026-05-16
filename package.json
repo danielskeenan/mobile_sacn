@@ -24,6 +24,8 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.1",
     "bootstrap": "^5.3.8",
+    "filesize": "^11.0.17",
+    "octokit": "^5.0.5",
     "sass": "^1.99.0",
     "solid-bootstrap": "^1.0.21",
     "solid-icons": "^1.2.0",
