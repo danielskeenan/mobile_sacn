@@ -19,6 +19,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  #######################
+  # MAIN PROGRAM
+  #######################
   build:
     strategy:
       fail-fast: false
@@ -75,13 +78,11 @@ jobs:
           arch: ${{matrix.system.qt_arch}}
           cache: true
           modules: qtwebsockets
-      - name: Cache web ui deps
-        uses: actions/cache@v5
+      - uses: actions/setup-node@v6
         with:
-          path: ${{github.workspace}}/mobile_sacn_webui/node_modules
-          key: ${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
-          restore-keys: |
-            ${{runner.os}}-webui-
+          node-version-file: mobile_sacn_webui/package.json
+          cache: npm
+          cache-dependency-path: mobile_sacn_webui/package-lock.json
       #######################
       # BUILD
       #######################
@@ -117,6 +118,9 @@ jobs:
           path: ${{env.BUILD_DIR}}/packages/*.*
           if-no-files-found: error
 
+  #######################
+  # DOCS
+  #######################
   docs:
     runs-on: ubuntu-latest
     steps:
