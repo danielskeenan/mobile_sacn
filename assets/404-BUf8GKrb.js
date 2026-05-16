@@ -1,0 +1,1 @@
+import{m as a,g as e,R as o,A as l,L as m,b as u,t}from"./index-BbncVH-u.js";var i=t("<h1>File not found."),p=t("<p>"),h=t("<main>");function d(){return(()=>{var r=h();return a(r,e(u,{get children(){return e(o,{get children(){return[i(),(()=>{var n=p();return a(n,e(l,{get href(){return m.home},children:"Go to the homepage."})),n})()]}})}})),r})()}export{d as default};
