@@ -32,7 +32,7 @@ const Home: Component = () => {
                             </li>
 
                             <li class="list-inline-item">
-                                <Button variant="primary" as="a" href="/doc/index.html">
+                                <Button variant="primary" as="a" href="/doc/index.html" target="_self">
                                     User Manual
                                 </Button>
                             </li>
