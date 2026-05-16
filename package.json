@@ -7,16 +7,24 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "fetch-docs": "scripts/fetch-docs.ts public/doc",
+    "dependencies": "scripts/fetch-docs.ts public/doc"
   },
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/adm-zip": "^0.5.8",
     "@types/node": "^25.8.0",
+    "@types/tmp": "^0.2.6",
+    "adm-zip": "^0.5.17",
+    "commander": "^14.0.3",
     "eslint": "^10.4.0",
     "postcss": "^8.4.49",
     "solid-devtools": "^0.34.3",
+    "tmp": "^0.2.5",
+    "typescript": "^6.0.3",
     "vite": "^7.1.4",
     "vite-plugin-solid": "^2.11.8"
   },

@@ -7,6 +7,7 @@ import chanCheckImg from "@/assets/chancheck_dark.png";
 import controlImg from "@/assets/control_keypad_dark.png";
 import viewLevelsImg from "@/assets/viewlevels_grid_dark.png";
 import {type Component} from "solid-js";
+import {A} from "@solidjs/router";
 
 const Home: Component = () => {
     return (
@@ -27,11 +28,11 @@ const Home: Component = () => {
 
                         <ul class="list-inline">
                             <li class="list-inline-item">
-                                <Button variant="success" as="a" href="/download">Download</Button>
+                                <Button variant="success" as={A} href="/download">Download</Button>
                             </li>
 
                             <li class="list-inline-item">
-                                <Button variant="primary" as="a" href="/doc">
+                                <Button variant="primary" as="a" href="/doc/index.html">
                                     User Manual
                                 </Button>
                             </li>
