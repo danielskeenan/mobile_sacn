@@ -10,6 +10,9 @@
     "serve": "vite preview",
     "lupdate": "i18next-cli extract"
   },
+  "engines": {
+    "node": "^22 || ^24"
+  },
   "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^10.0.1",

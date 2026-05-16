@@ -143,13 +143,11 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      - name: Cache web ui deps
-        uses: actions/cache@v5
+      - uses: actions/setup-node@v6
         with:
-          path: ${{github.workspace}}/mobile_sacn_webui/node_modules
-          key: ${{runner.os}}-webui-${{hashfiles('**/package-lock.json')}}
-          restore-keys: |
-            ${{runner.os}}-webui-
+          node-version-file: mobile_sacn_webui/package.json
+          cache: npm
+          cache-dependency-path: mobile_sacn_webui/package-lock.json
       #######################
       # BUILD
       #######################
