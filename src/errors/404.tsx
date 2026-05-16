@@ -1,8 +1,18 @@
+import {Container, Row} from "solid-bootstrap";
+import {A} from "@solidjs/router";
+import LINKS from "@/links.ts";
+
 export default function NotFound() {
-  return (
-    <section class="text-gray-700 p-8">
-      <h1 class="text-2xl font-bold">404: Not Found</h1>
-      <p class="mt-4">It's gone 😞</p>
-    </section>
-  );
+    return (
+        <main>
+            <Container>
+                <Row>
+                    <h1>File not found.</h1>
+                    <p>
+                        <A href={LINKS.home}>Go to the homepage.</A>
+                    </p>
+                </Row>
+            </Container>
+        </main>
+    );
 }
