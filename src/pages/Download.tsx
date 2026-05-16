@@ -107,7 +107,7 @@ const Download: Component = () => {
                             </Alert>
                         </Match>
                         <Match when={downloads()}>
-                            <Table>
+                            <Table responsive="xl">
                                 <thead>
                                 <tr>
                                     <th>Platform</th>

@@ -1,4 +1,4 @@
-import {type ParentComponent, Suspense} from 'solid-js';
+import {createUniqueId, type ParentComponent, Suspense} from 'solid-js';
 import {MetaProvider, Title} from "@solidjs/meta";
 import {Container, Nav, Navbar} from "solid-bootstrap";
 import logo from "./assets/mobile_sacn.svg";
@@ -17,17 +17,19 @@ const App: ParentComponent = (props) => {
     createEventListener(prefersDarkMode, "change", updateBsTheme);
     updateBsTheme();
 
+    const navbarTopId = createUniqueId();
+
     return (
         <MetaProvider>
             <Title>Mobile sACN</Title>
             <header>
-                <Navbar class="msacn-navbar-top" expand="lg">
+                <Navbar class="msacn-navbar-top" expand="lg" collapseOnSelect>
                     <Container>
                         <Navbar.Brand href={LINKS.home}>
                             <img class="msacn-logo" src={logo} alt=""/>&nbsp;Mobile sACN
                         </Navbar.Brand>
-                        <Navbar.Toggle/>
-                        <Navbar.Collapse>
+                        <Navbar.Toggle aria-controls={navbarTopId}/>
+                        <Navbar.Collapse id={navbarTopId}>
                             <Nav>
                                 <Nav.Link as={A} href={LINKS.download}>Download</Nav.Link>
                                 <Nav.Link href={"/doc/index.html"} target="_blank">Manual</Nav.Link>
