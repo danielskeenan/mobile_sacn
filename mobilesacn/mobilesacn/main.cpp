@@ -6,11 +6,6 @@
  * @copyright Apache-2.0
  */
 
-#include <QApplication>
-#ifdef SENTRY_DSN
-#include "SentryLogSink.h"
-#include <sentry.h>
-#endif
 #include "MainWindow.h"
 #include "Settings.h"
 #include "log_files.h"
@@ -22,9 +17,14 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+#include <QApplication>
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QUuid>
+#ifdef SENTRY_DSN
+#include "SentryLogSink.h"
+#include <sentry.h>
+#endif
 
 using namespace mobilesacn;
 
@@ -49,7 +49,7 @@ void setup_sentry()
     sentry_options_t *options = sentry_options_new();
     const auto handler_path = std::filesystem::path(qApp->applicationDirPath().toStdString())
                               / CRASHPAD_HANDLER_FILENAME;
-    sentry_options_set_handler_path(options, handler_path.c_str());
+    sentry_options_set_handler_path(options, handler_path.string().c_str());
     const auto db_path
         = std::filesystem::path(
               QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString())
@@ -67,8 +67,7 @@ void setup_sentry()
 
     // App context.
     sentry_value_t context_app = sentry_value_new_object();
-    const auto now
-        = fmt::format("{:%Y-%m-%dT%H:%M:%S%z}", fmt::gmtime(std::chrono::system_clock::now()));
+    const auto now = fmt::format("{:%Y-%m-%dT%H:%M:%S%z}", std::chrono::system_clock::now());
     sentry_value_set_by_key(context_app, "app_start_time", sentry_value_new_string(now.c_str()));
     sentry_value_set_by_key(
         context_app, "app_name", sentry_value_new_string(config::kProjectDisplayName));
