@@ -71,6 +71,7 @@ del defs
 # a list of builtin themes.
 #
 html_theme = 'sphinx_book_theme'
+html_baseurl = '/doc'
 html_static_path = ['_static']
 html_css_files = ['msacn-doc.css', 'bootstrap-icons.min.css']
 html_title = f'{build_info["display_name"]} v{release}'
@@ -80,6 +81,7 @@ html_copy_source = False
 html_domain_indices = False
 html_show_sourcelink = False
 html_show_copyright = False
+# https://sphinx-book-theme.readthedocs.io/en/stable/reference.html
 html_theme_options = {
     'navigation_with_keys': False,
     'repository_url': 'https://github.com/danielskeenan/mobile_sacn',
@@ -91,9 +93,11 @@ html_theme_options = {
     'use_fullscreen_button': False,
     'path_to_docs': 'doc/',
     'repository_branch': 'main',
+    'footer_start': ['copyright', 'sphinx-version'],
+    'footer_end': ['theme-version'],
     'logo': {
         'text': html_title,
-    }
+    },
 }
 
 # -- Options for LaTeX output -------------------------------------------------
