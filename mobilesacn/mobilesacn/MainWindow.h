@@ -52,6 +52,7 @@ protected Q_SLOTS:
 
 private Q_SLOTS:
     void on_btnStart_clicked();
+    void on_btnSettings_clicked();
     void on_btnHelp_clicked();
     void on_chkSupressSleep_toggled(bool suppress);
     void appStarted();

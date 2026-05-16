@@ -10,9 +10,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QSet>
-#include <QSettings>
-
-static constexpr auto kClientSettingsGroup = QLatin1StringView("clientSettings");
+#include "Settings.h"
 
 static constexpr auto kSettingPreferredColorScheme = QLatin1StringView("preferredColorScheme");
 static const QSet kAllowedPreferredColorScheme{
@@ -32,24 +30,19 @@ namespace mobilesacn {
 
 ClientSettings::ClientSettings()
 {
-    QSettings settings;
-    settings.beginGroup(kClientSettingsGroup);
-
     // Preferred color mode
     {
-        const auto preferredColorMode = settings.value(kSettingPreferredColorScheme);
-        if (preferredColorMode.isValid()
-            && kAllowedPreferredColorScheme.contains(preferredColorMode.toString())) {
-            preferredColorMode_ = preferredColorMode.toString();
+        const auto preferredColorMode = Settings::getPreferredColorScheme();
+        if (kAllowedPreferredColorScheme.contains(preferredColorMode)) {
+            preferredColorMode_ = preferredColorMode;
         }
     }
 
     // Level display mode
     {
-        const auto levelDisplayMode = settings.value(kSettingLevelDisplayMode);
-        if (levelDisplayMode.isValid()
-            && kAllowedLevelDisplayMode.contains(levelDisplayMode.toString())) {
-            levelDisplayMode_ = levelDisplayMode.toString();
+        const auto levelDisplayMode = Settings::getLevelDisplayMode();
+        if (kAllowedLevelDisplayMode.contains(levelDisplayMode)) {
+            levelDisplayMode_ = levelDisplayMode;
         }
     }
 }
@@ -92,22 +85,21 @@ QJsonObject ClientSettings::toJson() const
 
 void ClientSettings::save() const
 {
-    QSettings settings;
-    settings.beginGroup(kClientSettingsGroup);
-
     // Preferred color mode
     if (preferredColorMode_.has_value()) {
-        settings.setValue(kSettingPreferredColorScheme, *preferredColorMode_);
+        Settings::setPreferredColorScheme(*preferredColorMode_);
     } else {
-        settings.remove(kSettingPreferredColorScheme);
+        Settings::unsetPreferredColorScheme();
     }
 
     // Level display mode
     if (levelDisplayMode_.has_value()) {
-        settings.setValue(kSettingLevelDisplayMode, *levelDisplayMode_);
+        Settings::setLevelDisplayMode(*levelDisplayMode_);
     } else {
-        settings.remove(kSettingLevelDisplayMode);
+        Settings::unsetLevelDisplayMode();
     }
+
+    Settings::sync();
 }
 
 } // namespace mobilesacn

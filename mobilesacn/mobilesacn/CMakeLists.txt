@@ -7,6 +7,9 @@ qt_add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
         MainWindow.ui
         NetIntModel.cpp
         NetIntModel.h
+        SettingsDialog.cpp
+        SettingsDialog.h
+        SettingsDialog.ui
         log_files.cpp
         log_files.h
         main.cpp

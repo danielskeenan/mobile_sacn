@@ -8,8 +8,9 @@
 
 #include "MainWindow.h"
 #include "NetIntModel.h"
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "mobilesacn/libmobilesacn/Caffeine.h"
+#include "mobilesacn/libmobilesacn/Settings.h"
 #include "mobilesacn_config.h"
 #include "ui_MainWindow.h"
 #include "updater/UpdateDialog.h"
@@ -35,7 +36,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Check for updates.
     connect(updater_, &Updater::updateAvailable, this, &MainWindow::updateAvailable);
-    updater_->checkForUpdates();
+    // Need the event loop running for this flow to function.
+    QTimer::singleShot(0, [this]() {
+        if (!Settings::getUserAskedAboutUpdater()) {
+            const auto useUpdater = QMessageBox::question(
+                this,
+                tr("Check for Updates"),
+                tr("Would you like this program to check for updates automatically?"));
+            Settings::setCheckForUpdates(useUpdater == QMessageBox::Yes);
+            Settings::setUserAskedAboutUpdater(true);
+            Settings::sync();
+        }
+        if (Settings::getCheckForUpdates()) {
+            updater_->checkForUpdates();
+        }
+    });
 
     // sACN Net Int
     ui_->cmbSacnIface->setModel(netIntModel_);
@@ -116,6 +131,19 @@ void MainWindow::on_btnStart_clicked()
     } else {
         app_->start(appOptions_);
     }
+}
+
+void MainWindow::on_btnSettings_clicked()
+{
+    auto *dialog = new SettingsDialog(this);
+    connect(dialog, &SettingsDialog::finished, [this]() {
+        // Check for updates if user just enabled the updater.
+        if (Settings::getCheckForUpdates()) {
+            updater_->checkForUpdates();
+        }
+    });
+    connect(dialog, &SettingsDialog::finished, dialog, &SettingsDialog::deleteLater);
+    dialog->show();
 }
 
 void MainWindow::on_btnHelp_clicked()

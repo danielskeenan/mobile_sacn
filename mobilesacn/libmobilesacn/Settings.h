@@ -6,8 +6,8 @@
  * @copyright Apache-2.0
  */
 
-#ifndef MOBILE_SACN_SRC_MOBILESACN_SETTINGS_H_
-#define MOBILE_SACN_SRC_MOBILESACN_SETTINGS_H_
+#ifndef MOBILE_SACN_SRC_LIBMOBILESACN_SETTINGS_H_
+#define MOBILE_SACN_SRC_LIBMOBILESACN_SETTINGS_H_
 
 #include <QSettings>
 
@@ -35,7 +35,7 @@
 #define MSACN_SETTING_CAST(val_T, storage_T, name, default_val) \
     static val_T get##name() \
     { \
-        const QVariant val_variant = QSettings().value(#name); \
+        const QVariant val_variant = QSettings().value(QStringLiteral(#name)); \
         if (!val_variant.isValid()) { \
             return default_val; \
         } \
@@ -45,7 +45,12 @@
     static void set##name(const val_T &val) \
     { \
         const auto val_storage = static_cast<storage_T>(val); \
-        QSettings().setValue(#name, QVariant::fromValue<storage_T>(val_storage)); \
+        QSettings().setValue(QStringLiteral(#name), QVariant::fromValue<storage_T>(val_storage)); \
+    } \
+    /** Unset @ref get##name() */ \
+    static void unset##name() \
+    { \
+        QSettings().remove(QStringLiteral(#name)); \
     } \
     /** Default value for @ref get##name() */ \
     static val_T getDefault##name() \
@@ -96,12 +101,18 @@ public:
 
     MSACN_SETTING(QByteArray, MainWindowGeometry, {})
 
+    MSACN_SETTING(bool, UserAskedAboutUpdater, false);
+
+    MSACN_SETTING(bool, CheckForUpdates, false);
+
     MSACN_SETTING(QString, LastWebUiInterfaceName, {})
 
     MSACN_SETTING(QString, LastSacnInterfaceName, {})
 
-    MSACN_SETTING(QString, UserId, {})
+    MSACN_SETTING(QString, PreferredColorScheme, {})
+
+    MSACN_SETTING(QString, LevelDisplayMode, QStringLiteral("percent"))
 };
 } // namespace mobilesacn
 
-#endif //MOBILE_SACN_SRC_MOBILESACN_SETTINGS_H_
+#endif //MOBILE_SACN_SRC_LIBMOBILESACN_SETTINGS_H_

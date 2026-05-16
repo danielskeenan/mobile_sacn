@@ -1,4 +1,21 @@
 add_library(libmobilesacn STATIC
+        Application.cpp
+        Application.h
+        Caffeine.cpp
+        Caffeine.h
+        ClientSettings.cpp
+        ClientSettings.h
+        EtcPalLogHandler.cpp
+        EtcPalLogHandler.h
+        Exception.h
+        HandlerFactory.cpp
+        HandlerFactory.h
+        HttpServer.cpp
+        HttpServer.h
+        SacnCidGenerator.cpp
+        SacnCidGenerator.h
+        SacnSettings.h
+        Settings.h
         handler/BaseHandler.cpp
         handler/BaseHandler.h
         handler/ChanCheck.cpp
@@ -13,22 +30,6 @@ add_library(libmobilesacn STATIC
         handler/TransmitHandler.h
         handler/TransmitLevels.cpp
         handler/TransmitLevels.h
-        Application.h
-        Application.cpp
-        Caffeine.cpp
-        Caffeine.h
-        ClientSettings.cpp
-        ClientSettings.h
-        EtcPalLogHandler.h
-        EtcPalLogHandler.cpp
-        Exception.h
-        HandlerFactory.cpp
-        HandlerFactory.h
-        HttpServer.h
-        HttpServer.cpp
-        SacnCidGenerator.h
-        SacnCidGenerator.cpp
-        SacnSettings.h
         util.h
 )
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

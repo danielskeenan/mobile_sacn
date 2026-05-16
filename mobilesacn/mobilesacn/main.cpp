@@ -6,8 +6,8 @@
  * @copyright Apache-2.0
  */
 
+#include "../libmobilesacn/Settings.h"
 #include "MainWindow.h"
-#include "Settings.h"
 #include "log_files.h"
 #include "mobilesacn_config.h"
 #include <chrono>
@@ -80,24 +80,6 @@ void setup_sentry()
 #endif
 }
 
-/**
- * Ask the user about resetting settings
- * @param app The QApplication instance with an installed translator
- */
-bool ReallyClearSettings(QApplication &app)
-{
-    auto *dialog = new QMessageBox(
-        QMessageBox::Question,
-        app.translate("entrypoint", "Clear settings?"),
-        app.translate(
-            "entrypoint",
-            "Holding SHIFT while launching this program will clear all settings.\n"
-            "Are you sure you wish to reset the settings to their defaults?"),
-        QMessageBox::Yes | QMessageBox::No);
-    dialog->setDefaultButton(QMessageBox::No);
-    return dialog->exec() == QMessageBox::Yes;
-}
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -107,13 +89,6 @@ int main(int argc, char *argv[])
     app.setApplicationDisplayName(mobilesacn::config::kProjectDisplayName);
     app.setApplicationVersion(mobilesacn::config::kProjectVersion);
     app.setWindowIcon(QIcon(":/logo.svg"));
-
-    // Clear all settings if program is launched while holding [Shift].
-    if (app.queryKeyboardModifiers() == Qt::ShiftModifier) {
-        if (ReallyClearSettings(app)) {
-            Settings::clear();
-        }
-    }
 
     setup_logging();
     setup_sentry();
