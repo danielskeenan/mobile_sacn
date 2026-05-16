@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Level Control &#8212; Mobile sACN v0.5.1</title>
+    <title>View Levels &#8212; Mobile sACN v0.5.1</title>
   
   
   
@@ -16,39 +16,44 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=fde62601" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/msacn-doc.css?v=4849efd4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-icons.min.css?v=9e162993" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=342d2afb"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'usage/control/index';</script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'usage/view_levels/index';</script>
     <link rel="icon" href="../../_static/logo.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="View Levels" href="../view_levels/index.html" />
-    <link rel="prev" title="Channel Check" href="../chancheck/index.html" />
+    <link rel="next" title="3rd Party Software" href="../../3rd_party.html" />
+    <link rel="prev" title="Level Control" href="../control/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.1" />
   </head>
   
   
@@ -64,19 +69,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../../search.html"
       method="get">
@@ -84,7 +78,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -92,8 +85,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -109,7 +102,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -139,7 +133,7 @@
     
     
     <img src="../../_static/logo.svg" class="logo__image only-light" alt=""/>
-    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt=""/>`);</script>
+    <img src="../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
     <p class="title logo__title">Mobile sACN v0.5.1</p>
@@ -147,26 +141,21 @@
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Usage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../chancheck/index.html">Channel Check</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Level Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../view_levels/index.html">View Levels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../control/index.html">Level Control</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">View Levels</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../../wifi_hotspot.html">WiFi Hotspot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../3rd_party.html">3rd Party Software</a></li>
 </ul>
 
@@ -176,9 +165,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -239,7 +233,7 @@
       
       
       
-      <li><a href="https://github.com/danielskeenan/mobile_sacn/issues/new?title=Issue%20on%20page%20%2Fusage/control/index.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/danielskeenan/mobile_sacn/issues/new?title=Issue%20on%20page%20%2Fusage/view_levels/index.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -258,25 +252,17 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
-<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
 </button>
 </div></div>
@@ -289,7 +275,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Level Control</h1>
+    <h1>View Levels</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -299,13 +285,16 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#faders">Faders</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#keypad">Keypad</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#universe-discovery">Universe Discovery</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bars">Bars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid">Grid</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flicker-finder">Flicker Finder</a></li>
 </ul>
             </nav>
         </div>
@@ -317,114 +306,140 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="level-control">
-<span id="control"></span><span id="index-0"></span><h1>Level Control<a class="headerlink" href="#level-control" title="Link to this heading">#</a></h1>
-<p>Control mode allows you to set levels for individual addresses.  Only one universe may be controlled at a time.</p>
-<figure class="align-default" id="id1">
-<img alt="../../_images/control_faders.png" class="screenshot" src="../../_images/control_faders.png" />
-<figcaption>
-<p><span class="caption-text">Control screen</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
-</figcaption>
-</figure>
-<nav class="contents local" id="contents">
-<ul class="simple">
-<li><p><a class="reference internal" href="#usage" id="id5">Usage</a></p></li>
-<li><p><a class="reference internal" href="#config" id="id6">Config</a></p></li>
-<li><p><a class="reference internal" href="#modes" id="id7">Modes</a></p>
-<ul>
-<li><p><a class="reference internal" href="#faders" id="id8">Faders</a></p></li>
-<li><p><a class="reference internal" href="#keypad" id="id9">Keypad</a></p></li>
-</ul>
-</li>
-</ul>
-</nav>
+  <style>
+/* Raise */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-cyan);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-blue);
+}
+
+/* Lower */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-teal);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-green);
+}
+
+/* Same */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-500);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-700);
+}
+</style>
+<section id="view-levels">
+<h1>View Levels<a class="headerlink" href="#view-levels" title="Link to this heading">#</a></h1>
+<p>View Levels mode shows all sACN levels on the network and their merge result.</p>
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_list_light.png"><img alt="Screenshot of View Levels page" class="only-light screenshot align-center" src="../../_images/viewlevels_list_light.png" style="width: 281.5px; height: 542.5px;" />
+</a>
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_list_dark.png"><img alt="Screenshot of View Levels page" class="only-dark screenshot align-center" src="../../_images/viewlevels_list_dark.png" style="width: 281.5px; height: 542.5px;" />
+</a>
 <section id="usage">
-<h2><a class="toc-backref" href="#id5" role="doc-backlink">Usage</a><a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
-<ol class="arabic">
-<li><p>Select the universe in the <a class="reference internal" href="#control-config-universe"><span class="std std-ref">Config</span></a> menu.</p></li>
-<li><p>Press <span class="btn btn-success"><span>Start</span></span>.</p></li>
-<li><p>Adjust levels.</p></li>
-<li><p>Press <span class="btn btn-danger"><span>Stop</span></span> to stop transmitting.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If this program was the only device transmitting sACN on the network, receivers will follow their
-programmed data loss behavior. This means that lights may not turn off immediately.</p>
-</div>
-</li>
-</ol>
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<p>If any sACN sources are active on the network, their levels are shown for the given universe. If more than one sACN
+source is active, the levels from all sources is merged following the standard sACN merge rules. Each source is assigned
+a different color; the color legend is shown by opening the “Sources” dropdown.</p>
+<section id="universe-discovery">
+<h3>Universe Discovery<a class="headerlink" href="#universe-discovery" title="Link to this heading">#</a></h3>
+<p>Discovered sACN universes are shown as buttons. There is a small delay (usually around 10 seconds, but depends on the
+transmitters) from entering View Levels mode and universe discovery. Additionally, not all sACN transmitters make their
+transmitted universes discoverable. To select a universe that has not been discovered, press
+<span class="btn btn-outline-secondary">Choose Universe…</span>.</p>
 </section>
-<section id="config">
-<span id="control-config"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink">Config</a><a class="headerlink" href="#config" title="Link to this heading">#</a></h2>
-<figure class="align-default" id="id2">
-<img alt="../../_images/config1.png" class="screenshot" src="../../_images/config1.png" />
-<figcaption>
-<p><span class="caption-text">Configuration menu</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
-</figcaption>
-</figure>
-<dl class="simple">
-<dt>Universe</dt><dd><p id="control-config-universe">sACN universe to broadcast on.</p>
-</dd>
-<dt>Priority</dt><dd><p id="control-config-priority">sACN priority. Levels with higher priority will take precedence over levels with lower priority. If two
-sources are broadcasting with the same priority, the highest level will take precedence. The default priority on most
-sACN sources, including this program, is <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p>
-</dd>
-<dt>Use Per-Address-Priority</dt><dd><p id="control-config-pap">When enabled, the priority setting will be applied to only address with levels above 0%. This mode is generally only
-compatible with sACN receivers designed by ETC (including dimmers and gateways), as it is a proprietary extension to
-the sACN standard. Receivers that do not understand per-address-priority will behave as if the priority setting is
-applied to the entire universe.</p>
-</dd>
-</dl>
 </section>
 <section id="modes">
-<span id="control-modes"></span><h2><a class="toc-backref" href="#id7" role="doc-backlink">Modes</a><a class="headerlink" href="#modes" title="Link to this heading">#</a></h2>
-<p>Multiple control modes are available.  Set levels are retained when switching control modes.</p>
-<section id="faders">
-<span id="control-modes-faders"></span><span id="index-1"></span><h3><a class="toc-backref" href="#id8" role="doc-backlink">Faders</a><a class="headerlink" href="#faders" title="Link to this heading">#</a></h3>
-<p>Press <span class="btn btn-secondary"><img alt="../../_images/sliders-solid.svg" src="../../_images/sliders-solid.svg" /></span> to show faders mode.</p>
-<figure class="align-default" id="id3">
-<img alt="../../_images/control_faders.png" class="screenshot" src="../../_images/control_faders.png" />
+<h2>Modes<a class="headerlink" href="#modes" title="Link to this heading">#</a></h2>
+<p>Multiple display modes are available:</p>
+<section id="bars">
+<h3>Bars<a class="headerlink" href="#bars" title="Link to this heading">#</a></h3>
+<p>Press <span class="btn btn-tab"><i class="bi bi-list"></i> Bars</span> to show bars mode.</p>
+<figure class="only-light align-center" id="id1">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_list_light.png"><img alt="Screenshot of bars mode" class="only-light screenshot" src="../../_images/viewlevels_list_light.png" style="width: 281.5px; height: 542.5px;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Faders mode</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+<p><span class="caption-text">Bars mode</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The faders mode presents each address as a fader.  Slide the fader from left (zero) to right (full) to adjust the level.</p>
+<figure class="only-dark align-center" id="id2">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_list_dark.png"><img alt="Screenshot of bars mode" class="only-dark screenshot" src="../../_images/viewlevels_list_dark.png" style="width: 281.5px; height: 542.5px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Bars mode</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The given universe is shown as a list of bars, where each address has a bar showing its current level. The color of the
+bar corresponds to the color of the winning source. The address is shown on the left of the bar. The level and priority
+(if “Show Priorities” is checked) are shown on the right.</p>
 </section>
-<section id="keypad">
-<span id="control-modes-keypad"></span><span id="index-2"></span><h3><a class="toc-backref" href="#id9" role="doc-backlink">Keypad</a><a class="headerlink" href="#keypad" title="Link to this heading">#</a></h3>
-<p>Press <span class="btn btn-secondary"><img alt="../../_images/keyboard-solid.svg" src="../../_images/keyboard-solid.svg" /></span> to show keypad mode.</p>
-<figure class="align-default" id="id4">
-<img alt="../../_images/control_keypad.png" class="screenshot" src="../../_images/control_keypad.png" />
+<section id="grid">
+<h3>Grid<a class="headerlink" href="#grid" title="Link to this heading">#</a></h3>
+<p>Press <span class="btn btn-tab"><i class="bi bi-table"></i> Grid</span> to show grid mode.</p>
+<figure class="only-light align-center" id="id3">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_grid_light.png"><img alt="Screenshot of grid mode" class="only-light screenshot" src="../../_images/viewlevels_grid_light.png" style="width: 281.5px; height: 542.5px;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Keypad mode</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+<p><span class="caption-text">Grid mode</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The keypad mode allows more fine-grained control of levels.  Set levels using the keypad as you would on a command-line
-lighting console, like the ETC Eos family.</p>
-<p>To assist entering correct commands, buttons that are not allowed for the current command line are shaded a darker color
-and cannot be pressed.</p>
-<p>All commands must be committed by pressing <kbd class="kbd docutils literal notranslate">Enter</kbd>.  Press <kbd class="kbd docutils literal notranslate">Clear</kbd> to backspace.  If the current command line
-has been committed (i.e. the last button pressed was <kbd class="kbd docutils literal notranslate">Enter</kbd>), pressing any button will begin a new command line.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Levels are always entered in the display format selected in the settings. This means if you have chosen to
-display levels as hex, you must enter levels as hex (e.g. full is <kbd class="kbd docutils literal notranslate">F</kbd> <kbd class="kbd docutils literal notranslate">F</kbd>) or if you have chosen to display
-levels as decimal (full is <kbd class="kbd docutils literal notranslate">2</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">5</kbd>).</p>
+<figure class="only-dark align-center" id="id4">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_grid_dark.png"><img alt="Screenshot of grid mode" class="only-dark screenshot" src="../../_images/viewlevels_grid_dark.png" style="width: 281.5px; height: 542.5px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Grid mode</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The given universe is shown as a grid with the first address in each row shown on the left. Much like
+<a class="reference internal" href="#bars">Bars Mode</a>, the color of the box corresponds to the color of the winning source. In each box, the level is shown
+above the priority.</p>
+</section>
+</section>
+<section id="flicker-finder">
+<h2>Flicker Finder<a class="headerlink" href="#flicker-finder" title="Link to this heading">#</a></h2>
+<p>When “Flicker Finder” is checked, the display changes to show level differences relative to when the checkbox was
+checked.</p>
+<p>Changes are marked with specific colors:</p>
+<div class="pst-scrollable-table-container"><table class="table table-flickerfinder">
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Color</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>Clear</p></th>
+<td><p>Level has not changed at all since Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Blue</p></th>
+<td><p>Level is higher than when Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Green</p></th>
+<td><p>Level is lower than when Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Gray</p></th>
+<td><p>Level has changed since Flicker Finder was activated, but is now the same as its original value.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
-<p>Some example command lines:</p>
-<ul class="simple">
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets address 1 to full.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">Thru</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets addresses 1, 2, 3, 4, and 5 to 50.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">+</kbd> <kbd class="kbd docutils literal notranslate">3</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets addresses 1 and 3 to 50.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">Thru</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">-</kbd> <kbd class="kbd docutils literal notranslate">3</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets addresses 1, 2, 4, and 5
-to 50.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">Thru</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">+</kbd> <kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets addresses 1, 2,
-3, 4, 5, and 10 to 50.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">+</kbd> <kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets address 1 to 10 points above its current level.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">-</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets address 1 to 5 points below its current level.</p></li>
-<li><p><kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">Thru</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">At</kbd> <kbd class="kbd docutils literal notranslate">1</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Thru</kbd> <kbd class="kbd docutils literal notranslate">5</kbd> <kbd class="kbd docutils literal notranslate">0</kbd> <kbd class="kbd docutils literal notranslate">Enter</kbd> sets address 1 to
-10, 2 to 20, 3 to 30, 4 to 40, and 5 to 50.</p></li>
-</ul>
-</section>
+<figure class="only-light align-center" id="id5">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/flickerfinder_list_light.png"><img alt="Screenshot of Flicker Finder" class="only-light screenshot" src="../../_images/flickerfinder_list_light.png" style="width: 281.5px; height: 542.5px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
+returned to its original value.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id6">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/flickerfinder_list_dark.png"><img alt="Screenshot of Flicker Finder" class="only-dark screenshot" src="../../_images/flickerfinder_list_dark.png" style="width: 281.5px; height: 542.5px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
+returned to its original value.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 
@@ -440,20 +455,20 @@ to 50.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../chancheck/index.html"
+       href="../control/index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Channel Check</p>
+        <p class="prev-next-title">Level Control</p>
       </div>
     </a>
     <a class="right-next"
-       href="../view_levels/index.html"
+       href="../../3rd_party.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">View Levels</p>
+        <p class="prev-next-title">3rd Party Software</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -464,22 +479,27 @@ to 50.</p></li>
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#faders">Faders</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#keypad">Keypad</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#universe-discovery">Universe Discovery</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bars">Bars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid">Grid</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flicker-finder">Flicker Finder</a></li>
 </ul>
   </nav></div>
 
@@ -521,8 +541,8 @@ By Dan Keenan
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>
