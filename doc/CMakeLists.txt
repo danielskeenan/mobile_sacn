@@ -9,6 +9,7 @@ set(DOC_SOURCES
         img/screenshots/base_started_dark.png
         img/screenshots/base_started_light.png
         index.md
+        privacy_policy.md
         requirements.txt
         usage/chancheck/index.md
         usage/chancheck/screenshots/addr_notransmit_dark.png

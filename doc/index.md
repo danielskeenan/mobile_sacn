@@ -8,4 +8,5 @@
 getting-started
 usage/*
 3rd_party
+privacy_policy
 ```
