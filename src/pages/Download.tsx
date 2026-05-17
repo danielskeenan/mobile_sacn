@@ -107,28 +107,34 @@ const Download: Component = () => {
                             </Alert>
                         </Match>
                         <Match when={downloads()}>
-                            <Table responsive="xl">
-                                <thead>
-                                <tr>
-                                    <th>Platform</th>
-                                    <th>Format</th>
-                                    <th>Size</th>
-                                    <th>Checksum</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <Index each={downloads()}>
-                                    {(download) => (
-                                        <tr>
-                                            <td>{download().label.icon}&nbsp;{download().label.platform}</td>
-                                            <td><a href={download().url}>{download().label.format}</a></td>
-                                            <td>{filesize(download().size)}</td>
-                                            <td>{download().checksum}</td>
-                                        </tr>
-                                    )}
-                                </Index>
-                                </tbody>
-                            </Table>
+                            <>
+                                <p>
+                                    Latest version: {release()?.name},
+                                    released {new Intl.DateTimeFormat().format(Date.parse(release()!.published_at!))}
+                                </p>
+                                <Table responsive="xl">
+                                    <thead>
+                                    <tr>
+                                        <th>Platform</th>
+                                        <th>Format</th>
+                                        <th>Size</th>
+                                        <th>Checksum</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <Index each={downloads()}>
+                                        {(download) => (
+                                            <tr>
+                                                <td>{download().label.icon}&nbsp;{download().label.platform}</td>
+                                                <td><a href={download().url}>{download().label.format}</a></td>
+                                                <td>{filesize(download().size)}</td>
+                                                <td>{download().checksum}</td>
+                                            </tr>
+                                        )}
+                                    </Index>
+                                    </tbody>
+                                </Table>
+                            </>
                         </Match>
                     </Switch>
                 </Row>
