@@ -29,3 +29,11 @@
     }
   }
 }
+
+[data-bs-theme=dark] .only-light {
+  display: none !important;
+}
+
+[data-bs-theme=light] .only-dark {
+  display: none !important;
+}
