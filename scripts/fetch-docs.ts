@@ -7,7 +7,7 @@ import path from "node:path";
 import * as fs from "node:fs";
 import {Readable} from "node:stream";
 import {finished} from "node:stream/promises";
-import AdmZip from "adm-zip";
+import StreamZip from "node-stream-zip";
 
 const GH_REPO = {
     owner: 'danielskeenan',
@@ -55,8 +55,9 @@ async function downloadDocs(docPackageUrl: string, outPath: string) {
     out.close();
 
     // Extract to out path.
-    const zip = new AdmZip(zipPath);
-    zip.extractEntryTo("html/", outPath, false, true);
+    const zip = new StreamZip.async({file: zipPath});
+    fs.rmSync(outPath, {force: true, recursive: true});
+    await zip.extract("html/", outPath);
 }
 
 const program = new Command();
