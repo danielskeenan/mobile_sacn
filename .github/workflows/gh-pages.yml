@@ -11,4 +11,4 @@ on:
 
 jobs:
   run:
-    uses: ${{ github.repository }}/.github/workflows/gh-pages.yml@pages
+    uses: danielskeenan/mobile_sacn/.github/workflows/gh-pages.yml@pages
