@@ -1,0 +1,32 @@
+name: GitHub Pages
+on:
+  workflow_call: ~
+  workflow_dispatch: ~
+  push:
+    branches:
+      - pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: pages
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/pages'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          cname: mobilesacn.dankeenan.org
