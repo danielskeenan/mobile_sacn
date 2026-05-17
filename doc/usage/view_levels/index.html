@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>View Levels &#8212; Mobile sACN v1.0.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/msacn-doc.css?v=4849efd4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-icons.min.css?v=9e162993" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=528dc5d9"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'usage/view_levels/index';</script>
+    <link rel="canonical" href="/doc/usage/view_levels/index.html" />
+    <link rel="icon" href="../../_static/logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="3rd Party Software" href="../../3rd_party.html" />
+    <link rel="prev" title="Level Control" href="../control/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">Mobile sACN v1.0.0</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Usage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../chancheck/index.html">Channel Check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../control/index.html">Level Control</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">View Levels</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3rd_party.html">3rd Party Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/danielskeenan/mobile_sacn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/danielskeenan/mobile_sacn/issues/new?title=Issue%20on%20page%20%2Fusage/view_levels/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>View Levels</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#universe-discovery">Universe Discovery</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bars">Bars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid">Grid</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flicker-finder">Flicker Finder</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <style>
+/* Raise */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-cyan);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(2) th {
+    background-color: var(--bs-blue);
+}
+
+/* Lower */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-teal);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(3) th {
+    background-color: var(--bs-green);
+}
+
+/* Same */
+html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-500);
+}
+html[data-theme=dark] table.table-flickerfinder tbody tr:nth-child(4) th {
+    background-color: var(--bs-gray-700);
+}
+</style>
+<section id="view-levels">
+<h1>View Levels<a class="headerlink" href="#view-levels" title="Link to this heading">#</a></h1>
+<p>View Levels mode shows all sACN levels on the network and their merge result.</p>
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_list_light.png"><img alt="Screenshot of View Levels page" class="align-center only-light screenshot" height="542" src="../../_images/viewlevels_list_light.png" width="282" />
+</a>
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_list_dark.png"><img alt="Screenshot of View Levels page" class="align-center only-dark screenshot" height="542" src="../../_images/viewlevels_list_dark.png" width="282" />
+</a>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<p>If any sACN sources are active on the network, their levels are shown for the given universe. If more than one sACN
+source is active, the levels from all sources is merged following the standard sACN merge rules. Each source is assigned
+a different color; the color legend is shown by opening the “Sources” dropdown.</p>
+<section id="universe-discovery">
+<h3>Universe Discovery<a class="headerlink" href="#universe-discovery" title="Link to this heading">#</a></h3>
+<p>Discovered sACN universes are shown as buttons. There is a small delay (usually around 10 seconds, but depends on the
+transmitters) from entering View Levels mode and universe discovery. Additionally, not all sACN transmitters make their
+transmitted universes discoverable. To select a universe that has not been discovered, press
+<span class="btn btn-outline-secondary">Choose Universe…</span>.</p>
+</section>
+</section>
+<section id="modes">
+<h2>Modes<a class="headerlink" href="#modes" title="Link to this heading">#</a></h2>
+<p>Multiple display modes are available:</p>
+<section id="bars">
+<h3>Bars<a class="headerlink" href="#bars" title="Link to this heading">#</a></h3>
+<p>Press <span class="btn btn-tab"><i class="bi bi-list"></i> Bars</span> to show bars mode.</p>
+<figure class="only-light align-center" id="id1">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_list_light.png"><img alt="Screenshot of bars mode" class="only-light screenshot" height="542" src="../../_images/viewlevels_list_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Bars mode</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id2">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_list_dark.png"><img alt="Screenshot of bars mode" class="only-dark screenshot" height="542" src="../../_images/viewlevels_list_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Bars mode</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The given universe is shown as a list of bars, where each address has a bar showing its current level. The color of the
+bar corresponds to the color of the winning source. The address is shown on the left of the bar. The level and priority
+(if “Show Priorities” is checked) are shown on the right.</p>
+</section>
+<section id="grid">
+<h3>Grid<a class="headerlink" href="#grid" title="Link to this heading">#</a></h3>
+<p>Press <span class="btn btn-tab"><i class="bi bi-table"></i> Grid</span> to show grid mode.</p>
+<figure class="only-light align-center" id="id3">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/viewlevels_grid_light.png"><img alt="Screenshot of grid mode" class="only-light screenshot" height="542" src="../../_images/viewlevels_grid_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Grid mode</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id4">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/viewlevels_grid_dark.png"><img alt="Screenshot of grid mode" class="only-dark screenshot" height="542" src="../../_images/viewlevels_grid_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Grid mode</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The given universe is shown as a grid with the first address in each row shown on the left. Much like
+<a class="reference internal" href="#bars">Bars Mode</a>, the color of the box corresponds to the color of the winning source. In each box, the level is shown
+above the priority.</p>
+</section>
+</section>
+<section id="flicker-finder">
+<h2>Flicker Finder<a class="headerlink" href="#flicker-finder" title="Link to this heading">#</a></h2>
+<p>When “Flicker Finder” is checked, the display changes to show level differences relative to when the checkbox was
+checked.</p>
+<p>Changes are marked with specific colors:</p>
+<div class="pst-scrollable-table-container"><table class="table table-flickerfinder">
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Color</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>Clear</p></th>
+<td><p>Level has not changed at all since Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Blue</p></th>
+<td><p>Level is higher than when Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Green</p></th>
+<td><p>Level is lower than when Flicker Finder was activated.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Gray</p></th>
+<td><p>Level has changed since Flicker Finder was activated, but is now the same as its original value.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="only-light align-center" id="id5">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/flickerfinder_list_light.png"><img alt="Screenshot of Flicker Finder" class="only-light screenshot" height="542" src="../../_images/flickerfinder_list_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
+returned to its original value.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id6">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/flickerfinder_list_dark.png"><img alt="Screenshot of Flicker Finder" class="only-dark screenshot" height="542" src="../../_images/flickerfinder_list_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
+returned to its original value.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../control/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Level Control</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../3rd_party.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">3rd Party Software</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#universe-discovery">Universe Discovery</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modes">Modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bars">Bars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid">Grid</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flicker-finder">Flicker Finder</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dan Keenan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

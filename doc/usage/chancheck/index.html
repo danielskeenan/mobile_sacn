@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Channel Check &#8212; Mobile sACN v1.0.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/msacn-doc.css?v=4849efd4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-icons.min.css?v=9e162993" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=528dc5d9"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'usage/chancheck/index';</script>
+    <link rel="canonical" href="/doc/usage/chancheck/index.html" />
+    <link rel="icon" href="../../_static/logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Level Control" href="../control/index.html" />
+    <link rel="prev" title="Usage" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">Mobile sACN v1.0.0</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Usage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Channel Check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../control/index.html">Level Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../view_levels/index.html">View Levels</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../3rd_party.html">3rd Party Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/danielskeenan/mobile_sacn" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/danielskeenan/mobile_sacn/issues/new?title=Issue%20on%20page%20%2Fusage/chancheck/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Channel Check</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#channel-checking-a-system-in-use">Channel checking a system in use</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="channel-check">
+<h1>Channel Check<a class="headerlink" href="#channel-check" title="Link to this heading">#</a></h1>
+<p>Channel Check mode allows you to set a single address to a defined level, moving through the universe sequentially.</p>
+<a class="only-light screenshot reference internal image-reference" href="../../_images/chancheck_light.png"><img alt="Screenshot of Channel Check page" class="align-center only-light screenshot" height="542" src="../../_images/chancheck_light.png" width="282" />
+</a>
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/chancheck_dark.png"><img alt="Screenshot of Channel Check page" class="align-center only-dark screenshot" height="542" src="../../_images/chancheck_dark.png" width="282" />
+</a>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Set the level you wish to set the checked address to using the Level fader.</p></li>
+</ol>
+<a class="only-light screenshot reference internal image-reference" href="../../_images/level_light.png"><img alt="Screenshot of level fader" class="align-center only-light screenshot" height="59" src="../../_images/level_light.png" width="282" />
+</a>
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/level_dark.png"><img alt="Screenshot of level fader" class="align-center only-dark screenshot" height="59" src="../../_images/level_dark.png" width="282" />
+</a>
+<ol class="arabic simple" start="2">
+<li><p>Use <span class="btn btn-primary"><i class="bi bi-caret-left-fill"></i></span> and
+<span class="btn btn-primary"><i class="bi bi-caret-right-fill"></i></span> buttons to set the first address to check.</p></li>
+<li><p>Press <span class="btn btn-success">Start</span> to begin transmitting.</p></li>
+<li><p>The current address will be displayed in green while the program is transmitting:</p></li>
+</ol>
+<figure class="only-light align-center" id="id1">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/addr_notransmit_light.png"><img alt="Screenshot of address field" class="only-light screenshot" height="176" src="../../_images/addr_notransmit_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Not transmitting</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id2">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/addr_notransmit_dark.png"><img alt="Screenshot of address field" class="only-dark screenshot" height="176" src="../../_images/addr_notransmit_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Not transmitting</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-light align-center" id="id3">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/addr_transmit_light.png"><img alt="Screenshot of address field" class="only-light screenshot" height="176" src="../../_images/addr_transmit_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Transmitting</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id4">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/addr_transmit_dark.png"><img alt="Screenshot of address field" class="only-dark screenshot" height="176" src="../../_images/addr_transmit_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Transmitting</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<ol class="arabic simple" start="5">
+<li><p>Press <span class="btn btn-danger">Stop</span> to stop transmitting.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If this program was the only device transmitting sACN on the network, receivers will follow their programmed data
+loss behavior. This means that lights may not turn off immediately.</p>
+</div>
+</section>
+<section id="config">
+<h2>Config<a class="headerlink" href="#config" title="Link to this heading">#</a></h2>
+<figure class="only-light align-center" id="id5">
+<a class="only-light screenshot reference internal image-reference" href="../../_images/config_light.png"><img alt="Screenshot of configuration menu" class="only-light screenshot" height="305" src="../../_images/config_light.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Configuration menu</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="only-dark align-center" id="id6">
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/config_dark.png"><img alt="Screenshot of configuration menu" class="only-dark screenshot" height="305" src="../../_images/config_dark.png" width="282" />
+</a>
+<figcaption>
+<p><span class="caption-text">Configuration menu</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<dl class="simple myst" id="chancheck-config-universe">
+<dt>Universe</dt><dd><p>sACN universe to broadcast on.</p>
+</dd>
+</dl>
+<dl class="simple myst" id="chancheck-config-priority">
+<dt>Priority</dt><dd><p>sACN priority. Levels with higher priority will take precedence over levels with lower priority. If two sources are
+broadcasting with the same priority, the highest level will take precedence. The default priority on most sACN sources,
+including this program, is <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p>
+</dd>
+</dl>
+<dl class="simple myst" id="chancheck-config-pap">
+<dt>Use Per-Address-Priority</dt><dd><p>When enabled, the priority setting will be applied to only the address currently being checked. This mode is generally
+only compatible with sACN receivers designed by ETC (including dimmers and gateways), as it is a proprietary extension
+to the sACN standard. Receivers that do not understand per-address-priority will behave as if the priority setting is
+applied to the entire universe.</p>
+</dd>
+</dl>
+<dl class="simple myst" id="chancheck-effect-blink">
+<dt>Blink</dt><dd><p>When checked, the selected address will flash between the chosen level and 0% every second.</p>
+</dd>
+</dl>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Link to this heading">#</a></h2>
+<section id="channel-checking-a-system-in-use">
+<h3>Channel checking a system in use<a class="headerlink" href="#channel-checking-a-system-in-use" title="Link to this heading">#</a></h3>
+<p>If you must check a system that is in use by others, and you don’t want to disturb other levels, use the
+per-address-priority option and Blink effect:</p>
+<ol class="arabic simple">
+<li><p>Set the priority to <code class="docutils literal notranslate"><span class="pre">200</span></code>.</p></li>
+<li><p>Enable <a class="reference internal" href="#chancheck-config-pap">per-address-priority</a>.</p></li>
+<li><p>Enable the <a class="reference internal" href="#chancheck-effect-blink">Blink</a> effect.</p></li>
+<li><p>Press <span class="btn btn-success">Start</span>.</p></li>
+</ol>
+<p>The address currently being checked will blink, while all others will remain at their previous level.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Usage</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../control/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Level Control</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#channel-checking-a-system-in-use">Channel checking a system in use</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dan Keenan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
