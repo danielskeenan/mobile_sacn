@@ -54,7 +54,18 @@ if (SENTRY_DSN)
 
     # Install crashpad_handler alongside this executable.
     set(CRASHPAD_HANDLER_FILENAME "${PROJECT_NAME}_crashhandler${CMAKE_EXECUTABLE_SUFFIX}")
-    install(PROGRAMS "$<TARGET_FILE:sentry_crashpad::crashpad_handler>" TYPE BIN RENAME "${CRASHPAD_HANDLER_FILENAME}")
+    install(
+            PROGRAMS "$<TARGET_FILE:sentry_crashpad::crashpad_handler>"
+            TYPE BIN
+            RENAME "${CRASHPAD_HANDLER_FILENAME}"
+    )
+    if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        # The crash handler requires zlib1.dll which is not otherwise referenced anywhere.
+        install(
+                FILES "$<TARGET_FILE_DIR:sentry_crashpad::crashpad_handler>/zlib1.dll"
+                TYPE BIN
+        )
+    endif ()
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE
             "SENTRY_DSN=\"${SENTRY_DSN}\""
