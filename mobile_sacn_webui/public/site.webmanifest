@@ -3,6 +3,11 @@
   "short_name": "Mobile sACN",
   "icons": [
     {
+      "src": "/mobile_sacn.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
@@ -11,9 +16,15 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/mobile_sacn_maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
   "theme_color": "#052c65",
-  "background_color": "#ffffff",
+  "background_color": "#052c65",
   "display": "standalone"
 }

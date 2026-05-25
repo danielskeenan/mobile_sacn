@@ -2,10 +2,19 @@ set(WEBUI_SOURCES
         i18next.config.ts
         index.html
         package-lock.json
+        public/android-chrome-192x192.png
+        public/android-chrome-512x512.png
+        public/apple-touch-icon.png
+        public/favicon-16x16.png
+        public/favicon-32x32.png
+        public/favicon.ico
         public/locales/en/channelCheck.json
         public/locales/en/common.json
         public/locales/en/receiveLevels.json
         public/locales/en/transmitLevels.json
+        public/mobile_sacn.svg
+        public/mobile_sacn_maskable.svg
+        public/site.webmanifest
         src/App.scss
         src/App.tsx
         src/assets/mobile_sacn.svg
@@ -93,6 +102,8 @@ if (BUILD_EXEC)
     # Ensure favicon is correct.
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/public")
     file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/public/mobile_sacn.svg" ONLY_IF_DIFFERENT)
+    file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo_maskable.svg" "${CMAKE_CURRENT_SOURCE_DIR}/public/mobile_sacn_maskable.svg" ONLY_IF_DIFFERENT)
+    file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.ico" "${CMAKE_CURRENT_SOURCE_DIR}/public/favicon.ico" ONLY_IF_DIFFERENT)
     file(COPY_FILE "${PROJECT_SOURCE_DIR}/resources/logo.svg" "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/mobile_sacn.svg" ONLY_IF_DIFFERENT)
 
     # Build site
