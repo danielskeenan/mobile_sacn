@@ -1,4 +1,5 @@
 <style>
+/* Styles used for Flicker Finder color table */
 /* Raise */
 html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(2) th {
     background-color: var(--bs-cyan);
@@ -120,7 +121,8 @@ above the priority.
 When "Flicker Finder" is checked, the display changes to show level differences relative to when the checkbox was
 checked.
 
-Changes are marked with specific colors:
+Changes are marked with specific colors. The color legend can be shown by tapping [Show Legend]{.btn .btn-secondary}; it
+is also shown below:
 
 ```{list-table}
 :header-rows: 1
@@ -140,7 +142,7 @@ Changes are marked with specific colors:
   - Level has changed since Flicker Finder was activated, but is now the same as its original value.
 ```
 
-```{figure} screenshots/flickerfinder_list_light.png
+```{figure} screenshots/flickerfinder_grid_light.png
 :alt: Screenshot of Flicker Finder
 :figclass: only-light
 :class: only-light screenshot
@@ -151,7 +153,7 @@ In this instance, address 1 has increased in value, address 2 has descreased in 
 returned to its original value.
 ```
 
-```{figure} screenshots/flickerfinder_list_dark.png
+```{figure} screenshots/flickerfinder_grid_dark.png
 :alt: Screenshot of Flicker Finder
 :figclass: only-dark
 :class: only-dark screenshot

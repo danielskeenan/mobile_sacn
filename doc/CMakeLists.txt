@@ -33,8 +33,8 @@ set(DOC_SOURCES
         usage/nav_screenshot_dark.png
         usage/nav_screenshot_light.png
         usage/view_levels/index.md
-        usage/view_levels/screenshots/flickerfinder_list_dark.png
-        usage/view_levels/screenshots/flickerfinder_list_light.png
+        usage/view_levels/screenshots/flickerfinder_grid_dark.png
+        usage/view_levels/screenshots/flickerfinder_grid_light.png
         usage/view_levels/screenshots/univ_discovery_dark.png
         usage/view_levels/screenshots/univ_discovery_light.png
         usage/view_levels/screenshots/viewlevels_grid_dark.png

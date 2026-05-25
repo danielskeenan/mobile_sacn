@@ -49,6 +49,7 @@ templates_path = ['_templates']
 exclude_patterns = [
     '.venv',
     'licenses',
+    'WRITING_DOCS.md',
 ]
 
 primary_domain = None
