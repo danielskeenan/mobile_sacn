@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
+string(TIMESTAMP PROJECT_BUILD_TIMESTAMP "%s" UTC)
 project(mobile_sacn
         VERSION 1.0.0
         DESCRIPTION "Mobile sACN test tool"

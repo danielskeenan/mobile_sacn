@@ -37,7 +37,14 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
-    target_sources(${PROJECT_NAME} PRIVATE mobilesacn.rc)
+
+    # Setup Windows resource file
+    set(LOGO_ICO_PATH "${PROJECT_SOURCE_DIR}/resources/logo.ico")
+    string(REPLACE "." "," RC_PRODUCTVERSION ${PROJECT_VERSION})
+    string(TIMESTAMP TODAY_YEAR "%Y" UTC)
+    configure_file(mobilesacn.rc ${CMAKE_CURRENT_BINARY_DIR}/mobilesacn.rc ESCAPE_QUOTES)
+    target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/mobilesacn.rc)
+
     # Needed for updater.
     target_link_libraries(${PROJECT_NAME} PRIVATE msi.dll)
 endif ()
