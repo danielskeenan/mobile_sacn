@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>View Levels &#8212; Mobile sACN v1.0.0</title>
+    <title>View Levels &#8212; Mobile sACN v1.0.1</title>
   
   
   
@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
-    <link rel="stylesheet" type="text/css" href="../../_static/msacn-doc.css?v=4849efd4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/msacn-doc.css?v=764b39ca" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-icons.min.css?v=9e162993" />
   
   <!-- So that users can add custom icons -->
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=528dc5d9"></script>
+    <script src="../../_static/documentation_options.js?v=31305582"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -54,7 +54,7 @@
     <link rel="prev" title="Level Control" href="../control/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   </head>
   
   
@@ -137,7 +137,7 @@
     <img src="../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">Mobile sACN v1.0.0</p>
+    <p class="title logo__title">Mobile sACN v1.0.1</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -309,6 +309,7 @@
                 <article class="bd-article">
                   
   <style>
+/* Styles used for Flicker Finder color table */
 /* Raise */
 html[data-theme=light] table.table-flickerfinder tbody tr:nth-child(2) th {
     background-color: var(--bs-cyan);
@@ -403,7 +404,8 @@ above the priority.</p>
 <h2>Flicker Finder<a class="headerlink" href="#flicker-finder" title="Link to this heading">#</a></h2>
 <p>When “Flicker Finder” is checked, the display changes to show level differences relative to when the checkbox was
 checked.</p>
-<p>Changes are marked with specific colors:</p>
+<p>Changes are marked with specific colors. The color legend can be shown by tapping <span class="btn btn-secondary">Show Legend</span>; it
+is also shown below:</p>
 <div class="pst-scrollable-table-container"><table class="table table-flickerfinder">
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Color</p></th>
@@ -427,7 +429,7 @@ checked.</p>
 </table>
 </div>
 <figure class="only-light align-center" id="id5">
-<a class="only-light screenshot reference internal image-reference" href="../../_images/flickerfinder_list_light.png"><img alt="Screenshot of Flicker Finder" class="only-light screenshot" height="542" src="../../_images/flickerfinder_list_light.png" width="282" />
+<a class="only-light screenshot reference internal image-reference" href="../../_images/flickerfinder_grid_light.png"><img alt="Screenshot of Flicker Finder" class="only-light screenshot" height="542" src="../../_images/flickerfinder_grid_light.png" width="282" />
 </a>
 <figcaption>
 <p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
@@ -435,7 +437,7 @@ returned to its original value.</span><a class="headerlink" href="#id5" title="L
 </figcaption>
 </figure>
 <figure class="only-dark align-center" id="id6">
-<a class="only-dark screenshot reference internal image-reference" href="../../_images/flickerfinder_list_dark.png"><img alt="Screenshot of Flicker Finder" class="only-dark screenshot" height="542" src="../../_images/flickerfinder_list_dark.png" width="282" />
+<a class="only-dark screenshot reference internal image-reference" href="../../_images/flickerfinder_grid_dark.png"><img alt="Screenshot of Flicker Finder" class="only-dark screenshot" height="542" src="../../_images/flickerfinder_grid_dark.png" width="282" />
 </a>
 <figcaption>
 <p><span class="caption-text">In this instance, address 1 has increased in value, address 2 has descreased in value, and address 3 has changed but
