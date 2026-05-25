@@ -5,7 +5,7 @@
  *
  * @author Dan Keenan
  * @date 8/25/24
- * @copyright GNU GPLv3
+ * @copyright Apache-2.0
  */
 
 #include <filesystem>
