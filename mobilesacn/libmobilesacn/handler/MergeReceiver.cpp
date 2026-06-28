@@ -34,7 +34,7 @@ MergeReceiver::Ptr MergeReceiver::getForUniverse(uint16_t universe)
         receiver = std::make_shared<MergeReceiver>();
         weakReceiver = receiver;
         receiver->sacnSettings_.universe_id = universe;
-        receiver->sacnSettings_.footprint = {.start_address = 1, .address_count = DMX_ADDRESS_COUNT};
+        receiver->sacnSettings_.footprint = {.start_address = 1, .address_count = kSacnDmxAddressCount};
         receiver->sacnSettings_.use_pap = true;
         receiver->startup();
     }
@@ -134,7 +134,7 @@ std::array<std::string, 512> MergeReceiver::getOwnerCids(const SacnRecvMergedDat
     }
 
     // Create a list of CIDs ordered by address.
-    std::array<std::string, DMX_ADDRESS_COUNT> ownerCids{};
+    std::array<std::string, kSacnDmxAddressCount> ownerCids{};
     const auto bufOffset = mergedData.slot_range.start_address - 1;
     for (std::size_t ix = 0; ix < mergedData.slot_range.address_count; ++ix) {
         const auto address = bufOffset + ix;

@@ -150,7 +150,8 @@ void ReceiveLevels::onMergedData(
 
     // Determine where in addresses 1-512 our received data is.
     const auto bufOffset = mergedData.slot_range.start_address - 1;
-    const auto bufCount = std::min(mergedData.slot_range.address_count, DMX_ADDRESS_COUNT);
+    const auto bufCount
+        = std::min(mergedData.slot_range.address_count, static_cast<int>(kSacnDmxAddressCount));
 
     if (!flickerFinder_) {
         // Normal "display current levels" mode.

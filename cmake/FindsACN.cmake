@@ -1,4 +1,4 @@
-set(sACN_VERSION "3.1.0.2")
+set(sACN_VERSION "4.0.0.6")
 
 include(FetchContent)
 FetchContent_Declare(sACN

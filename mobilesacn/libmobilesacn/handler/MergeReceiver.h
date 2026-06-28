@@ -47,7 +47,7 @@ public:
 Q_SIGNALS:
     void dataChanged(
         const SacnRecvMergedData &merged_data,
-        const std::array<std::string, DMX_ADDRESS_COUNT> &ownerCids);
+        const std::array<std::string, kSacnDmxAddressCount> &ownerCids);
     void sourceUpdated(const sacn::MergeReceiver::Source &source);
     void sourceLost(const std::string &cid);
 
@@ -62,7 +62,7 @@ private:
     using QObject::QObject;
 
     void updateSources(const SacnRecvMergedData &mergedData);
-    std::array<std::string, DMX_ADDRESS_COUNT> getOwnerCids(const SacnRecvMergedData &mergedData);
+    std::array<std::string, kSacnDmxAddressCount> getOwnerCids(const SacnRecvMergedData &mergedData);
 };
 
 } // namespace mobilesacn::handler

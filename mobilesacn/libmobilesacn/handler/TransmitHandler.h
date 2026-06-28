@@ -24,8 +24,8 @@ public:
 
 protected:
     bool perAddressPriority_ = false;
-    std::array<uint8_t, DMX_ADDRESS_COUNT> levelBuf_{};
-    std::array<uint8_t, DMX_ADDRESS_COUNT> papBuf_{};
+    std::array<uint8_t, kSacnDmxAddressCount> levelBuf_{};
+    std::array<uint8_t, kSacnDmxAddressCount> papBuf_{};
 
     sacn::Source::Settings sacnSettings_;
     sacn::Source::UniverseSettings univSettings_;

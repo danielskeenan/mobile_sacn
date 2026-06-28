@@ -32,9 +32,9 @@ public:
 private:
     struct LastSeen
     {
-        std::array<uint8_t, DMX_ADDRESS_COUNT> levels{};
-        std::array<uint8_t, DMX_ADDRESS_COUNT> priorities{};
-        std::array<std::string, DMX_ADDRESS_COUNT> owners{};
+        std::array<uint8_t, kSacnDmxAddressCount> levels{};
+        std::array<uint8_t, kSacnDmxAddressCount> priorities{};
+        std::array<std::string, kSacnDmxAddressCount> owners{};
     };
     static constexpr auto kMessageInterval = std::chrono::milliseconds(100);
     std::mutex lastSeenMutex_;
@@ -42,7 +42,7 @@ private:
     MergeReceiver::Ptr receiver_;
     bool flickerFinder_ = false;
     std::mutex flickerFinderReferenceBufferMutex_;
-    std::array<uint8_t, DMX_ADDRESS_COUNT> flickerFinderReferenceBuffer_{};
+    std::array<uint8_t, kSacnDmxAddressCount> flickerFinderReferenceBuffer_{};
 
     void onChangeUniverse(uint16_t universe);
     void onChangeFlickerFinder(bool flickerFinder);
@@ -54,7 +54,7 @@ private Q_SLOTS:
     void onSourceExpired(const std::string &cid) const;
     void onMergedData(
         const SacnRecvMergedData &mergedData,
-        const std::array<std::string, DMX_ADDRESS_COUNT> &ownerCids);
+        const std::array<std::string, kSacnDmxAddressCount> &ownerCids);
     void onSourceLost(const std::string &cid) const;
 };
 
