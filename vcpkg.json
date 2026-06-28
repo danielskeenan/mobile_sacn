@@ -16,7 +16,7 @@
     "version>=" : "12.1.0"
   }, {
     "name" : "cpp-httplib",
-    "version>=" : "0.43.1"
+    "version>=" : "0.48.0"
   }, {
     "name" : "sentry-native",
     "version>=" : "0.14.2"

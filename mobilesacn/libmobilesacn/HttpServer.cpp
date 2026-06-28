@@ -56,18 +56,20 @@ void HttpServer::run()
 void HttpServer::stop()
 {
     if (server_.is_running()) {
+        SPDLOG_INFO("Stopping HTTP Server");
         server_.stop();
         // Wait for stop.
         while (server_.is_running()) {
             QThread::msleep(100);
         }
+        SPDLOG_INFO("HTTP Server stopped");
     }
 
     if (wsServer_.isListening()) {
+        SPDLOG_INFO("Stopping WS Server");
         wsServer_.close();
+        SPDLOG_INFO("WS Server stopped");
     }
-
-    SPDLOG_INFO("Server stopped");
 }
 
 std::string HttpServer::getUrl()
